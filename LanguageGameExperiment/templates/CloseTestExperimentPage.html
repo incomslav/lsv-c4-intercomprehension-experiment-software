@@ -1,0 +1,176 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+<style>
+.custom_tooltip {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
+.custom_tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.tooltip_main_text{
+    color: #fffffc;
+    border-radius: 6px;
+    padding: 5px 0;
+    background-color: green;
+    border-color: green;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.custom_tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.custom_tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+</style>
+
+<div id="task_div">
+    <input id="dropdown_list" class="hidden" value="{{ dropdown_list }} "/>
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding: 50px">
+    <h2 style="align-content: center; color: darkgreen;"><b> {% trans 'WRITTEN_CLOZE_TEST_TEXT_EXPERIMENT_PAGE_INSTRUCTION_1' %}</b></h2>
+        <div align="right">
+            <h3 style="color: #141476">Your total time <span id="time">05:00</span> minutes!</h3>
+{#            <h3 style="color: #141476">{% trans 'WRITTEN_CLOZE_TEST_TEXT_EXPERIMENT_PAGE_INSTRUCTION_TIME' %}</h3>#}
+        </div>
+{#        <div>Registration closes in <span id="time">05:00</span> minutes!</div>#}
+        <div class="row" style="padding-top: 50px">
+            {% for lists in dropdown_list %}
+            <div class="col-md-3 custom_tooltip">
+                <p class="tooltip_main_text"><b>{{ lists.0 }}</b></p>
+                <span class="tooltiptext"><b>{{ lists.1 }}</b></span>
+
+            </div>
+            {% endfor %}
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row display_text" id="main_text" style="padding-top: 40px; line-height: 35px;">
+                {{ text }}
+            </div>
+            <div>
+                <input type="hidden" name="time_count" id="id_time_count">
+                <input type="hidden" name="total_allocated_time" id="id_total_allocated_time" value="{{ time_counter }}">
+            </div>
+            <div class="row display_text" id="bottom" style="padding-top: 40px; float: right; padding-right: 40px;">
+                <button class="btn btn-success btn-block" id="submit_button" type="submit">{% trans 'SAVE_PASSWORD_BUTTON_TEXT' %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{##}
+{#<div id="end_div">#}
+{#    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding: 50px;" align="center">#}
+{#        <h2 style="align-content: center; color: darkgreen;">Thank You for your Participation</h2>#}
+{#        <h2 style="align-content: center; color: darkgreen;">There are more <a href="https://intercomprehension.coli.uni-saarland.de/en/Experiments/">experiments</a> available for you</h2>#}
+{#    </div>#}
+{#</div>#}
+
+{% endblock %}
+{% block scripts %}
+
+<script>
+$(document).ready(function () {
+
+    var fiveMinutes = {{time_counter}};
+    display = document.querySelector('#time');
+    startTimer(fiveMinutes, display);
+
+    let newHTML = ''
+    let select_options = '{{ values }}';
+    select_options = select_options.substring(1,select_options.length-1);
+    const usingSplit = select_options.replaceAll("&#39;","").split(',');
+    usingSplit.forEach(element => (newHTML = newHTML + '<option value="'+ element +'">'+element+'</option>'));
+    newHTML = newHTML + '</select>';
+    let text = '{{ text }}';
+    text = text.split('{}')
+    let finalText = ''
+    let i=1;
+    text.forEach(element => {
+        let dropdown = '<select name="cloze_dropdown_'+i+'"><option value="">Select...</option>' + newHTML;
+        if(text.length  > i) {
+            finalText = finalText + element + dropdown;
+        }else {
+            finalText = finalText + element
+        }
+
+        i++;
+    });
+    document.getElementById("main_text").innerHTML = finalText;
+})
+
+
+{#$("#submit_button").click(function () {#}
+{#        $("#task_div").hide();#}
+{#        $("#end_div").show();#}
+{#});#}
+
+function startTimer(duration, display) {
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+        $("#id_time_count").val(timer)
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }, 1000);
+}
+
+
+
+var minutesLabel = document.getElementById("minutes");
+var secondsLabel = document.getElementById("seconds");
+var totalSeconds = 0;
+setInterval(setTime, 1000);
+function setTime() {
+  ++totalSeconds;
+  secondsLabel.innerHTML = pad(totalSeconds % 60);
+  minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+}
+
+function pad(val) {
+  var valString = val + "";
+  if (valString.length < 2) {
+    return "0" + valString;
+  } else {
+    return valString;
+  }
+}
+
+</script>
+{% endblock %}

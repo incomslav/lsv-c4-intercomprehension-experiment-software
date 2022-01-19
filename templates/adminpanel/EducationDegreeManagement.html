@@ -1,0 +1,211 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Multilingual Education Degree Management</u></h2>
+                </div>
+            </div>
+
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in English :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeEn }}
+                    {{ form.degree_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in German :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Russian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Bulgarian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Ukrainian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Czech :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Polish :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreePl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Croatian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeHr }}
+                </div>
+            </div>
+
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Bosnian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Serbian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Slovak :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Macedonian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Education Degree in Slovenian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtEducationDegreeSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>Education Degree</th>
+                    <th>Update</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'multilingual_degree_management_gridview' %}"
+            });
+
+        });
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+        function isValidateForm() {
+            var degreeEn = $('#id_txtEducationDegreeEn');
+
+            if (degreeEn.val() == '') {
+                alert("Education Degree in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

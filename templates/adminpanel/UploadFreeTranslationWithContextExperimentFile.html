@@ -1,0 +1,244 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+    <form id="form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2><u> Upload Free Translation With Context Experiment Files</u></h2>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-3">
+                <label>Upload file :</label>
+            </div>
+            <div class="col-md-5">
+                {{ form.file }}
+            </div>
+            <div class="col-md-1">
+                <span style="color:red;">*</span>
+            </div>
+        </div>
+        <div class="row margin-top">
+            <div class="col-md-3">
+                <label>Name for experiment :</label>
+            </div>
+            <div class="col-md-5">
+                {{ form.experiment_name }}
+            </div>
+            <div class="col-md-1">
+                <span style="color:red;">*</span>
+            </div>
+        </div>
+        <div class="row margin-top">
+            <div class="col-md-3">
+                <label>Priority :</label>
+            </div>
+            <div class="col-md-5">
+                {{ form.priority }}
+            </div>
+            <div class="col-md-1">
+                <span style="color:red;">*</span>
+            </div>
+        </div>
+{#        <div class="row margin-top">#}
+{#            <div class="col-md-3">#}
+{#                <label>Upload medal (can be added later):</label>#}
+{#            </div>#}
+{#            <div class="col-md-5">#}
+{#                {{ form.medal }}#}
+{#            </div>#}
+{#            <div class="col-md-1">#}
+{#            </div>#}
+{#        </div>#}
+
+        <div class="row margin-top">
+
+            <div class="col-md-4">
+                <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                       onclick="return isValidateForm();">
+            </div>
+        </div>
+    </form>
+
+    <div class="row margin-top">
+{#        <a href="/admin/UploadMedal">Go to Medal Upload page</a>#}
+    </div>
+
+    <div class="row margin-top">
+        {% for imported_experiment in imported_experiments %}
+            <div class="row">
+                Imported Free Translation With Context experiment '{{ imported_experiment.experiment_name }}'
+                ({{ imported_experiment.native_language }}-{{ imported_experiment.foreign_language }})
+                with {{ imported_experiment.number_of_questions }} questions.
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <div class="row margin-top">
+        <div class="col-md-12">
+            <table class="datatable">
+                <thead>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Lnative</th>
+                <th>Lforeign</th>
+                <th>Active?</th>
+                <th>Priority</th>
+                <th>#Questions</th>
+                <th>#Answers</th>
+                <th>Created On</th>
+                <th>Delete</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </div>
+        <div><a onclick="deleteAllExperiments();">Delete ALL experiments</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'free_translation_with_context_experiments_gridview' %}"
+            });
+
+        });
+
+        function changePriority(id) {
+            var new_priority = $('#priority_input_' + id).val();
+            var obj = {type: 3, experiment_id: id, new_priority: new_priority};
+            processAjaxRequest(obj);
+            alert("Priority changed.");
+        }
+
+        function changeActivationStatus(id, was_active) {
+            if (was_active) {
+                if (confirm("Really deactivate this experiment?")) {
+                    var obj = {type: 2, experiment_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", false);
+                    }
+                }
+            } else {
+                if (confirm("Really activate this experiment?")) {
+                    var obj = {type: 1, experiment_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", true);
+                    }
+                }
+            }
+        }
+        ;
+
+        function deleteAllExperiments() {
+            if (confirm("Really delete ALL experiments?")) {
+                var reply = prompt("Please type 'delete ALL' to confirm deletion.", '');
+                if (reply == 'delete ALL') {
+                    alert("Deleting all experiments...");
+                    var obj = {type: 11};
+                    processAjaxRequest(obj);
+
+                } else {
+                    alert("Entered string did not match. Aborting.");
+                }
+            }
+
+        }
+
+        function deleteExperiment(id) {
+            if (confirm("Really delete experiment?")) {
+                var reply = prompt("Please type the experiment's ID to confirm deletion.", '');
+                if (reply == id) {
+                    alert("Deleting " + id);
+                    var obj = {type: 10, experiment_id: id};
+                    processAjaxRequest(obj);
+
+                } else {
+                    alert("Entered ID did not match experiment ID. Aborting.");
+                }
+            }
+
+        }
+
+
+        function processAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/admin/UploadFreeTranslationWithContextExperimentFile/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if (data == 'True') {
+                        //var pathValue = window.location.pathname;
+                        //var langCode = pathValue.split('/')[1];
+                        //window.location.href = '/' + langCode + '/admin/UploadFreeTranslationWithContextExperimentFile/';
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+        ;
+
+        function isValidateForm() {
+            file_uploader = $('#id_file');
+
+            if (file_uploader.val() == '') {
+                alert("Select file to upload.");
+                return false;
+            }
+            else if (!isValidFileExtension(file_uploader.val())) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function isValidFileExtension(fileName) {
+            var fileExtension = ['xlsx', 'xls'];
+            if ($.inArray(fileName.split('.').pop().toLowerCase(), fileExtension) == -1) {
+                alert("Only excel files (.xls or .xlsx) allowed.");
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+{% endblock %}

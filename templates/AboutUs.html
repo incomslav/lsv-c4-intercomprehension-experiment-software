@@ -1,0 +1,382 @@
+{% load staticfiles %}
+{% load navbar_extras %}
+{% load i18n %}
+
+<html>
+<head>
+    <!--<link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>-->
+
+    <link href="{% static 'css/site.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/userinfopage.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'jqueryui/jquery-ui.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/progressbar.css' %}" rel="stylesheet" type="text/css">
+
+    <link href="{% static 'css/rangeslider/rangeSlider.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/fontawesome/css/font-awesome.min.css' %}" rel="stylesheet" media="screen"/>
+    <!--<link href="{% static 'css/rangecss.css' %}" rel="stylesheet" media="screen">-->
+    <!--<link href="{% static 'css/flip/flip.css' %}" rel="stylesheet" media="screen">-->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
+    <title>{%browser_tab_title%}</title>
+
+    <!--<link href="{% static 'css/progressbar-tiny-green.css' %}" rel="stylesheet" type="text/css">-->
+    <style type="text/css">
+        html, body {
+            height: 100%;
+        }
+
+        .dropdown-menu:hover {
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+<body class="background">
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="#"><img class="img-responsive"
+                                                  src="{{ static }}/static/images/siteimages/logo.png"></a>
+
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active navbar-text padding-right-large">
+                    <a onclick="redirectToHome();">
+                        {% nav_bar %}
+                    </a>
+                </li>
+                <!--<li class="navbar-text padding-right-large"><a>Challenges</a></li>-->
+                <!--<li class="navbar-text padding-right-large"><a>Badges</a></li>-->
+            </ul>
+
+
+            <ul class="nav navbar-nav navbar-right">
+                <!--<li class="navbar-flag"><img src="assets/flags/russia.png" alt="..." class="img-circle"></li>-->
+                <!--<li class="navbar-user"><img src="assets/users/user1.png" alt="..." class="img-circle"></li>-->
+                <li class="dropdown navbar-text">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        {% if user.first_name == '' and user.last_name == '' %}
+                        {{user.username}}
+                        {% else %}
+                        {{user.first_name}} {{user.last_name}}
+                        {% endif %}
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="separator" class="divider"></li>
+                        <li>
+                            <a href="{% url 'Logout' %}">{%nav_bar_user_menu %}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!------------>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        <span id="spn_language_name">
+                                English
+                            </span>
+                            <span>
+                                <img id="img_language_flag" src="{{ static }}/static/images/flags/en.png">
+                            </span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% site_languages %}
+                    </ul>
+                </li>
+
+            </ul>
+            <!-------------------->
+
+        </div>
+    </div>
+</nav>
+
+
+<div style="min-height: 92%;margin: 0 auto;">
+    <div class="container" style="margin-top:10px;">
+        <div class="row">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+</div>
+<div id="loading"
+     style="position:fixed; top:0; left:0;z-index:5; width:100%; height:100%; text-align: right; display:none;">
+    <img src="{{ static }}/static/images/loader.gif">
+</div>
+
+<nav class="navbar navbar-default" role="navigation"
+     style="margin-bottom: 0px !important;background-color:#F5F5F5;padding-top:15px;">
+
+    <p class="navbar-text">SFB 1102 - C4 INCOMSLAV &copy; 2016</p>
+
+</nav>
+
+
+<script src="{{ STATIC_URL }}jquery/jquery.js"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{{ STATIC_URL }}js/progressbar.js"></script>
+<script src="{{ STATIC_URL }}js/rangeslider/rangeSlider.js"></script>
+<script src="{{ STATIC_URL }}jqueryui/jquery-ui.js"></script>
+
+
+{% block scripts %}
+
+{% endblock %}
+
+<script type="text/javascript">
+    $(window).load(function () {
+        changeLanguageAndFlag();
+    });
+
+    $(document).ready(function () {
+        $(document).ajaxStart(function () {
+            $("#loading").show();
+        }).ajaxStop(function () {
+            $("#loading").hide();
+        });
+    });
+
+
+    function changeLanguageAndFlag() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var spnId = "#spn_" + langCode;
+        var langName = $(spnId).text();
+        $("#spn_language_name").text(langName);
+        var imgPath = "/static/images/flags/" + langCode + ".png";
+        $("#img_language_flag").attr("src", imgPath);
+
+    }
+
+    function redirectToHome() {
+        var path = window.location.pathname;
+        window.location.href = '/userinfo';
+    }
+
+    function getMessageByAjaxRequest(messageId) {
+        var path = window.location.pathname;
+        lang = path.split('/')[1];
+//        alert($(location).attr("href"));
+        var obj = {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            type: '1',
+            messageId: messageId
+        };
+        var message = '';
+        $.ajax({
+            type: "POST",
+            url: "/" + lang + "/MessageView/",
+            data: obj,
+            cache: false,
+            async: false,
+            success: function (data) {
+                if (data != '') {
+                    message = data;
+                }
+            }
+        });
+        return message;
+    }
+
+    function changeWebLanguageAjaxRequest(langId) {
+
+        var dataObj = {type: 1, webLanguageId: langId};
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+        $.ajax({
+            type: "POST",
+            url: "/en/",
+            data: dataObj,
+            cache: false,
+            async: false,
+            success: function (data) {
+
+                var pathValue = window.location.pathname;
+//                var langCode = pathValue.split('/')[1];
+                var path = pathValue.split('/')[2];
+                window.location.href = '/' + data + '/' + path;
+
+            }
+        });
+    }
+
+</script>
+<script type="text/javascript">
+    var keyCodes = {
+        3: "break",
+        8: "backspace / delete",
+        9: "tab",
+        12: 'clear',
+        13: "enter",
+        16: "shift",
+        17: "ctrl ",
+        18: "alt",
+        19: "pause/break",
+        20: "caps lock",
+        27: "escape",
+        32: "spacebar",
+        33: "page up",
+        34: "page down",
+        35: "end",
+        36: "home ",
+        37: "left arrow ",
+        38: "up arrow ",
+        39: "right arrow",
+        40: "down arrow ",
+        41: "select",
+        42: "print",
+        43: "execute",
+        44: "Print Screen",
+        45: "insert ",
+        46: "delete",
+        48: "0",
+        49: "1",
+        50: "2",
+        51: "3",
+        52: "4",
+        53: "5",
+        54: "6",
+        55: "7",
+        56: "8",
+        57: "9",
+        58: ":",
+        59: "semicolon (firefox), equals",
+        60: "<",
+        61: "equals (firefox)",
+        63: "ß",
+        64: "@ (firefox)",
+        65: "a",
+        66: "b",
+        67: "c",
+        68: "d",
+        69: "e",
+        70: "f",
+        71: "g",
+        72: "h",
+        73: "i",
+        74: "j",
+        75: "k",
+        76: "l",
+        77: "m",
+        78: "n",
+        79: "o",
+        80: "p",
+        81: "q",
+        82: "r",
+        83: "s",
+        84: "t",
+        85: "u",
+        86: "v",
+        87: "w",
+        88: "x",
+        89: "y",
+        90: "z",
+        91: "Windows Key / Left ⌘ / Chromebook Search key",
+        92: "right window key ",
+        93: "Windows Menu / Right ⌘",
+        96: "numpad 0 ",
+        97: "numpad 1 ",
+        98: "numpad 2 ",
+        99: "numpad 3 ",
+        100: "numpad 4 ",
+        101: "numpad 5 ",
+        102: "numpad 6 ",
+        103: "numpad 7 ",
+        104: "numpad 8 ",
+        105: "numpad 9 ",
+        106: "multiply ",
+        107: "add",
+        108: "numpad period (firefox)",
+        109: "subtract ",
+        110: "decimal point",
+        111: "divide ",
+        112: "f1 ",
+        113: "f2 ",
+        114: "f3 ",
+        115: "f4 ",
+        116: "f5 ",
+        117: "f6 ",
+        118: "f7 ",
+        119: "f8 ",
+        120: "f9 ",
+        121: "f10",
+        122: "f11",
+        123: "f12",
+        124: "f13",
+        125: "f14",
+        126: "f15",
+        127: "f16",
+        128: "f17",
+        129: "f18",
+        130: "f19",
+        131: "f20",
+        132: "f21",
+        133: "f22",
+        134: "f23",
+        135: "f24",
+        144: "num lock ",
+        145: "scroll lock",
+        160: "^",
+        161: '!',
+        163: "#",
+        164: '$',
+        165: 'ù',
+        166: "page backward",
+        167: "page forward",
+        169: "closing paren (AZERTY)",
+        170: '*',
+        171: "~ + * key",
+        173: "minus (firefox), mute/unmute",
+        174: "decrease volume level",
+        175: "increase volume level",
+        176: "next",
+        177: "previous",
+        178: "stop",
+        179: "play/pause",
+        180: "e-mail",
+        181: "mute/unmute (firefox)",
+        182: "decrease volume level (firefox)",
+        183: "increase volume level (firefox)",
+        186: "semi-colon / ñ",
+        187: "equal sign ",
+        188: "comma",
+        189: "dash ",
+        190: "period ",
+        191: "forward slash / ç",
+        192: "grave accent / ñ",
+        193: "?, / or °",
+        194: "numpad period (chrome)",
+        219: "open bracket ",
+        220: "back slash ",
+        221: "close bracket ",
+        222: "single quote ",
+        223: "`",
+        224: "left or right ⌘ key (firefox)",
+        225: "altgr",
+        226: "< /git >",
+        230: "GNOME Compose Key",
+        233: "XF86Forward",
+        234: "XF86Back",
+        255: "toggle touchpad"
+    };
+</script>
+</body>
+</html>

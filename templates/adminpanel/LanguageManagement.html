@@ -1,0 +1,244 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                {% if messages %}
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Error:</span>
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {% endif %}
+
+            </div>
+        </div>
+
+
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Multilingual Language Management</u></h2>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language Code :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageCode }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in English :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageEn }}
+                    {{ form.language_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in German :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Russian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Bulgarian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Ukrainian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Czech :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Polish :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguagePl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Croatian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageHr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Bosnian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Serbian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Slovak :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Macedonian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Language in Slovenian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtLanguageSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>Language Name</th>
+                    <th>Language Code</th>
+                    <th>Update</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'multilingual_language_management_gridview' %}"
+            });
+
+        });
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+        function isValidateForm() {
+            var languageEn = $('#id_txtLanguageEn');
+
+            if (languageEn.val() == '' || languageCode.val() == '') {
+                alert("Language Code and Language Name in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

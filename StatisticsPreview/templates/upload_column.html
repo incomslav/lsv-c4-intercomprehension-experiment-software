@@ -1,0 +1,130 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Add New Matrix Column</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form id="form" action="{% url 'StatisticsPreview:uploadColumn' %}" method="post">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Column Name:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <input type="text" name="column_name">
+					  	</div>
+			            
+			        </div>
+
+			        <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Abbrivated Name:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <input type="text" name="abbvr_name">
+					  	</div>
+			            
+			        </div>
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+				  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+
+	</div>
+
+	
+	
+	{% if column_list %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4>User Experiments list for <i style="color: blue;">{{ user_native_language }}</i> Language</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>Column Name</th>
+						<th>Abbvr. Name</th>
+						<th>Active</th>
+						<th>Update/Edit</th>
+						
+						
+					</thead>	
+					<tbody>
+						{% for menu in  column_list %}
+						<tr>
+						<td>{{ menu.full_name }}</td>
+						<td>{{ menu.abbvr_name }}</td>
+						<td>{{ menu.is_active }}</td>
+
+						</tr>
+						{% endfor %}
+					</tbody>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"order": [] 
+	    	});
+	
+		} );
+
+    </script>
+{% endblock %}

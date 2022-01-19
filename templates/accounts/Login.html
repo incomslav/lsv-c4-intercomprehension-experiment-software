@@ -1,0 +1,97 @@
+{% extends "Base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600" rel='stylesheet'
+      type='text/css'>
+<link href="{% static 'css/fontawesome/css/font-awesome.css' %}" rel="stylesheet" media="screen">
+<link href="{% static 'css/registrationpage.css' %}" rel="stylesheet" media="screen">
+
+<style type="text/css">
+    /*#id_username {*/
+    /*width: 300px;*/
+    /*}*/
+
+    /*#id_password {*/
+    /*width: 300px;*/
+    /*}*/
+    /**/
+    .container-box {
+        height: 275px;
+    }
+
+    #loginbar {
+        display: none;
+    }
+</style>
+
+
+<div class="row">
+    <div class="col-md-12 text-right">
+        {{loginPageConstants.NewUserQuestion}} <a href="{% url 'userRegistration' %}">{{loginPageConstants.ClickHereForRegistration}}</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-right">
+        <b>{{loginPageConstants.LoginUsing}}</b>
+
+            <a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+                <img src="{{ static }}/static/images/socialmedia/facebook.png" style="width:50px;">
+            </a>
+
+            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+                <!--Login with Google-->
+                <img src="{{ static }}/static/images/socialmedia/google.png" style="width:50px;">
+            </a>
+
+            <!--<a href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">-->
+                <!--&lt;!&ndash;Login with Twitter&ndash;&gt;-->
+                <!--<img src="{{ static }}/static/images/socialmedia/twitter.png" style="width:50px;">-->
+            <!--</a>-->
+    </div>
+</div>
+
+<div class="row margin-top">
+    <div class="col-md-6">
+
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags = 'error' %}
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% endif %}
+
+        <!--<div class="alert alert-danger" role="alert">-->
+        <!--<a href="#" class="alert-link">...</a>-->
+        <!--</div>-->
+
+    </div>
+</div>
+
+
+<div class="content-div col-md-12">
+    <div class="container-box">
+        <h1>{{loginPageConstants.Login}}</h1>
+
+        <form method="post" accept-charset="utf-8">
+            {% csrf_token %}
+
+            <label for="username" class="icon"><i class="fa fa-envelope-o"></i></label>
+            <input type="text" id="username" name="username" placeholder="{{loginPageConstants.Email}}"/>
+            <!--<label for="name" class="icon"><i class="icon-user"></i></label>-->
+            <!--<input type="text" name="name" id="name" placeholder="Name" required/>-->
+            <label for="password" class="icon"><i class="fa fa-shield"></i></label>
+            <input type="password" id="password" name="password" placeholder="{{loginPageConstants.Password}}"/>
+            <input type="hidden" id="next" name="next" value="{{ next }}"/>
+            <input type="submit" value="{{loginPageConstants.Login}}" class="button">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

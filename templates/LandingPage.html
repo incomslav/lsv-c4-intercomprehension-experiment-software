@@ -1,0 +1,361 @@
+{% load staticfiles %}
+{% load navbar_extras %}
+{% load i18n %}
+
+<html>
+
+<link rel="stylesheet" type="text/css"
+      href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
+<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+<script>
+    window.addEventListener("load", function () {
+        window.cookieconsent.initialise({
+            "palette": {
+                "popup": {
+                    "background": "#f5f5f5",
+                    "text": "#008000"
+                },
+                "button": {
+                    "background": "transparent",
+                    "text": "#008000",
+                    "border": "green"
+                }
+            },
+            "position": "top"
+        })
+    });
+</script>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,height=device-height, initial-scale=1">
+    <title>Welcome to INCOMSLAV!</title>
+    <meta http-equiv="Content-Type" content="text/html">
+
+    <link href="{% static 'css/fontawesome/css/font-awesome.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'bootstrap/css/bootstrap-social.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/site.css' %}" rel="stylesheet" media="screen"/>
+
+    <style>
+
+        .abcRioButton.abcRioButtonLightBlue {
+            all: unset !important;
+        }
+
+        .abcRioButtonContents {
+            /*all: unset !important;*/
+            font-size: 17px !important;
+            line-height: 25px !important;
+            padding-left: 4px !important;
+        }
+
+        .abcRioButtonContentWrapper {
+            height: auto !important;
+        }
+
+        .abcRioButtonIcon {
+            all: unset !important;
+            padding-left: 6px !important;
+            padding-top: 4px !important;
+            float: left !important;
+        }
+
+        .btn-google {
+            background-color: #c23321 !important;
+            height: 38px !important;
+            padding-left: 5px !important;
+        }
+
+        .dropdown-menu:hover {
+            cursor: pointer;
+        }
+
+        .start-exp-box{
+            background-color: #4CB000; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+            width:100%;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+
+        .start-exp-box a{
+            color:blue !important;
+        }
+
+    </style>
+
+</head>
+<body class="full vcent">
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.uni-saarland.de/nc/startseite.html"><img class="img-responsive" src="{{ static }}/static/images/siteimages/owl.jpg"></a>
+
+            <a class="navbar-brand" style="margin-left: 5px;" href="http://www.sfb1102.uni-saarland.de/?page_id=296">
+                <img class="img-responsive" src="{{ static }}/static/images/siteimages/logo.png">
+            </a>
+
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <!--<li class="navbar-flag"><img src="assets/flags/russia.png" alt="..." class="img-circle"></li>-->
+                <!--<li class="navbar-user"><img src="assets/users/user1.png" alt="..." class="img-circle"></li>-->
+                <li class="active"><a id="anc-login" style="cursor: pointer;"
+                                      href="{% url 'userRegistration' %}">{{ loginPageConstants.LANDING_PAGE_REGISTER_BUTTON_TEXT }}<span
+                        class="sr-only">(current)</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'SlavMatrix:Results' %}" style="color: red;"> View Result</a></li>
+            </ul>
+
+            <!------------>
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        <span id="spn_language_name">
+                                {{ LANGUAGE_CODE }}
+                            </span>
+                            <span>
+                                <img id="img_language_flag" src="/static/images/flags/{{ LANGUAGE_CODE }}.png">
+                            </span>
+                        <span class="caret"></span>
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <form id="setlang" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                            <input name="next" type="hidden" value="{{ redirect_view }}"/>
+                            {% for language in languages %}
+                                <li style="padding: 5px">
+                                    <a style="padding: 10px;" onclick='changeWebsiteLanguage("{{ language.code }}");'>
+                                        <input name="language" style="display: none;" type="radio"
+                                               value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %}
+                                               checked{% endif %}>
+                                        <img src="/static/images/flags/{{ language.code }}.png">
+                                <span style="margin-left:5px;">
+                                    {{ language.name_local }}
+                                </span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+
+                            <input style="display:none;" type="submit" value="Go"/>
+                        </form>
+                    </ul>
+
+                </li>
+
+            </ul>
+            <!-------------------->
+
+
+        </div>
+    </div>
+</nav>
+
+
+<div class="container">
+
+    <div class="row" style="margin-top: 55px;">
+        <div class="col-md-6">
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-danger" role="alert">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <span class="sr-only">Error:</span>
+                            {{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+
+            <div class="row">
+                <!-- Experiment info section-->
+                <div id='experiment_info' class='col-md-12 col-xs-10 col-xs-offset-1 visible-lg'>
+                    <h4>{% trans 'EXPERIMENT_INFO' %}</h4>
+
+                    <div id="experiment_info_section">
+                        {{ experimentInfo |safe}}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <!-- News section-->
+                <div id='news' class='col-md-12 visible-md visible-lg col-xs-offset-1'>
+                    <h4>{% trans 'NEWS_AND_UPDATES' %}</h4>
+
+                    <div id="news_section">
+                        {{ news |safe}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-md-offset-1">
+            <!-- Sign in form -->
+            <div class="row">
+                <div class='col-md-9 col-md-offset-1 col-xs-10 col-xs-offset-1'>
+
+                    <!-- click here text -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="div_login_here" class="start-exp-box">
+                            {{ loginPageConstants.LANDING_PAGE_START_EXPERIMENT_HERE_TEXT }}
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                    <form class="form-signin" method="post" accept-charset="utf-8">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-12 form-signin-heading">
+                                {{ loginPageConstants.LANDING_PAGE_LOGIN_TO_CONTINUE_THE_CHALLENGE_TEXT }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="text" id="username" name="username" class="form-control task-form-control"
+                               placeholder="{{ loginPageConstants.LANDING_PAGE_USERNAME_FIELD_TEXT }}" autofocus>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="password" id="password" name="password" class="form-control task-form-control"
+                               placeholder="{{ loginPageConstants.LANDING_PAGE_PASSWORD_FIELD_TEXT }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 margin-top">
+                                <button class="btn btn-lg btn-primary btn-block login" type="submit">
+                                    {{ loginPageConstants.LANDING_PAGE_LOGIN_BUTTON_TEXT }}
+                                </button>
+                            </div>
+                            <input type="hidden" id="next" name="next" value="{{ next }}"/>
+                        </div>
+
+                    </form>
+                        </div>
+                    </div>
+
+                    <div class="row margin-top">
+                            <div class="col-md-12">
+                                <div style="background-color: rgba(255,255,255, 0.8); border-radius:10px; padding: 10px;">
+                                    <a href="{% url 'ForgotPassword' %}">{% trans 'FORGOT_YOUR_PASSWORD_TEXT' %}</a>
+                                </div>
+                            </div>
+                        </div>
+
+{#                    <div class="row">#}
+{#                        <div class="col-md-12" style="background-color: rgba(255,255,255, 0.8); border-radius:10px; padding: 10px;">#}
+{#                           <div class="row">#}
+{#                               <div class="col-md-7">#}
+{#                        <span>{% trans 'NOT_A_MEMBER_YET_TEXT' %}</span>#}
+{#                                   </div>#}
+{#                               <div class="col-md-3">#}
+{#                        <a id="anc-login" style="cursor: pointer;" href="{% url 'userRegistration' %}">#}
+{#                            {{ loginPageConstants.LANDING_PAGE_REGISTER_BUTTON_TEXT }}#}
+{#                        </a>#}
+{#                                   </div>#}
+{#                               </div>#}
+{#                            #}
+{#                    </div>#}
+{#                    </div>#}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<nav class="navbar navbar-default footer" role="footer"
+     style="position:absolute; left:0; right:0; bottom:0; margin-bottom: 0px !important;background-color:#F5F5F5; padding:5px 15px 5px 15px;">
+
+    <p class="navbar-text p-footer">SFB 1102 - C4 INCOMSLAV &copy; 2014 - {% now 'Y' %}</p>
+
+    <p class="navbar-text p-footer"><a href="http://www.uni-saarland.de/footer/dialog/impressum.html">Impressum</a>
+    </p>
+
+</nav>
+
+<script src="{{ STATIC_URL }}jquery/jquery.js"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{{ STATIC_URL }}jqueryui/jquery-ui.js"></script>
+<script src="{{ STATIC_URL }}js/newsticker.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#news_section').vTicker();
+
+        //$('#experiment_info_section').vTicker();
+
+        $('#gbutton').click(function () {
+            $('#hdnGoogle').val('yes');
+        });
+
+        $('#anc-login').click(function () {
+            $('#username').focus();
+        });
+
+    });
+
+    $(window).load(function () {
+        //$('.abcRioButtonContents').html('Google');
+        var str=$('#div_login_here').html().trim();
+        var formatted_str = formatString(str);
+        $('#div_login_here').html(formatted_str);
+
+    });
+
+    function formatString(str){
+        var s1 = str.replace("{}","<a href='/userRegistration'>");
+        var s2 = s1.replace("{}","</a>");
+        return s2;
+    }
+
+    function changeWebsiteLanguage(langCode) {
+        $("input[name=language][value=" + langCode + "]").prop("checked", true);
+        $("#setlang").submit();
+    }
+
+
+    function redirectForRegistration() {
+        var path = "/userRegistration";
+        window.location.href = path;
+    }
+
+
+</script>
+
+</body>
+</html>

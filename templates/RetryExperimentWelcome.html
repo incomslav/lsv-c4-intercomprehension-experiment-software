@@ -1,0 +1,317 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+    <noscript>
+        <style type="text/css">
+            #frm {
+                display: none;
+            }
+            #no-java-script{
+                display: block;
+            }
+        </style>
+    </noscript>
+
+    <style type="text/css">
+        .readyButton {
+            width: 148px;
+            height: 28px;
+            position: relative;
+            margin-top: 5px;
+            border: 1px solid black;
+        }
+
+        .readyButton label {
+            width: 147px;
+            height: 27px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .readyButton input[type=checkbox] {
+            visibility: hidden;
+        }
+
+        .readyButton input[type=checkbox]:checked + label {
+            background: green;
+            border: none;
+        }
+
+    </style>
+
+
+    <div class="col-lg-12 col-xs-12 task-background content-div" style="padding-top:50px;">
+        <form method="post" id="frm">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 style="color: green;font-weight:bold;">
+                        {{ strings.EXPERIMENT_WELCOME_HEADER }}
+                    </h3>
+
+                    <p>{{ strings.EXPERIMENT_INSTRUCTIONS|safe }}</p>
+
+                    {% if experiment_type == 'audio' %}
+                    <p>Click the Try button below and see if you can listen to the audio file and type what was said in English.</p>
+                    <p style="font-weight: bold">Note that this sample is not timed, but the actual experiment is timed!</p>
+                    <p style="font-weight: bold">This experiment involves audio playback. Ensure you have set the system volume high enough!</p>
+                    <p>For best results consider using a pair of good headphones.</p>
+                    <button id="try" type="button" class="btn btn-primary" onclick="clickAction()">Try it First!</button>
+                    <div id="audio_info" style="display:none">
+                        <br>
+
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row" id="audio_sample" style="display: none">
+                <div class="col-xs-5 col-sm-offset-1 col-sm-4">
+                    <!--<label id="lblWord" style="font-size:25px;"
+                           class="margin-left-medium form-control task-form-control">&nbsp</label>-->
+                    {% load static %}
+                    <audio id="lblAudio"> 
+                        <source id="source_mp3" src="" type="audio/mp3">
+                    </audio>
+                    
+                    <button id="playaudio" type="button" class="btn btn-success btn-block">Audio Playing...</button>
+                    
+                    <input type="hidden" id="hdnWordId">
+                    <input type="hidden" id="hdnWordCount" value="0">
+                </div>
+                <div class="col-xs-2">
+                    <p class="task-translate-arrow">
+                        >
+                    </p>
+                </div>
+                <div class="col-xs-5 col-sm-4">
+                    <input id="txtTranslation" type="text"
+                           class="margin-left-medium-negative form-control task-form-control"
+                           placeholder="English" disabled onkeypress="keypresslistener(event)"> <!--disabled-->
+                </div>
+            </div>
+            <div class="row margin-top" style="margin-right:auto">
+                <!--
+                <div class="readyButton" width="100px" style="float:left;">
+                    <input id="chkReady" type="checkbox" onchange="processReadyCheckboxChange();">
+                    <label for="chkReady">{% trans 'I_AM_READY_BUTTON_TEXT' %}</label>
+                </div>
+                -->
+                <div class="col-md-6">
+                    <button id="sample_submit" type="button" class="btn btn-success" style="display: none" onclick="sampleSubmit();" disabled>Submit</button>
+                </div>
+
+            </div>
+            <div id="sample_result" style="display: none">
+                <p id="res"></p>
+            </div>
+            <div class="row margin-top" style="margin-right:auto">
+                <!--
+                <div class="readyButton" width="100px" style="float:left;">
+                    <input id="chkReady" type="checkbox" onchange="processReadyCheckboxChange();">
+                    <label for="chkReady">{% trans 'I_AM_READY_BUTTON_TEXT' %}</label>
+                </div>
+                -->
+                <div class="col-md-6">
+                    {% if experiment_type == 'audio' %}
+                    	<button id="btnStart" onclick="processStartRequest();"
+                            	class="btn btn-primary" style="display: none">{% trans 'CONTINUE_BUTTON_TEXT' %}</button>
+                    {% else %}
+                       <button id="btnStart" onclick="processStartRequest();"
+                            	class="btn btn-primary">{% trans 'CONTINUE_BUTTON_TEXT' %}</button>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </form>
+
+        <div id="no-java-script" class="row">
+            <div class="col-md-12">
+                <h3 style="color: green;font-weight:bold;">
+                    {{ enableJavaScriptMessage.ENABLE_JAVA_SCRIPT_MESSAGE }}
+                </h3>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script language="JavaScript">
+        var audio_files = {{demo_audio_files | safe}};
+        var answers = {{demo_answers | safe}};
+        var idx = 0;
+        var last_idx = -1;
+        var times_played = 0;
+        var button = document.getElementById("playaudio");
+        $(document).ready(function () {
+            $("#no-java-script").hide();
+            //$("#btnStart").prop('disabled', true);
+            var audio = document.getElementById('lblAudio');
+            audio.addEventListener('ended', function(){
+                window.times_played = window.times_played+1;
+                console.log('Ended Audio');
+                console.log(window.times_played);
+                if (window.times_played >= 2) {
+                    console.log("Greater than 2");
+                    window.times_played = 0;
+                    $("#source_mp3").attr("src", "");
+                    audio.load();
+                    audio.controls = 0;
+                    document.getElementById("sample_submit").removeAttribute('disabled');
+                    document.getElementById("txtTranslation").removeAttribute('disabled');
+                    document.getElementById("txtTranslation").focus();
+                    //$("#txtTranslation").removeAttribute('disabled');
+                    $("#btnContinue").show();
+                    button.innerText = "Enter Answer";
+                    //setQuestionTimer();
+                    $("#sample_submit").show();
+                    $("#try").attr("disabled", false);
+                    return;
+                }
+
+                //s = allocatedTime;
+
+                audio.currentTime = 0;
+                //console.log(window.times_played);
+                audio.playbackRate = 1;
+                setTimeout(function() {
+                    audio.play();
+                }, 1000);
+            });
+
+            // $("#txtTranslation").change(function(e){
+            //     if (e.keyCode == 13) {
+            //         $("#sample_submit").focus();
+            //     }
+            // });
+        });
+
+        function keypresslistener(e) {
+            console.log("KeyPress");
+            console.log(e.keyCode);
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $("#sample_submit").click();
+                return false;
+            }
+        }
+
+        function processReadyCheckboxChange() {
+            var checkbox_value = $("#chkReady").is(':checked');
+            if (checkbox_value) {
+                $("#btnStart").prop('disabled', false);
+            } else {
+                $("#btnStart").prop('disabled', true);
+            }
+        }
+
+        function processStartRequest() {
+            var dataObj = {"csrfmiddlewaretoken": document.getElementsByName('csrfmiddlewaretoken')[0].value};
+
+            $.ajax({
+                type: "POST",
+                url: "/en/RetrySelectExperiment/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function clickAction() {
+            var ele = document.getElementById('audio_info');
+            ele.style.display = "block";
+            console.log("Clicked Try");
+            var audio = document.getElementById('lblAudio');
+            $("#source_mp3").attr("src", "");
+            //$(this).prop("display", none);
+            //var ele1 = document.getElementById('try');
+            //ele.style.display = "none";
+            //$(this).hide();
+            $("#try").attr("disabled", true);
+            //$("#try").hide();
+            $("#try").html("Try Again");
+            $("#btnStart").hide();
+            $("#txtTranslation").val("");
+            $("#res").hide();
+            $("#audio_sample").show();
+            $("#sample_submit").attr("disabled", true);
+            $("#txtTranslation").attr("disabled", true);
+            while(true) {
+                var k = Math.floor(Math.random() * 3);
+                if (k != window.last_idx) {
+                    window.idx = k;
+                    window.last_idx = k;
+                    break;
+                }
+            }
+            //window.idx = 0;
+
+            //$("#lblAudio")[0].load();
+            //$("#lblAudio")[0].play();
+
+            // button.addEventListener('click', function() {
+            //     //alert("Click");
+            //     audio.play();
+            //     button.disabled = true;
+            //     button.innerText="Playing...";
+            //     times_played++;
+            // });
+            window.times_played = 0;
+            
+            $("#source_mp3").attr("src", window.audio_files[window.idx]);
+            audio.currentTime = 0;
+            //audio.stop();
+            audio.load();
+            audio.play();
+
+            var button = document.getElementById("playaudio");
+            button.disabled = true;
+            $("#sample_submit").hide();
+            
+        }
+
+        function sampleSubmit() {
+            //var correctAnswer = "audio experiment";
+            console.log(window.idx);
+            console.log(window.answers[window.idx]);
+            console.log(window.audio_files[window.idx]);
+            var correctAnswer = window.answers[window.idx];
+            var ans = $("#txtTranslation").val();
+            console.log(ans);
+            correctAnswer = $.trim(correctAnswer);
+            ans = $.trim(ans);
+            correctAnswer = correctAnswer.toLowerCase().replace(/  +/g, ' ');
+            $("#txtTranslation").attr("disabled", true);
+            $("#sample_submit").attr("disabled", true);
+            ans = ans.toLowerCase().replace(/  +/g, ' ');
+            
+            if (correctAnswer == ans) {
+                $("#res").text("That was Correct! Click Continue to start the Experiment! You can also Try Again...");
+                $("#res").css({ 'color': 'green', 'font-size': '150%' });    
+            }
+            else {
+                $("#res").text("That was incorrect! Make sure the audio of the system is at a high level and Try Again.");
+                $("#res").css({ 'color': 'red', 'font-size': '150%' });       
+            }
+            $("#res").show();
+            $("#sample_result").show();
+            $("#btnStart").show();
+            return;
+        }
+
+
+    </script>
+
+{% endblock %}

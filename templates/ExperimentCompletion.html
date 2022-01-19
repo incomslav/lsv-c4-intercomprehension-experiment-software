@@ -1,0 +1,187 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:65px;">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-1">
+                    <img src="/static/images/winner-badge.png" style="width: 50px;">
+                </div>
+                <div class="col-md-11">
+                    <h2>
+                        {#                    {% trans 'EXPERIMENT_FINAL_THANK_YOU_TEXT' %}#}
+                        {{ pageConstants.EXPERIMENT_FINAL_THANK_YOU_TEXT }}
+                    </h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>
+                        {#                    {% trans 'EXPERIMENT_FINAL_APPRECIATION_MESSAGE' %}#}
+                        {{ pageConstants.EXPERIMENT_FINAL_APPRECIATION_MESSAGE }}
+                        <img src="/static/images/s2.png" style="width: 75px;">
+                    </h3>
+                </div>
+            </div>
+
+
+            <div id="div_results_table">
+
+                <div class='row margin-top'>
+                    <div class='col-md-12'>
+                        <h4>
+                            {#                        {% trans 'EXPERIMENT_FINAL_YOUR_RESULTS_HEADER' %}#}
+                            {{ pageConstants.EXPERIMENT_FINAL_YOUR_RESULTS_HEADER }}
+                        </h4>
+                    </div>
+                </div>
+
+                <div class='row margin-top'>
+                    <div class='col-md-12 text-center'>
+                        <h4>
+                            <b>
+                                {#                        {% trans 'EXPERIMENT_FINAL_STATISTICS_HEADER' %}#}
+                                {{ pageConstants.EXPERIMENT_FINAL_STATISTICS_HEADER }}
+                            </b>
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-10">
+                        <table class="table">
+                            <tr>
+                                <td>
+
+                                    {#                            {% trans 'FREE_TRANSLATION_FINAL_TOTAL_WORDS_TEXT' %}#}
+                                    {{ pageConstants.FINAL_TOTAL_WORDS_TEXT }}
+                                </td>
+                                <td>
+                                    <i>
+                                        <span id="spn_total_questions"> {{ experimentResults.total_questions }}</span>
+                                    </i>
+                                </td>
+
+                            </tr>
+                            {% if experimentResults.total_correct %}
+                                <tr>
+                                    <td>
+                                        {{ pageConstants.FINAL_CORRECT_TRANSLATIONS_TEXT }}
+                                    </td>
+                                    <td>
+                                        <i>
+                                            {{ experimentResults.total_correct }}
+                                        </i>
+                                    </td>
+
+                                </tr>
+                            {% endif %}
+
+                            {% if gap_filling %}
+                                <tr>
+                                    <td>
+                                        {{ pageConstants.GAP_FILLING_FINAL_TOTAL_GAPS_TEXT }}
+                                    </td>
+                                    <td>
+                                        <i>
+                                            {{ experimentResults.total_gaps }}
+                                        </i>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ pageConstants.GAP_FILLING_FINAL_CORRECT_WORDS_TEXT }}
+                                    </td>
+                                    <td>
+                                        <i>
+                                            {{ experimentResults.correct_gaps }}
+                                        </i>
+                                    </td>
+
+                                </tr>
+                            {% endif %}
+
+                            <tr>
+                                <td>
+                                    {#                            {% trans 'FREE_TRANSLATION_FINAL_TOTAL_TIME_TEXT' %}#}
+                                    {{ pageConstants.FINAL_TOTAL_TIME_TEXT }}
+                                </td>
+                                <td>
+                                    <i>
+                                        {{ experimentResults.total_time_in_minutes }}
+                                        {{ commonConstants.MINUTES_TEXT }}
+                                        {#                                {% trans 'MINUTES_TEXT' %}#}
+                                    </i>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    {#                            {% trans 'FREE_TRANSLATION_FINAL_TIME_PER_WORD_TEXT' %}#}
+                                    {{ pageConstants.FINAL_TIME_PER_WORD_TEXT }}
+                                </td>
+                                <td>
+                                    <i>
+                                        {{ experimentResults.avg_time }}
+                                        {{ commonConstants.SECONDS_TEXT }}
+                                    </i>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-2"
+                         style="background-image: url('/static/images/medals/{{ medal }}.png'); background-size: 175px;
+                                 background-repeat: no-repeat; height: 175px; position: relative;">
+                        <p style="position: absolute;top:65px;left:60px;font-weight: bold;" class="text-uppercase">
+                            {{ fromLanguage }} - {{ toLanguage }}
+                        </p>
+
+                        <p style="position: absolute; bottom: 0px;left: 40px;">{{ date }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+        <div>
+            {% if moreExperimentsAvailable %}
+                {% if not prolific_user %}
+                {% trans 'EXPERIMENT_FINAL_MORE_EXPERIMENTS_AVAILABLE_TEXT' %}
+                <a href="{% url 'ExperimentOverview' %}">{% trans 'EXPERIMENT_FINAL_CONTINUE_TO_NEXT_EXPERIMENT_BUTTON_TEXT' %}</a>
+                {% endif %}
+            {% else %}
+                {% trans 'NO_EXPERIMENT_IS_AVAILABLE_TEXT' %}
+            {% endif %}
+        </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% if prolific_user %}
+                <a href="{% url 'ExperimentOverview' %}">Go to the next experiment.</a>
+                <br>
+                <br>
+            Participant of Prolific Academic? Please click <a href="https://prolific.ac/submissions/complete?cc=MADD89UX">HERE</a> to complete.
+            {% endif %}
+        </div>
+    </div>
+
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+
+
+{% endblock %}

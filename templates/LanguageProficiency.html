@@ -1,0 +1,435 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+<style type="text/css">
+    .prof-level-width {
+        width: 14.28%;
+        float: left;
+    }
+
+    .slider-class {
+        width: 96%;
+    }
+
+    .spn-required {
+        font-size: 15px;
+        font-weight: bold;
+        color: red;
+    }
+</style>
+<div class="col-lg-12 col-xs-12 task-background content-div" style="padding-top:50px;">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row margin-top">
+            <div class="col-md-12 text-left">
+                <h3 style="color: green;font-weight:bold;">
+                    {{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_HEADER}}
+                </h3>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-9">
+
+                <div class="row margin-top site-font" style="color:blue; font-size:20px !important; font-weight: bold;">
+                    <div class="col-md-3">
+
+                    </div>
+
+                    <div class="col-md-8 col-xs-11">
+                        <div class='prof-level-width'>
+                            <label>0</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.A_ONE_TEXT}}</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.A_TWO_TEXT}}</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.B_ONE_TEXT}}</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.B_TWO_TEXT}}</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.C_ONE_TEXT}}</label>
+                        </div>
+                        <div class='prof-level-width text-center'>
+                            <label> {{languageProficiencyPageConstants.C_TWO_TEXT}}</label>
+                        </div>
+                    </div>
+                </div>
+
+                {% for lng in language_objects %}
+                <div id="{{ lng.language_id }}" class="row" style="margin-top: 20px;">
+                    <div class="col-md-4">
+                        <label> {{ lng.language_name }} </label>
+                    </div>
+                    <div class="col-md-6">
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="font13"> {{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_READING_SKILLS_TEXT}} </label>
+                    </div>
+
+                    <div class="col-md-8 col-xs-11">
+                        <div class="slider-class">
+                            <input type="range" id="rng_reading_{{ lng.language_id }}" data-rangeSlider
+                                   min="-1"
+                                   max="100"
+                                   step="1"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1 padding-zero col-xs-1">
+                        <span id="spn_reading_{{ lng.language_id }}" class="spn-required">*</span>
+                        <img id="img_tick_reading_{{ lng.language_id }}"
+                             src="/static/images/green-tick.png" style="width: 20px;display: none;">
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-1">
+
+                    </div>
+                    <div class="col-md-2">
+                        <label class="font13"> {{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_WRITING_SKILLS_TEXT}} </label>
+                    </div>
+                    <div class="col-md-8 col-xs-11">
+                        <div class="slider-class">
+
+                            <input type="range" id="rng_writing_{{ lng.language_id }}" data-rangeSlider
+                                   min="-1"
+                                   max="100"
+                                   step="1" value=""/>
+                        </div>
+                    </div>
+                    <div class="col-md-1 padding-zero col-xs-1">
+                        <span id="spn_writing_{{ lng.language_id }}" class="spn-required">*</span>
+                        <img id="img_tick_writing_{{ lng.language_id }}"
+                             src="/static/images/green-tick.png" style="width: 20px;display: none;">
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-1">
+
+                    </div>
+                    <div class="col-md-2">
+                        <label class="font13"> {{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_SPEAKING_SKILLS_TEXT}} </label>
+                    </div>
+                    <div class="col-md-8 col-xs-11">
+                        <div class="slider-class">
+
+                            <input class="bar" type="range" id="rng_speaking_{{ lng.language_id }}"
+                                   data-rangeSlider min="-1"
+                                   max="100"
+                                   step="1"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1 padding-zero col-xs-1">
+                        <span id="spn_speaking_{{ lng.language_id }}" class="spn-required">*</span>
+                        <img id="img_tick_speaking_{{ lng.language_id }}"
+                             src="/static/images/green-tick.png" style="width: 20px;display: none;">
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-1">
+
+                    </div>
+                    <div class="col-md-2">
+                        <label class="font13"> {{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_LISTENING_SKILLS_TEXT}} </label>
+                    </div>
+                    <div class="col-md-8 col-xs-11">
+                        <div class="slider-class">
+
+                            <input class="bar" type="range" id="rng_listening_{{ lng.language_id }}"
+                                   data-rangeSlider min="-1"
+                                   max="100"
+                                   step="1"/>
+
+                        </div>
+                    </div>
+                    <div class="col-md-1 padding-zero col-xs-1">
+                        <span id="spn_listening_{{ lng.language_id }}" class="spn-required">*</span>
+                        <img id="img_tick_listening_{{ lng.language_id }}"
+                             src="/static/images/green-tick.png" style="width: 20px;display: none;">
+                    </div>
+                </div>
+
+                {% endfor %}
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-4">
+                        <input type="button" id="btnContinue" value="{{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_CONTINUE_BUTTON_TEXT}}" class="btn btn-primary">
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+                <div style="margin-left:10px;">
+                    <div class="row">
+                        <h4 style="color: green;font-weight:bold;">{{languageProficiencyPageConstants.LANGUAGE_PROFICIENCY_PAGE_LEVEL_DESCRIPTION_HEADER}}</h4>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.A_ONE_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.A_ONE_TEXT}}:</b>
+                            {{languageProficiencyPageConstants.A_ONE_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.A_TWO_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.A_TWO_TEXT}}:</b>
+                            {{languageProficiencyPageConstants.A_TWO_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.B_ONE_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.B_ONE_TEXT}}:</b>
+                            {{languageProficiencyPageConstants.B_ONE_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.B_TWO_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.B_TWO_TEXT}}:</b>
+                            {{languageProficiencyPageConstants.B_TWO_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.C_ONE_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.C_ONE_TEXT}}:</b>
+                          {{languageProficiencyPageConstants.C_ONE_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+                    <div class="row margin-top">
+                        <div class="cursor-help"
+                             title="{{languageProficiencyPageConstants.C_TWO_DESCRIPTION_DETAILS_TEXT}}">
+                            <b>{{languageProficiencyPageConstants.C_TWO_TEXT}}:</b>
+                            {{languageProficiencyPageConstants.C_TWO_DESCRIPTION_TEXT}}
+                            <img src="/static/images/info_icon.png">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script language="JavaScript">
+
+    $(document).ready(function () {
+
+        loadLanguageProficiencyAjaxRequest();
+
+//        ---------------slider
+        var selector = '[data-rangeSlider]';
+        elements = document.querySelectorAll(selector);
+        // Basic rangeSlider initialization
+        rangeSlider.create(elements, {
+            // Callback function
+            onInit: function () {
+            },
+            onSlide: function ( event, ui ) {
+            if (ui.value == -1 ){
+                ui.value = 0;
+            }
+            },
+        });
+//        ----------------end slider
+
+        $("input[id^='rng_reading_']").change(function () {
+            id = $(this).attr('id').split('_')[2];
+            $('#spn_reading_' + id).hide();
+            $('#img_tick_reading_' + id).show();
+        });
+        $("input[id^='rng_writing_']").change(function () {
+            id = $(this).attr('id').split('_')[2];
+            $('#spn_writing_' + id).hide();
+            $('#img_tick_writing_' + id).show();
+        });
+        $("input[id^='rng_listening_']").change(function () {
+            id = $(this).attr('id').split('_')[2];
+            $('#spn_listening_' + id).hide();
+            $('#img_tick_listening_' + id).show();
+        });
+        $("input[id^='rng_speaking_']").change(function () {
+            id = $(this).attr('id').split('_')[2];
+            $('#spn_speaking_' + id).hide();
+            $('#img_tick_speaking_' + id).show();
+        });
+
+    });
+
+    $(window).load(function () {
+//        loadLanguageProficiencyAjaxRequest();
+    });
+
+    function setDefaultToZero() {
+        $('input[id^="rng_writing_"]').each(function () {
+            var langId = $(this).attr("id").split('_')[2];
+            $('#rng_reading_' + langId).val(0);
+            $(this).val(0);
+            $('#rng_listening_' + langId).val(0);
+            $('#rng_speaking_' + langId).val(0)
+        });
+    }
+    function isRangeFieldValid(langId) {
+        var isValid = true;
+        if ($('#img_tick_reading_' + langId).is(':visible') == false || $('#img_tick_writing_' + langId).is(':visible') == false || $('#img_tick_listening_' + langId).is(':visible') == false || $('#img_tick_speaking_' + langId).is(':visible') == false) {
+            isValid = false;
+        }
+        return isValid
+    }
+
+    function loadLanguageSkills(obj) {
+
+        setDefaultToZero();
+
+        var objLength = obj.length;
+        if (objLength > 0) {
+
+            for (i = 0; i < objLength; i++) {
+                data = obj[i];
+                if (data.fields.writing_level){
+                    $("#rng_writing_" + data.fields.language).val(data.fields.writing_level);
+                    $('#spn_writing_' + data.fields.language).hide();
+                    $('#img_tick_writing_' + data.fields.language).show();
+                }
+                if (data.fields.reading_level){
+                    $('#rng_reading_' + data.fields.language).val(data.fields.reading_level);
+                    $('#spn_reading_' + data.fields.language).hide();
+                    $('#img_tick_reading_' + data.fields.language).show();
+                }
+                if (data.fields.listening_level){
+                    $('#rng_listening_' + data.fields.language).val(data.fields.listening_level);
+                    $('#spn_listening_' + data.fields.language).hide();
+                    $('#img_tick_listening_' + data.fields.language).show();
+                }
+                if (data.fields.speaking_level){
+                    $('#rng_speaking_' + data.fields.language).val(data.fields.speaking_level);
+                    $('#spn_speaking_' + data.fields.language).hide();
+                    $('#img_tick_speaking_' + data.fields.language).show();
+                }
+            }
+        }
+    }
+
+    $('#btnContinue').click(function () {
+
+        var isValid = false;
+        var listOfObj = []
+
+        $('input[id^="rng_writing_"]').each(function () {
+            var langId = $(this).attr("id").split('_')[2];
+            var dataObj = {
+                languageId: langId,
+                readingLevel: $('#rng_reading_' + langId).val(),
+                writingLevel: $(this).val(),
+                listeningLevel: $('#rng_listening_' + langId).val(),
+                speakingLevel: $('#rng_speaking_' + langId).val()
+            };
+            listOfObj.push(dataObj);
+            isValid = isRangeFieldValid(langId)
+            return isValid
+        });
+        if (isValid) {
+            processLanguageProficiencyAjaxRequest(listOfObj);
+        }
+        else {
+            msg=getMessageByAjaxRequest(2);
+            alert(msg);
+        }
+
+    });
+
+    //    function setRangeOutputValue(outputId, rangeValue) {
+    //        //alert(outputId);
+    //        //alert(rangeValue);
+    //        outputId = outputId.replace('rng_', 'rngvalue_');
+    //        $('#' + outputId).val(rangeValue);
+    //    }
+
+    function processLanguageProficiencyAjaxRequest(lstDataObj) {
+
+        var obj = {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            type: '2',
+            listOfObjects: JSON.stringify(lstDataObj)
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/en/LanguageProficiencyForm/",
+            data: obj,
+            cache: false,
+            success: function (data) {
+                //alert(data);
+                if(data){
+                window.location.href = '/Experiments/';
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+Form
+    function loadLanguageProficiencyAjaxRequest() {
+
+        var obj = {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            type: '1'
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/en/LanguageProficiencyForm/",
+            data: obj,
+            cache: false,
+            async:false,
+            success: function (data) {
+                if (data != '') {
+                    d = jQuery.parseJSON(data);
+                    loadLanguageSkills(d);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+</script>
+
+
+{% endblock %}

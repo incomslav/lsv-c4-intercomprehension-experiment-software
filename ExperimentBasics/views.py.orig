@@ -1,0 +1,303 @@
+from django.shortcuts import render
+from django.views.generic import View
+from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+from django_datatables_view.base_datatable_view import BaseDatatableView
+from django.core.files.storage import FileSystemStorage
+
+from Common import constants
+
+from ExperimentBasics.models import *
+from ExperimentBasics.forms import *
+from ExperimentBasics.definitions import *
+
+from Users.models import *
+from Users.enums import *
+
+from random import choice
+
+
+class UserExperimentOverviewView(View):
+    def get(self, request):
+        if UserInfo.objects.filter(user=request.user).exists():
+            userInfo = UserInfo.objects.get(user=request.user)
+
+            cleared = userInfo.clearedForExperiments()
+            # fetch completed and available experiments and render them to user
+            completed_experiments = Experiment.getExperimentsCompletedByUser(userInfo)
+            
+            available_experiments = []
+            X = Experiment.getExperimentsAvailableToUser(userInfo)
+            for x in X:
+                available_experiments.append((x, x.getNumbersOfCollectedAnswers()))
+
+            return render(request, "ExperimentOverview.html", {'completed_experiments': completed_experiments, 'available_experiments': available_experiments, "cleared_for_experiments": cleared })
+                                                                   'available_experiments': available_experiments})
+
+        # redirect to user profile page if user profile didn't exist or user isn't cleared for experiments
+        return HttpResponseRedirect("/UserInfoForm")
+
+
+class TestView(View):
+    def get(self, request):
+        common = []
+        data = []
+        for e in Experiment.objects.all():
+            ranks = e.getNumbersOfCollectedAnswers()
+            common.append((e, sum(ranks.values())))
+            for r, cnt in ranks.items():
+                data.append((e, r, cnt))
+
+        return render(request, "adminpanel/ListAnswers.html", {'common_data': common, 'data': data})
+
+
+class SelectExperimentView(View):
+    """ View that selects an experiment for a user if the user is not involved in an experiment already. """
+
+    def get(self, request):
+        try:
+            if ASSIGNED_EXPERIMENT in request.session:
+                experiments = Experiment.objects.filter(id=request.session[ASSIGNED_EXPERIMENT]).select_subclasses()
+                if len(experiments) > 0:
+                    selected = experiments[0]
+                else:
+                    del request.session[ASSIGNED_EXPERIMENT]
+                    return HttpResponseRedirect("/SelectExperiment")
+
+                # return HttpResponse("Already had an experiment assigned: "+str(request.session[ASSIGNED_EXPERIMENT]))
+                return render(request, 'ExperimentWelcome.html', {'strings': selected.getWelcomeTemplateStrings(),
+                                                                  'ExperimentWelcomeScreenConstants': ExperimentWelcomeScreenConstants})
+
+            if UserInfo.objects.filter(user=request.user).exists():
+                userInfo = UserInfo.objects.get(user=request.user)
+            else:
+                userInfo = UserInfo()
+            preselected = []
+            # for all active experiments, check if user fulfills prerequisites
+            experiments = Experiment.objects.filter(is_active__exact=True).select_subclasses()
+            user_rank = ExperimentParticipation.getUserRank(userInfo)
+            last_priority = None
+            if len(experiments) > 0:
+                for experiment in experiments:
+                    if experiment.userFulfillsPrerequisites(userInfo):
+                        # mark this experiment as available for this user if the user hasn't completed this experiment before
+                        if not experiment.userHasCompletedExperiment(userInfo):
+                            keep = False
+                            if last_priority is None:
+                                keep = True
+                            else:
+                                if experiment.priority >= last_priority:
+                                    keep = True
+                            last_priority = experiment.priority
+                            if keep:
+                                preselected.append(experiment)
+            if preselected:
+                exps_with_nums = []
+                for experiment in preselected:
+                    ranks = experiment.getNumbersOfCollectedAnswers()
+                    num_answers_at_rank = ranks.get(user_rank, 0)
+                    exps_with_nums.append((experiment, num_answers_at_rank))
+                available_experiments = []
+                last_num = None
+                for exp, num in sorted(exps_with_nums, key=lambda x: x[-1]):
+                    if last_num is None:
+                        available_experiments.append(exp)
+                    else:
+                        if last_num == num:
+                            available_experiments.append(exp)
+
+                    last_num = num
+                # select from the available experiments at random
+                selected = choice(available_experiments)
+                request.session[ASSIGNED_EXPERIMENT] = selected.id
+                return render(request, 'ExperimentWelcome.html', {'strings': selected.getWelcomeTemplateStrings(),
+                                                                  'ExperimentWelcomeScreenConstants': ExperimentWelcomeScreenConstants})
+            else:
+                params = dict()
+                params["NoExperimentExistConstants"] = constants.NoExperimentExistConstants
+                return render(request, 'StayTuned.html', params)
+
+        except Exception as e:
+            # return HttpResponse(status=500)
+            return HttpResponse('Error in Select Experiment view. Please report this error to the admins: ' + str(e))
+
+    def post(self, request):
+        userInfo = UserInfo.objects.get(user=request.user)
+        experiments = Experiment.objects.filter(id=request.session[ASSIGNED_EXPERIMENT]).select_subclasses()
+        if len(experiments) > 0:
+            experiment = experiments[0]
+        else:
+            del request.session[ASSIGNED_EXPERIMENT]
+            return HttpResponseRedirect("/SelectExperiment")
+        if CURRENT_PARTICIPATION not in request.session:
+            participation = experiment.getActiveParticipationForUser(userInfo)
+            request.session[CURRENT_PARTICIPATION] = participation.id
+        return HttpResponseRedirect(experiment.getRedirectURL())
+
+
+
+class InspectExperimentsGridView(BaseDatatableView):
+    """
+    Grid view for inspecting available Experiments.
+    """
+    model = Experiment
+
+    # define the columns that will be returned
+    columns = ['experiment_name', 'is_active', 'priority', 'user_prerequisites', 'number_of_questions', 'number of answers', 'created_on', 'details']
+    order_columns = ['experiment_name', 'is_active', 'priority', 'user_prerequisites', '', '', 'created_on', '']
+    
+
+    max_display_length = 20
+
+    def get_initial_queryset(self):
+        # get initial data
+        return Experiment.objects.all()
+
+    def render_column(self, item, column):
+        # redirecting to export preview
+        if column == 'experiment_name':
+            url = "'admin/ExportPreview/{}'".format(item.id)
+            return '<a onclick="redirectTo({})"> {}'.format(url, item.experiment_name) + " </a >"
+        # make activation status into a checkbox
+        elif column == 'is_active':
+            if item.is_active:
+                return '<input type="checkbox" onclick="changeActivationStatus({}, true)" '.format(
+                    item.id) + " checked >"
+            else:
+                return '<input type="checkbox" onclick="changeActivationStatus({}, false)" '.format(item.id) + " >"
+        elif column == 'number_of_questions':
+            num_questions = item.experiment_questions.count()
+            return str(num_questions)
+        elif column == 'number of answers':
+            ranks = Experiment.objects.get(pk=item.id).getNumbersOfCollectedAnswers()
+            out = []
+            for rank, number in sorted(ranks.items(), key=lambda x: x[0]):
+                out.append(str(number) + "@" + str(rank + 1))
+            if out:
+                return str(sum(ranks.values())) + " (" + " + ".join(out) + ")"
+            else:
+                return str(sum(ranks.values()))
+        elif column == 'user_prerequisites':
+            outstr = []
+            for preq in item.user_prerequisites.select_subclasses():
+                outstr.append(str(preq))
+            return ", ".join(outstr)
+        elif column == "details":
+            return '<a onclick="redirectTo(\''+str(item.id)+'/\');">details</a>'
+        else:
+            return super(InspectExperimentsGridView, self).render_column(item, column)
+
+    def filter_queryset(self, qs):
+        search = self.request.GET.get(u'search[value]', None)
+        if search:
+            qs = qs.filter(experiment_name__istartswith=search.strip())
+            return qs
+        else:
+            return qs
+
+class ExperimentParticipationDetailView(View):
+    def get(self, request, exp):
+        return HttpResponse("BLA")
+        #TODO: continue here!
+
+
+
+
+
+class ExperimentDetailView(View):
+    def get(self, request, exp):
+        try:
+            exp = Experiment.objects.get(pk=exp)
+            questions = []
+            for Q in exp.experiment_questions.select_subclasses():
+                num_correct, num_incorrect = Q.getNumbersOfAnswers()
+                T = num_correct + num_incorrect
+                PC = 100.0*num_correct/T
+                PI = 100.0*num_incorrect/T
+                questions.append((Q.id, str(Q), T, num_correct, num_incorrect, PC, PI))
+            return render(request, 'adminpanel/ExperimentDetails.html', {"exp": exp, "questions": questions, "answers": exp.getNumbersOfCollectedAnswers()})
+        except Exception as e:
+            return HttpResponse(status=500)
+    
+    def post(self, request):
+        return False
+
+class InspectExperimentsView(View):
+    """
+        View to allow inspection of all available experiments.
+    """
+
+    def get(self, request):
+        """ GET handler. """
+        try:
+            return render(request, 'adminpanel/InspectExperiments.html')
+
+        except Exception as e:
+            return HttpResponse(status=500)
+            # return HttpResponse('Error in Inspect Experiments view. Please report this error to the admins: '+str(e))
+
+    def post(self, request):
+        """ POST handler. """
+        if request.is_ajax():
+            try:
+                requestType = request.POST['type']
+                # activate an experiment
+                if requestType == '1':
+                    experiment_id = int(request.POST['experiment_id'])
+                    E = Experiment.objects.get(pk=experiment_id)
+                    E.is_active = True
+                    E.save()
+                    return HttpResponse(True)
+                # deactivate an experiment
+                if requestType == '2':
+                    experiment_id = int(request.POST['experiment_id'])
+                    E = Experiment.objects.get(pk=experiment_id)
+                    E.is_active = False
+                    E.save()
+                    return HttpResponse(True)
+
+                return HttpResponse("Unknown request type.")
+            except Exception as e:
+                return HttpResponse(status=500)
+        else:
+            return HttpResponse(status=500)
+
+
+class ShowExperimentResultsView(View):
+    def get(self, request):
+        if not LAST_COMPLETED_EXPERIMENT in request.session or not LAST_COMPLETED_PARTICIPATION in request.session:
+            return HttpResponseRedirect("/SelectExperiment")
+
+        params = dict()
+        params["freeTranslationCompletionPageConstants"] = constants.FreeTranslationCompletionPageConstants
+        params["commonConstants"] = constants.CommonConstants
+
+        try:
+            # get the completed experiment's name for the view
+            experiments = Experiment.objects.filter(id=request.session[LAST_COMPLETED_EXPERIMENT]).select_subclasses()
+            if len(experiments) > 0:
+                experiment = experiments[0]
+            experiment_name = experiment.getExperimentNameForUser()
+            # get the completion statistics from the participation
+            participation = ExperimentParticipation.objects.get(id=request.session[LAST_COMPLETED_PARTICIPATION])
+            total, correct, incorrect, not_answered, total_time_ms = participation.getResults()
+            total_time_min = total_time_ms / 60000
+            avg_time_secs = total_time_ms / total / 1000
+
+            userInfo = UserInfo.objects.get(user=request.user)
+            num_available = len(Experiment.getExperimentsAvailableToUser(userInfo))
+
+            experimentResults = {}
+            experimentResults['total_questions'] = total
+            experimentResults['total_correct'] = correct
+            experimentResults['total_time_in_minutes'] = total_time_min
+            experimentResults['avg_time'] = round(avg_time_secs, 2)
+            params['experimentResults'] = experimentResults
+            params['moreExperimentsAvailable'] = num_available > 0
+            return render(request, 'ExperimentCompletion.html', params)
+        except Exception as e:
+            # return HttpResponse(status=500)
+            return HttpResponse("Error: " + str(e))
+
+    def post(self, request):
+        return HttpResponse("POST")

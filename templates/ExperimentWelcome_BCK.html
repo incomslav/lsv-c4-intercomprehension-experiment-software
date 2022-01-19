@@ -1,0 +1,126 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+    <noscript>
+        <style type="text/css">
+            #frm {
+                display: none;
+            }
+            #no-java-script{
+                display: block;
+            }
+        </style>
+    </noscript>
+
+    <style type="text/css">
+        .readyButton {
+            width: 148px;
+            height: 28px;
+            position: relative;
+            margin-top: 5px;
+            border: 1px solid black;
+        }
+
+        .readyButton label {
+            width: 147px;
+            height: 27px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .readyButton input[type=checkbox] {
+            visibility: hidden;
+        }
+
+        .readyButton input[type=checkbox]:checked + label {
+            background: green;
+            border: none;
+        }
+
+    </style>
+
+
+    <div class="col-lg-12 col-xs-12 task-background content-div" style="padding-top:50px;">
+        <form method="post" id="frm">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 style="color: green;font-weight:bold;">
+                        {{ strings.EXPERIMENT_WELCOME_HEADER }}
+                    </h3>
+
+                    <p>{{ strings.EXPERIMENT_INSTRUCTIONS|safe }}</p>
+                </div>
+            </div>
+
+            <div class="row margin-top" style="margin-right:auto">
+                <!--
+                <div class="readyButton" width="100px" style="float:left;">
+                    <input id="chkReady" type="checkbox" onchange="processReadyCheckboxChange();">
+                    <label for="chkReady">{% trans 'I_AM_READY_BUTTON_TEXT' %}</label>
+                </div>
+                -->
+                <div class="col-md-6">
+                    <button id="btnStart" onclick="processStartRequest();"
+                            class="btn btn-primary">{% trans 'CONTINUE_BUTTON_TEXT' %}</button>
+                </div>
+
+            </div>
+
+        </form>
+
+        <div id="no-java-script" class="row">
+            <div class="col-md-12">
+                <h3 style="color: green;font-weight:bold;">
+                    {{ enableJavaScriptMessage.ENABLE_JAVA_SCRIPT_MESSAGE }}
+                </h3>
+            </div>
+        </div>
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+            $("#no-java-script").hide();
+            //$("#btnStart").prop('disabled', true);
+
+        });
+
+        function processReadyCheckboxChange() {
+            var checkbox_value = $("#chkReady").is(':checked');
+            if (checkbox_value) {
+                $("#btnStart").prop('disabled', false);
+            } else {
+                $("#btnStart").prop('disabled', true);
+            }
+        }
+
+        function processStartRequest() {
+            var dataObj = {"csrfmiddlewaretoken": document.getElementsByName('csrfmiddlewaretoken')[0].value};
+
+            $.ajax({
+                type: "POST",
+                url: "/en/SelectExperiment/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+
+    </script>
+
+{% endblock %}

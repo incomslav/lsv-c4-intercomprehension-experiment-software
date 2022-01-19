@@ -1,0 +1,211 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Multilingual Gender Management</u></h2>
+                </div>
+            </div>
+
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in English :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderEn }}
+                    {{ form.gender_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in German :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Russian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Bulgarian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Ukrainian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Czech :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Polish :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderPl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Croatian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderHr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Bosnian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Serbian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Slovak :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Macedonian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Gender in Slovenian :</label>
+                </div>
+                <div class="col-md-4">
+                    {{ form.txtGenderSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>Gender EN</th>
+                    <th>Code</th>
+                    <th>Update</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'multilingual_gender_management_gridview' %}"
+            });
+
+        });
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+        function isValidateForm() {
+            genderEn = $('#id_txtGenderEn');
+
+            if (genderEn.val() == '') {
+                alert("Gender in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

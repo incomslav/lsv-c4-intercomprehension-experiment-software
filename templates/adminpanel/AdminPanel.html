@@ -1,0 +1,100 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+
+<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+    <div class="row">
+        <div class="text-center">
+            <h2>Admin Panel</h2>
+        </div>
+
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">Correspondence Rules</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/CorrespondenceRulesWithPosition/">Correspondence Rules With Position</a>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/CorrespondenceRulesWithCount/">Correspondence Rules With Rule Count</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Language Experiments</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="/AddQuestions/">Add Questions</a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/UploadExperimentQuestionsFile/">Upload Experiment Questions File</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="/ExperimentSelection/">Experiment Questions</a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/AdminPanel/AddExperimentUnlockCode/">Add Experiment Unlock Code</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/QuestionsAssignment/">Assign Questions to Experiments</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/GroupAssignment/">Make Groups of Questions</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/AnswersAssignment/">Assign Answers to Questions</a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/UploadFreeTranslationExperimentFile/">Upload Free Translation Experiment File</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Experiment Data</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/DeleteUserExperimentData/">Delete Experiment Data</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/ExportUserExperimentData/">Export Experiment Data</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <a href="/RecoverDeletedUserExperimentsData/">Recover Deleted Experiment Data</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

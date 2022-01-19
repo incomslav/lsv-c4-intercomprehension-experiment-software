@@ -1,0 +1,78 @@
+{% extends "BaseProlific.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:65px;">
+
+        <div class="row">
+            <div class="col-md-1">
+                <img src="/static/images/winner-badge.png" style="width: 50px;">
+            </div>
+            <div class="col-md-11">
+                <h2>
+                    {#                    {% trans 'EXPERIMENT_FINAL_THANK_YOU_TEXT' %}#}
+                    Thank You for your Participation in the Experiment
+                </h2>
+                <h4>
+                    Your contribution in fighting the crime is priceless!
+                </h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                                        {% trans 'EXPERIMENT_FINAL_APPRECIATION_MESSAGE' %}
+                    You were {{ accuracy }}% Accurate!!!
+                    <img src="/static/images/s2.png" style="width: 75px;">
+                </h3>
+            </div>
+        </div>
+
+        <div id="div_results_table">
+
+                <div class='row margin-top text-center'>
+                    <div class='col-md-12'>
+                        <h4>
+                                                    {% trans 'EXPERIMENT_FINAL_YOUR_RESULTS_HEADER' %}
+                            Total Questions: {{ stat_obj.total_question }}
+                        </h4>
+                    </div>
+                </div>
+
+                <div class='row margin-top'>
+                    <div class='col-md-12 text-center'>
+                        <h4>
+                            <b>
+                                                        {% trans 'EXPERIMENT_FINAL_STATISTICS_HEADER' %}
+                                Correct Answer: {{ stat_obj.total_correct }}
+                            </b>
+                        </h4>
+                    </div>
+                </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <a href="https://app.prolific.co/submissions/complete?cc=45A8D2AE"><button class="btn btn-primary" type="">Return to Prolific</button> </a>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+
+
+{% endblock %}

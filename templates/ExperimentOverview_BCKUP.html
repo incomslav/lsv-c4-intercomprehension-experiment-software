@@ -1,0 +1,127 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+
+        div.div-fade:hover{
+            background-color: transparent !important;
+        }
+
+        .medal {
+
+        }
+
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+        <h1>{% trans 'WELCOME_TEXT' %}, {{ user.username }}!</h1>
+
+        {% if not cleared_for_experiments %}
+            <p>
+                {% trans 'FIRST_ENTER_USER_INFORMATION_TEXT' %}</p>
+            <a href="{% url 'UserInfoForm' %}">{% trans 'GO_TO_USER_INFO_FORM_LINK_TEXT' %}</a>
+
+        {% else %}
+            <p>
+                {% trans 'WANT_TO_CHANGE_USER_INFORMATION_TEXT' %}
+                <a href="{% url 'UserInfoForm' %}">{% trans 'GO_TO_USER_INFO_FORM_LINK_TEXT' %}</a>
+            </p>
+            {% if completed_experiments %}
+                <div>
+                    <h2>{% trans 'COMPLETED_EXPERIMENTS_OVERVIEW_HEADER' %}:</h2>
+
+                    {% for exp,toFromLangTable, percen,fromL,toL,medal,date in completed_experiments %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p style="font-weight: bold">
+
+                                </p>
+
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-2"
+                                 style="background-image: url('/static/images/medals/{{ medal }}.png'); background-size: 175px;
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                    {{ fromL }} - {{ toL }}
+                                </p>
+
+                                <p style="position: absolute; bottom: 0px;left: 40px;">{{ date }}</p>
+                            </div>
+                            <div class="col-md-6" style="height: 175px;">
+                                <div style="margin-top: 45px;">
+                                    <b>{{ exp|safe }}</b>
+                                    {{ toFromLangTable|safe }}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                    <p>{% trans 'EXPERIMENT_FINAL_APPRECIATION_MESSAGE' %}
+                    </p>
+
+                </div>
+            {% endif %}
+            {% if available_experiments %}
+                <h2>{% trans 'AVAILABLE_EXPERIMENTS_OVERVIEW_HEADER' %}:</h2>
+
+                    {% for ex_id,a_exp,a_toFromLangTable, a_fromL,a_toL in available_experiments %}
+
+                    <div class="row margin-top" style="border: 1px solid; border-radius: 5px;">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="hdnId" value="{{ ex_id }}">
+
+                            <div class="col-md-2"
+                                 style="background-image: url('/static/images/medals/grayscale.png'); background-size: 175px;
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <a onclick="$(this).closest('form').submit();">
+                                <div class="div-fade" style="width: 100%; height: 175px; margin-left: -15px; opacity: 0.7;"></div>
+                                </a>
+
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                    {{ a_fromL }} - {{ a_toL }}
+                                </p>
+                            </div>
+
+                            <div class="col-md-6" style="height: 175px;">
+                                <div style="margin-top: 45px;">
+                                   <a onclick="$(this).closest('form').submit();"> <b>{{ a_exp|safe }}</b> </a>
+                                    {{ a_toFromLangTable|safe }}
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+
+                    {% endfor %}
+                {% else %}
+                    <p>{% trans 'NO_EXPERIMENTS_AVAILABLE_AT_ALL_TEXT' %}</p>
+                    <p>{% trans 'STAY_TUNED_TEXT' %}</p>
+
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

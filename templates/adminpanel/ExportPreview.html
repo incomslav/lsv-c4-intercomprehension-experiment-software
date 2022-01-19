@@ -1,0 +1,289 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+
+        fieldset {
+            border: 1px solid green;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        legend {
+            width: auto;
+            padding: 0 10px;
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 0;
+        }
+
+        #ui-datepicker-div {
+            z-index: 2000 !important;
+        }
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Experiment </u></h2>
+                </div>
+            </div>
+            {{ common_data.ExperimentName }}
+
+            <div class="row margin-top">
+                <fieldset>
+                    <legend>Filtered By:{{ filter }}</legend>
+                    <div class="col-md-12">
+
+                        <div class="col-md-2">
+                            <label>Select Rank: </label>
+                        </div>
+                        <div class="col-md-2">
+                            {% for rank in ranks %}
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="chk_rank_{{ rank }}" type="checkbox" name="chk_rank"
+                                               value="{{ rank }}"/>Rank {{ rank }}
+                                    </label>
+                                </div>
+
+                            {% endfor %}
+{#                        <input type="hidden" id="hdn_ranks" value="{{ filter.ranks }}">#}
+                        </div>
+                        <div class="col-md-4">
+                            <div class="checkbox">
+                                <label>
+                                    <input id="chk_users_having_no_stimulus_language_knowledge" type="checkbox"
+                                            />Select users who have no knowledge of the stimulus language
+                                </label>
+                                <input id="hdn_is_not_know_stimulus_language" type="hidden" value="0"
+                                       name="hdn_is_not_know_stimulus_language">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>From Date:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="txtFromDate" name="txtFromDate">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>To Date:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="txtToDate" name="txtToDate">
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row margin-top">
+                        <input type="hidden" id="hdnFilter" name="hdnFilter" value="0">
+
+                        <div class="col-md-1">
+                            <input id="btnFilter" type="submit" value="Filter" class="btn btn-primary">
+                        </div>
+                        <div class="col-md-2">
+                            <input id="btnRemoveFilter" type="submit" value="Remove Filter" class="btn btn-primary">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-12">
+                    <input id="btnDownload" type="submit" value="Download as .xlsx" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <h3><u> Questions Detail </u></h3>
+            </div>
+        </div>
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>Sr #</th>
+                    <th>QuestionId</th>
+                    <th>Stimulus</th>
+                    <th>TotalAns</th>
+                    <th>#AbsCorrect</th>
+                    <th>#NormCorrect</th>
+                    <th>#Incorrect</th>
+                    <th>#NoAnswer</th>
+                    <th>%AbsCorrect</th>
+                    <th>%NormCorrect</th>
+                    <th>%Incorrect</th>
+                    <th>%NoAnswer</th>
+                    <th>AvgTotalTime</th>
+                    <th>AvgInitHesitationTime</th>
+                    <th>AvgTypingTime</th>
+                    <th>AvgSubmitHesitationTime</th>
+                    <th>AvgAbsTotalTime</th>
+                    <th>AvgAbsInitHesitationTime</th>
+                    <th>AvgAbsTypingTime</th>
+                    <th>AvgAbsSubmitHesitationTime</th>
+                    <th>AvgNormTotalTime</th>
+                    <th>AvgNormInitHesitationTime</th>
+                    <th>AvgNormTypingTime</th>
+                    <th>AvgNormSubmitHesitationTime</th>
+                    <th>AvgIncorrectTotalTime</th>
+                    <th>AvgIncorrectInitHesitationTime</th>
+                    <th>AvgIncorrectTypingTime</th>
+                    <th>AvgIncorrectSubmitHesitationTime</th>
+                    <th>AvgNoAnsTotalTime</th>
+                    <th>AvgNoAnsInitHesitationTime</th>
+                    <th>AvgNoAnsTypingTime</th>
+                    <th>AvgNoAnsSubmitHesitationTime</th>
+
+                    </thead>
+                    <tbody>
+
+                    {% for sr,q_id,question,total_ans, abs_correct,normalized_correct,incorrect,no_ans,abs_correct_perc,normalized_correct_perc,incorrect_perc,no_ans_perc,avg_total_time,avg_init_hesitation_time,avg_typing_time,avg_submit_hesitation_time,abs_avg_time, abs_avg_init_hesit_time,abs_avg_typing_time, abs_avg_submit_hesit_time,norm_avg_time, norm_avg_init_hesit_time, norm_avg_typing_time,norm_avg_submit_hesit_time,incorrect_avg_time, incorrect_avg_init_hesit_time, incorrect_avg_typing_time,incorrect_avg_submit_hesit_time,no_ans_avg_time, no_ans_avg_init_hesit_time, no_ans_avg_typing_time,no_ans_avg_submit_hesit_time in data %}
+                        <tr>
+                            <td>{{ sr }}</td>
+                            <td>{{ q_id }}</td>
+                            <td>{{ question|safe }}</td>
+                            <td>{{ total_ans }}</td>
+                            <td>{{ abs_correct }}</td>
+                            <td>{{ normalized_correct }}</td>
+                            <td>{{ incorrect }}</td>
+                            <td>{{ no_ans }}</td>
+                            <td>{{ abs_correct_perc }}</td>
+                            <td>{{ normalized_correct_perc }}</td>
+                            <td>{{ incorrect_perc }}</td>
+                            <td>{{ no_ans_perc }}</td>
+                            <td>{{ avg_total_time }}</td>
+                            <td>{{ avg_init_hesitation_time }}</td>
+                            <td>{{ avg_typing_time }}</td>
+                            <td>{{ avg_submit_hesitation_time }}</td>
+                            <td>{{ abs_avg_time }}</td>
+                            <td>{{ abs_avg_init_hesit_time }}</td>
+                            <td>{{ abs_avg_typing_time }}</td>
+                            <td>{{ abs_avg_submit_hesit_time }}</td>
+                            <td>{{ norm_avg_time }}</td>
+                            <td>{{ norm_avg_init_hesit_time }}</td>
+                            <td>{{ norm_avg_typing_time }}</td>
+                            <td>{{ norm_avg_submit_hesit_time }}</td>
+                            <td>{{ incorrect_avg_time }}</td>
+                            <td>{{ incorrect_avg_init_hesit_time }}</td>
+                            <td>{{ incorrect_avg_typing_time }}</td>
+                            <td>{{ incorrect_avg_submit_hesit_time }}</td>
+                            <td>{{ no_ans_avg_time }}</td>
+                            <td>{{ no_ans_avg_init_hesit_time }}</td>
+                            <td>{{ no_ans_avg_typing_time }}</td>
+                            <td>{{ no_ans_avg_submit_hesit_time }}</td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+            $("#btnFilter").click(function () {
+                $("#hdnFilter").val(1);
+            });
+
+            $("#btnRemoveFilter").click(function () {
+                $("#hdnFilter").val(2);
+            });
+
+            $("#btnDownload").click(function () {
+                $("#hdnFilter").val(0);
+            });
+
+{#            if ($("#hdn_is_not_know_stimulus_language").val()=="1"){#}
+{#                $("#chk_users_having_no_stimulus_language_knowledge").attr("checked",true);#}
+{#            }#}
+{#            else{#}
+{#                $("#chk_users_having_no_stimulus_language_knowledge").attr("checked",false);#}
+{#            }#}
+
+            $("#chk_users_having_no_stimulus_language_knowledge").change(function () {
+                if ($(this).is(':checked')) {
+                    $("#hdn_is_not_know_stimulus_language").val(1);
+                }
+            });
+
+
+            var startDateTextBox = $('#txtFromDate');
+            var endDateTextBox = $('#txtToDate');
+
+            startDateTextBox.datetimepicker({
+                dateFormat: 'yy-mm-dd',
+                timeFormat: 'HH:mm',
+                onClose: function (dateText, inst) {
+                    if (endDateTextBox.val() != '') {
+                        var testStartDate = startDateTextBox.datetimepicker('getDate');
+                        var testEndDate = endDateTextBox.datetimepicker('getDate');
+                        if (testStartDate > testEndDate)
+                            endDateTextBox.datetimepicker('setDate', testStartDate);
+                    }
+                    else {
+                        endDateTextBox.val(dateText);
+                    }
+                },
+                onSelect: function (selectedDateTime) {
+                    endDateTextBox.datetimepicker('option', 'minDate', startDateTextBox.datetimepicker('getDate'));
+                }
+            });
+            endDateTextBox.datetimepicker({
+                dateFormat: 'yy-mm-dd',
+                timeFormat: 'HH:mm',
+                onClose: function (dateText, inst) {
+                    if (startDateTextBox.val() != '') {
+                        var testStartDate = startDateTextBox.datetimepicker('getDate');
+                        var testEndDate = endDateTextBox.datetimepicker('getDate');
+                        if (testStartDate > testEndDate)
+                            startDateTextBox.datetimepicker('setDate', testEndDate);
+                    }
+                    else {
+                        startDateTextBox.val(dateText);
+                    }
+                },
+                onSelect: function (selectedDateTime) {
+                    startDateTextBox.datetimepicker('option', 'maxDate', endDateTextBox.datetimepicker('getDate'));
+                }
+            });
+
+
+        });
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+    </script>
+
+{% endblock %}

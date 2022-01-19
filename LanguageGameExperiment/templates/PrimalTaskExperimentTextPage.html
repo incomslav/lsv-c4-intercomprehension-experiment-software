@@ -1,0 +1,293 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    {% load staticfiles %}
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+            <div class="row">
+                <div class="col-md-12" align="center">
+
+                    <h2 style="align-content: center; color: darkgreen;"><b>{% trans 'PRIMING_TASK_INTRO' %}</b></h2>
+{#                    <h2 style="align-content: center; color: darkgreen;"><b>Welcome to Priming Task Experiment</b></h2>#}
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8" style="padding-top: 20px;">
+
+{#                    {% if  selected_lado_exp_id == 1 %}#}
+{#                    <div class="panel panel-body" style="color: 0a568c;" id="intro_div">#}
+{#                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_1' %}</h4>#}
+{#                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_2' %}</h4>#}
+{#                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_3' %}</h4>#}
+{#                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_4' %}</h4>#}
+{##}
+{#                        <!--#}
+{#                        <h4 id="">Local Police Department arrested several suspects from: Bulgaria, Czechia, Poland and Russia.</h4>#}
+{#                        <h4>They communicate with each other with secret language to mislead the police.</h4>#}
+{#                        <h4><b>In this Experiment You hear their voice and detect their origin</b></h4>#}
+{#                        <h4>Please read the "Experiment Instructions" carefully and try a trail first.</h4>#}
+{#                        -->#}
+{#                    </div>#}
+{##}
+{#                    {% else %}#}
+{#                    <div class="panel panel-body" style="color: 0a568c;" id="intro_div">#}
+{#                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_1' %}</h4>#}
+{#                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_2' %}</h4>#}
+{#                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_3' %}</h4>#}
+{#                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_4' %}</h4>#}
+{#                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_5' %}</h4>#}
+{##}
+{##}
+{#                    </div>#}
+{##}
+{#                    {% endif %}#}
+
+
+                    <div class="panel panel-body" style="color: green;" id="instruction_div">
+
+                        <h2 style="color: darkred;"><b>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TITLE' %}</b></h2>
+
+                        <ul>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_1' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_2' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_3' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_4' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_5' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_6' %}</li>
+                            <li>{% trans 'PRIMING_EXPERIMENT_1_INSTRUCTION_TEXT_LINE_7' %}</li>
+{#                            <li style="color: #0a568c;">Each time, you will hear a pair of words. They might sound similarily</li>#}
+{#                            <li style="color: #0a568c;">Your task is to listen to the word and decide if a SECOND one is a real. Meaning is it an existing word in YOUR language</li>#}
+{#                            <li style="color: #0a568c;"> If it is a correct word press <b>"A"</b> on your keyboard immediately!</li>#}
+{#                            <li style="color: #0a568c;">If it is non-word press <b>"L"</b>.</li>#}
+{#                            <li style="color: #0a568c;">Speed and accuracy counts!</li>#}
+{#                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_3' %}</li>#}
+{#                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_4' %}</li>#}
+{#                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_5' %}</li>#}
+{#                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_6' %}</li>#}
+                            <!--
+                            <li>This is an Audio Experiment, Please make sure the sound of your computer is working properly</li>
+                            <li><b>Please Use Headphones for this Experiment</b></li>
+                            <li>After each voice recordins played, You have to select one answer from the list options shown in the screen</li>
+                            <li>You also have to select the confidence (scaled from 1-5) for your answer</li>
+                            <li>You can hear the recording maximum for 2 times for each of the cases</li>
+                            -->
+                        </ul>
+
+
+
+
+                    </div>
+
+                    <div class="margin-top">
+                        <button class="btn btn-sm btn-primary" type="button" id="trial_btn">{% trans 'LADO_PLAY_TRIAL_BUTTON' %}</button>
+                    </div>
+
+                    <form action="{% url 'LanguageGameExperiment:PrimalTaskExperiment' %}" class="panel panel-body col-md-5" id="start_exp_div">
+
+
+                        <div class="margin-top" >
+                            <button class="btn btn-sm btn-primary" type="submit">{% trans 'LADO_START_EXPERIMENT_BUTTON' %}</button>
+                        </div>
+                    </form>
+
+
+
+
+                </div>
+{#                <div class="col-md-4">#}
+{#                    <img src="{{ MEDIA_URL }}bank_robbery_front" class="img-fluid" height=700 width=600>#}
+{#                </div>#}
+
+            </div>
+
+            <div class="row" id="trial_div">
+                <div class="col-xs-4 col-sm-4">
+
+                    <audio id="lblAudio_token1">
+                        <source id="source_mp3_token1" src="" type="audio/mp3">
+                    </audio>
+
+                    <audio id="lblAudio_token2">
+                        <source id="source_mp3_token2" src="" type="audio/mp3">
+                    </audio>
+
+                    <input type="hidden" id="audio_count" name="audio_count" value="0">
+
+
+                  <button id="button_token1" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_1_BUTTON_TEXT' %}</button>
+
+                    <input type="hidden" id="hdnQuestionId">
+                    <input type="hidden", id="hdnAnswerId">
+                    <input type="hidden" id="runningCurrect">
+                </div>
+
+                <div class="col-xs-2">
+                    <p class="task-translate-arrow">
+                        >
+                    </p>
+                </div>
+
+                <div class="col-xs-4">
+
+                    <button id="button_token2" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_2_BUTTON_TEXT' %}</button>
+                </div>
+            </div>
+
+        
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+
+
+    <script type="text/javascript">
+
+
+
+            {#$("#trial_div").hide();#}
+
+
+            var audio_1 = $("#lblAudio_token1");
+            var audio_2 = $("#lblAudio_token2");
+            var token1_btn = document.getElementById("button_token1");
+            var token2_btn = document.getElementById("button_token2");
+
+            var answer_start_time = 0;
+            var answer_end_time = 0;
+            var key_fired = false;
+            var user_answer = '';
+            var count = 0;
+
+        $(document).ready(function () {
+
+            $("#start_exp_div").hide();
+            $("#trial_div").hide();
+
+
+            $("#trial_btn").click(function () {
+                $("#trial_div").show();
+                $("#trial_btn").hide();
+                fetchFirstAudio();
+            })
+
+
+        function playAudio1() {
+            token1_btn.disabled = false;
+            audio_1.get(0).play();
+            console.log("playing audio 1");
+
+            audio_1[0].onended = function (ev){
+                token1_btn.disabled = true;
+                setTimeout(function() {
+                    playAudio2();
+                }, 250);
+
+            };
+        };
+
+        function playAudio2() {
+            token2_btn.disabled = false;
+            audio_2.get(0).play();
+            audio_2[0].onended = function (ev) {
+                console.log('working');
+                token2_btn.disabled = true;
+            };
+            key_fired = false;
+            answer_start_time = window.performance.now();
+            keyPressEvent();
+        };
+
+        function fetchFirstAudio(){
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                count : count
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/PrimalTaskExperimentText/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    count = data['count'];
+                    if(data['count'] < 5) {
+
+
+                        {##}
+                        {#$("#hdnAnswerId").val(data['answer_id']);#}
+                        {#$("#runningCurrect").val(data['running_correct']);#}
+
+                        $("#source_mp3_token1").attr("src", data['token1_filepath']);
+                        audio_1[0].pause();
+                        audio_1[0].load();
+
+                        $("#source_mp3_token2").attr("src", data['token2_filepath']);
+                        audio_2[0].pause();
+                        audio_2[0].load();
+                        playAudio1();
+
+                        {#context.resume().then(() = > {#}
+                        {##}
+                        {#    playAudio1();#}
+                        {##}
+
+                    }
+                    else
+                    {
+                        $("#trial_div").hide();
+                        $("#trial_btn").hide();
+                        $("#start_exp_div").show(500);
+                    }
+
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+        function keyPressEvent() {
+            $(document).on('keydown',function(e) {
+
+
+                console.log("keypress");
+                if(e.which == 65 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'word';
+                    fetchFirstAudio();
+                }
+                if(e.which == 76 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'non-word';
+                    fetchFirstAudio();
+                }
+            });
+        }
+
+
+
+
+    });
+
+    </script>
+
+
+    
+
+{% endblock %}

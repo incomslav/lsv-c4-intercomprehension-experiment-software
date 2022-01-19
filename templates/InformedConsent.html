@@ -1,0 +1,40 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+ul{
+    list-style: none;
+}
+
+</style>
+
+<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:65px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class='row'>
+            <div class='col-md-12'>
+                <div>
+                        {{ informedConsent |safe}}
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script language="JavaScript">
+
+</script>
+
+{% endblock %}

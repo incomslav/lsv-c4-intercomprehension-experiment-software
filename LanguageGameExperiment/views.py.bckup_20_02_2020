@@ -1,0 +1,591 @@
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.views.generic import View
+from django.core.urlresolvers import reverse
+from .models import *
+from django.core.exceptions import ObjectDoesNotExist
+import csv, os
+from django.contrib.staticfiles.storage import staticfiles_storage
+import datetime
+from pathlib import Path
+from django.conf import settings
+import csv
+# Create your views here.
+
+
+def LanguageGameExp(request):
+
+	if request.is_ajax():
+		
+
+		message = 'This is ajax'
+		print("Working")
+
+		return JsonResponse(message, safe=False)
+
+
+
+	return render(request, 'LanguageGameExperimentPage.html')
+
+
+
+class CreateNewLaDoExp(View):
+
+	model = LaDoExperiment
+	template_name = 'createNewLaDoExp.html'
+	create_message = ''
+
+
+
+	def get(self, request):
+
+		data = {}
+
+		experiment_list = self.model.objects.filter(is_active=True)
+
+		data['experiment_list'] = experiment_list
+		data['message'] = self.create_message
+
+		return render(request, self.template_name , data)
+
+
+	def post(self, request):
+
+
+		obj, created = self.model.objects.get_or_create(
+			experiment_name = request.POST['experiment_name'])
+
+		if created:
+			self.create_message = 'Experiment Created'
+		else:
+			self.create_message = 'Experiment could not be created'
+
+		
+		return render(request, self.template_name)
+
+
+
+class LaDoExperimentQuestionView(View):
+
+	template_name = 'viewLaDoQuestion.html'
+
+	def get(self, request, exp_id):
+
+		try:
+
+			data = {}
+			exp_obj = LaDoExperiment.objects.get(id=exp_id)
+			question_list = LaDoQuestion.objects.filter(experiment=exp_id)
+
+			# for question in question_list:
+			# 	if question.id > 43:
+			# 		question.delete()
+
+			# question_list = LaDoQuestion.objects.filter(experiment=exp_id)
+			data['exp_obj'] = exp_obj
+			data['question_list'] = question_list
+
+			return render(request, self.template_name, data)
+
+		except ObjectDoesNotExist as e:
+			return HttpResponse(e)
+
+
+	def post(self, request, exp_id):
+
+		try:
+			data = {}
+			exp_obj = LaDoExperiment.objects.get(id=exp_id)
+
+			question_list = LaDoQuestion.objects.filter(experiment=exp_id)
+			print(question_list)
+			if question_list.exists() == False or exp_obj.has_audio == False:
+				csv_file_path = request.POST['csv_file_path']
+				# print(csv_file_path)
+
+				# static_path = '/home/hasan/Desktop/C4-django-webexperiments/static'
+				static_path = '/srv/C4-django/c4-django-webexperiments/Incomslav/static'
+
+				file_path = os.path.join(static_path, csv_file_path)
+
+
+
+				if Path(file_path).is_file():
+					print(file_path)
+					# used to upload data
+					with open(file_path, 'r') as csv_file:
+						print("opened")
+						csv_reader = csv.reader(csv_file, delimiter=',')
+						for row in csv_reader:
+
+							file_name = row[0]
+							answer = str(row[1])
+							answer = answer.strip()
+							print(file_name, answer)
+							obj = LaDoQuestion(experiment=exp_obj, file_name=file_name, correct_answer=answer)
+							obj.save()
+							# print(row)
+
+						data['message'] = 'Questions are Uploaded for the Experiment'
+						exp_obj.has_audio = True
+						exp_obj.save()
+						question_list = LaDoQuestion.objects.filter(experiment=exp_id)
+
+				else:
+					data['message'] = 'No file Exists!!!'
+
+			else:
+				data['message'] = 'Quetions for the experiment are already exit'
+
+
+			data['exp_obj'] = exp_obj
+			data['question_list'] = question_list
+
+			return render(request, self.template_name, data)
+
+		except ObjectDoesNotExist as e:
+			return HttpResponse(e)
+
+
+
+
+class LanguageGameExperimentView(View):
+
+	def get(self, request):
+
+		return render(request, 'LanguageGameExperimentPage.html')
+
+
+	def post(self, request):
+
+		if request.is_ajax():
+
+			type = int(request.POST['type'])
+
+			exp_id = request.session['LADO_SELECTED_EXP']
+
+
+			try:
+				userInfo = UserInfo.objects.get(user=request.user)
+
+				participation_obj = LaDoExperimentParticipation.objects.get(user=userInfo, experiment_id=int(exp_id))
+
+				if type == 0:
+
+					print('Coming here')
+					data = {}
+
+					if participation_obj.checkCompletion() == False:
+						user_answer_id = participation_obj.getNextUserAnswerID()
+						print('User answer id ', user_answer_id)
+						answer_obj = LaDoUserAnswer.objects.get(id=int(user_answer_id))
+						print(answer_obj)
+
+						file_path = '/media/' + answer_obj.question.file_name
+						data['file_path'] = file_path
+						data['question_id'] = str(answer_obj.question.id)
+						data['answer_id'] = str(answer_obj.id)
+						data['total'] = str(participation_obj.getTotalNumberOfQuestions())
+						data['answered'] = str(participation_obj.getNumberOfAnsweredQuestions())
+
+
+
+						return JsonResponse(data, safe=False)
+
+					else:
+						return HttpResponseRedirect('/Experiments')
+
+
+				elif type == 1:
+
+					data = {}
+
+
+					user_answer = request.POST['user_answer']
+					answered_id = request.POST['answer_id']
+
+					conf_val = request.POST['answer_conf']
+					answer_time = request.POST['answer_time']
+					listen_count = request.POST['listen_count']
+
+					print(user_answer, answered_id, conf_val, answer_time, listen_count)
+
+					if int(listen_count) == 0:
+						listen_count = 1
+
+
+					this_answered_obj = LaDoUserAnswer.objects.get(id=int(answered_id))
+					print(this_answered_obj)
+
+					# Saving answers
+					this_answered_obj.user_answer = user_answer.lower()
+					this_answered_obj.answer_confidence = conf_val
+					this_answered_obj.time_taken = str(answer_time)
+					this_answered_obj.audio_listen_count = listen_count
+					this_answered_obj.answered_time = datetime.datetime.now()
+					this_answered_obj.is_answered = True
+					this_answered_obj.save()
+
+
+					if this_answered_obj.question.correct_answer.lower() == this_answered_obj.user_answer.lower():
+						data['answer_status'] = 'Correct'
+					else:
+						data['answer_status'] = 'Incorrect'
+
+
+
+					if participation_obj.checkCompletion() == False:
+
+						user_answer_id = participation_obj.getNextUserAnswerID()
+
+						answer_obj = LaDoUserAnswer.objects.get(id=user_answer_id)
+
+						file_path = '/media/' + answer_obj.question.file_name
+						data['file_path'] = file_path
+						data['question_id'] = str(answer_obj.question.id)
+						data['answer_id'] = str(answer_obj.id)
+						total_ques = participation_obj.getTotalNumberOfQuestions()
+						data['total'] = str(total_ques)
+						total_ans = participation_obj.getNumberOfAnsweredQuestions()
+						data['answered'] = str(total_ans)
+						data['percentage'] = str(int((total_ans * 100) / total_ques ))
+						print(data['percentage'])
+
+						data['given_ans'] = this_answered_obj.user_answer.lower()
+						data['correct_ans'] = this_answered_obj.question.correct_answer.lower()
+
+						data['completed'] = 'no'
+						print('COming this block')
+
+					else:
+						# save completed participation
+
+						present_time = datetime.datetime.now()
+						participation_obj.completed_on = present_time
+						participation_obj.save()
+
+
+						user_answers = participation_obj.lado_given_answers.all()
+						total_question = participation_obj.getTotalNumberOfQuestions()
+						total_correct = 0
+						total_time = 0
+						for ans in user_answers:
+							if ans.user_answer.lower() == ans.question.correct_answer:
+								total_correct += 1
+
+							total_time += float(ans.time_taken)
+
+						avg_time_sec = float(total_time /(total_question * 1000))
+						total_time = float(total_time /(1000 * 60))
+
+						stat_obj, created = LaDoExperimentStatistics.objects.get_or_create(participation=participation_obj)
+						if created:
+							stat_obj.total_question = total_question
+							stat_obj.total_correct = total_correct
+							stat_obj.completed_on = present_time
+							stat_obj.avg_time_in_sec = avg_time_sec
+							stat_obj.total_time_in_min = total_time
+
+							answer_obj = participation_obj.lado_given_answers.all()
+
+							correct_count = 0
+							for ans in answer_obj:
+								if ans.question.correct_answer.lower() == ans.user_answer.lower():
+									correct_count += 1
+
+							stat_obj.total_correct = correct_count
+							stat_obj.save()
+
+						data['completed'] = 'yes'
+						data['stat_id'] = str(stat_obj.id)
+
+					print(data)
+					return JsonResponse(data, safe=False)
+
+
+				elif type == 5:
+					# for result complettion
+
+					# save completed participation
+					# present_time = datetime.datetime.now()
+					# participation_obj.completed_on = present_time
+					# participation_obj.save()
+					#
+					#
+					# user_answers = participation_obj.lado_given_answers.all()
+					# total_question = participation_obj.getTotalNumberOfQuestions()
+					# total_correct = 0
+					# total_time = 0
+					# for ans in user_answers:
+					# 	if ans.user_answer.lower() == ans.question.correct_answer:
+					# 		total_correct += 1
+					#
+					# 	total_time += float(ans.time_taken)
+					#
+					# avg_time_sec = float(total_time /(total_question * 1000))
+					# total_time = float(total_time /(1000 * 60))
+					#
+					# stat_obj = LaDoExperimentStatistics(participation=participation_obj)
+					# stat_obj.total_question = total_question
+					# stat_obj.total_correct = total_correct
+					# stat_obj.completed_on = present_time
+					# stat_obj.avg_time_in_sec = avg_time_sec
+					# stat_obj.total_time_in_min = total_time
+					# stat_obj.save()
+
+
+					url = reverse('LanguageGameExperiment:LaDoShowResult', kwargs={'stat_id' : 1})
+
+					return redirect('/LanguageGameExperiment/LaDoShowResult/1')
+
+			except Exception as e:
+				print(e)
+
+
+			# 	html_audio_count = int(request.POST['audio_count'])
+			#
+			#
+			# 	user_answer = request.POST['user_answer']
+			#
+			# 	audio_count = html_audio_count + 1
+			# 	if audio_count == 43:
+			# 		audio_count += 1
+			#
+			# except:
+			#
+			# 	return HttpResponseRedirect('/Experiments')
+			#
+			# try:
+			#
+			#
+			# 	data = {}
+			#
+			#
+			# 	if html_audio_count == 0:
+			# 		if user_answer == 'Polish':
+			# 			data['answer_status'] = 'Correct'
+			#
+			#
+			#
+			# 	else:
+			# 		answer_obj = LaDoQuestion.objects.get(id=html_audio_count)
+			#
+			# 		if answer_obj.id == 65:
+			# 			data['count'] = str(answer_obj.id)
+			# 			return JsonResponse(data, safe=False)
+			# 		else:
+			# 			if user_answer == answer_obj.correct_answer:
+			# 				data['answer_status'] = 'Correct'
+			# 			else:
+			# 				data['answer_status'] = 'Incorrect'
+			#
+			# 	question_obj = LaDoQuestion.objects.get(id=audio_count)
+			# 	# print(question_obj.file_name)
+			#
+			# 	file_path = '/media/' + question_obj.file_name
+			# 	data['file_path'] = file_path
+			# 	data['count'] = str(audio_count)
+			#
+			# 	return JsonResponse(data, safe=False)
+
+			
+			# url = staticfiles_storage.path('LaDO.csv')
+			# print(url)
+
+			# used to upload data
+			# with open('/home/hasan/Desktop/C4-django-webexperiments/media/Randomized Stimuli/LaDO.csv', 'r') as csv_file:
+			# 	print("opened")
+			# 	csv_reader = csv.reader(csv_file, delimiter=',')
+			# 	for row in csv_reader:
+					
+			# 		obj = LaDoQuestion(file_name=row[0], correct_answer=row[1])
+			# 		obj.save()
+			# 		print(row)
+
+		print("coming here")
+
+
+		return render(request, 'LanguageGameExperimentPage.html')
+
+
+# this is the call for experiment
+
+class ExperimentTextView(View):
+
+	def get(self, request):
+
+		data = {}
+
+		selected_lado_exp_id = request.session['LADO_SELECTED_EXP']
+
+		data['selected_lado_exp_id'] = selected_lado_exp_id
+
+		return render(request, 'ExperimentTextPage.html', data)
+
+
+	def post(self, request):
+
+		if request.is_ajax():
+
+			data = {}
+			message = 'This is ajax'
+			data['message'] = message
+			print("Working")
+
+			return JsonResponse(data, safe=False)
+
+		# Ajax part end
+
+
+
+		try:
+			exp_id = int(request.POST['exp_id'])
+			userInfo_obj = UserInfo.objects.get(user=request.user)
+			experiment_obj = LaDoExperiment.objects.get(id=exp_id)
+
+			# create participation object
+			experiment_participation, created = LaDoExperimentParticipation.objects.get_or_create(
+				user=userInfo_obj,
+				experiment=experiment_obj,
+				retry_count=0,
+				defaults={'is_active':True}
+			)
+
+			if created:
+				# creating question object
+				question_list = LaDoQuestion.objects.filter(experiment=experiment_obj)
+				print('Participation Object is created')
+				for ques in question_list:
+
+					answer_obj = LaDoUserAnswer(answering_user=userInfo_obj, participation=experiment_participation, question=ques)
+					answer_obj.save()
+
+			complete = experiment_participation.checkCompletion()
+			print(complete)
+			if complete == False:
+				return HttpResponseRedirect('/LanguageGameExperiment/LanguageGameExp')
+			else:
+				return HttpResponseRedirect('/Experiments')
+
+		except:
+
+			return HttpResponseRedirect('/Experiments')
+
+		return render(request, 'ExperimentTextPage.html')
+
+
+def LaDoShowResult(request, stat_id):
+
+
+
+	try:
+		data = {}
+		# request.session['LADO_SELECTED_EXP'] = 1
+		# print(request.session['LADO_SELECTED_EXP'])
+		# req_stat_id = request.session['LADO_SELECTED_EXP']
+		stat_obj = LaDoExperimentStatistics.objects.get(id=int(stat_id))
+
+		# correct_totatl = stat_obj.participation.lado_given_answers.all()
+		c_count = 0
+		# for corr in correct_totatl:
+		# 	if corr.question.correct_answer.lower() == corr.user_answer.lower():
+		# 		c_count += 1
+		#
+		# stat_obj.total_correct = c_count
+		# stat_obj.save()
+		# print(stat_obj.total_question)
+
+		data['stat_obj'] = stat_obj
+		accuracy = round( float((stat_obj.total_correct / stat_obj.total_question) * 100), 2)
+
+		data['accuracy'] = accuracy
+
+
+		return render(request, 'showLaDoResults.html', data)
+
+	except Exception as e:
+		print(e)
+		return render(request, 'showLaDoResults.html')
+
+
+
+class AdminLadoResultsView(View):
+
+	def get(self, request, exp_id):
+
+		data = {}
+
+		result_data = LaDoUserAnswer.objects.filter(participation__experiment_id=exp_id, participation__completed_on__isnull=False)
+
+
+
+
+		data['result_data'] = result_data
+
+		return render(request, 'AdminviewLadoResults.html', data)
+
+
+
+def export_lado_result_to_csv(request, exp_id):
+
+	try:
+
+		exp = LaDoExperiment.objects.get(id=exp_id)
+
+		result_data = LaDoUserAnswer.objects.filter(participation__experiment_id=exp_id, participation__completed_on__isnull=False).order_by('answering_user')
+
+		response = HttpResponse(content_type='text/csv')
+		csv_out_file = exp.experiment_name + "_LadoUserAnswers.csv"
+		response['Content-Disposition'] = 'attachment; filename="LadoUserAnswers.csv"'
+
+		writer = csv.writer(response)
+		writer.writerow(['Answer Id', 'User', 'File Name', 'Correct Response', 'User Response', 'IsCorrect', 'User Confidence', 'Audio Count', 'Respone Time (Second)', 'User Native Languages', 'Experiment Completed On'])
+		# writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+
+		user_count = 0
+		curr_user_name = ''
+		for data in result_data:
+			# print(data)
+
+			c_id = data.id
+
+			user_name = data.answering_user.user.username
+			if curr_user_name != user_name:
+
+				curr_user_name = user_name
+				user_count += 1
+
+
+			sess_name = 'user_' + str(user_count)
+
+			file_name = data.question.file_name
+			print(c_id, file_name)
+			correct_answer = data.question.correct_answer.lower()
+			user_answer = data.user_answer.lower()
+
+			if correct_answer == user_answer:
+				is_correct = 1
+			else:
+				is_correct = 0
+
+			conf = data.answer_confidence
+
+			audio_count = max(data.audio_listen_count, 1)
+			time_taken = float(data.time_taken) / 1000
+			lang_list = []
+			for lang in data.answering_user.languages.all():
+				lang_list.append(lang)
+
+			comp_on = data.participation.completed_on
+
+			if user_answer == '':
+				continue
+
+			writer.writerow([c_id, sess_name, file_name, correct_answer, user_answer, is_correct, conf, audio_count, time_taken, lang_list, comp_on])
+
+
+
+		return response
+
+	except Exception as e:
+		return HttpResponse(e)

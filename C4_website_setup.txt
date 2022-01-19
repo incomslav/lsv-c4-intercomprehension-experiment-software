@@ -1,0 +1,34 @@
+﻿Setup for the C4 django project
+
+pg_dump -U root -h localhost incomslav > outputfile.sql
+
+made virtualenv c4-django-env (exported alias C4)
+pip-installed django 1.8.4
+pip-installed python-social-auth
+pip-installed django-social-auth
+set proxy for apt: added line Acquire::http::Proxy “http://www-proxy.uni-saarland.de:3128”; to /etc/apt/apt.conf.d/99HttpProxy
+installed postgre: sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
+pip-installed psycopg2
+pip-installed openpyxl
+set up postgre db:
+logged into psql (sudo su – postgre → psql)
+created database ‘incomslav’: CREATE DATABASE incomslav;
+created user ‘root’ with pw ‘c4-incomslav-django’” CREATE USER root WITH PASSWORD ‘c4-incomslav-django’;
+set default encoding to utf-8: ALTER ROLE root SET client_encoding TO ‘utf8’; ALTER ROLE root SET default_transaction_isolation TO ‘read committed’; ALTER ROLE root SET timezone TO ‘UTC’;
+grant privileges for incomslav db to root: GRANT ALL PRIVILEGES ON DATABASE incomslav TO root;
+pip-installed django-model-utils
+Set git up to use proxy: git config --global http.proxy http://www-proxy.uni-saarland.de:3128
+Cloned repository
+removed mysql database from Incomslav/settings.py
+adapted paths in Incomslav/settings.py
+set correct password in Incomslav/settings.py
+applied migrations to initialize database
+loaded data into database: python3 manage.py loaddata X where X is in the c4-django-webexperiments/Database (UsersGender.json, UsersCountry.json, UsersLanguage.json)
+made superuser akf for django: python3 manage.py createsuperuser (enter username, email, and password in prompt)
+tested whether server can run with python3 manage.py runserver 
+installed uWSGI: pip install uwsgi
+set up nginx: put c4_nginx.conf (available in ConfigFiles dir in repository) into nginx sites-available directory and linked to it
+downloaded uwsgi_params (available in ConfigFiles dir in repository), necessary for nginx config → location must match the one configured in nginx conf
+set up uwsgi script c4.ini (available in ConfigFiles dir in repository) → put in /etc/uwsgi/apps-available and link to it from /etc/uwsgi/apps-enabled
+set up supervisor script c4_supervisor_script.conf → place in /etc/supervisor/conf.d/, run sudo supervisor reread; sudo supervisor update to make available,
+ then (re)start via sudo supervisorctl restart uwsgi-c4

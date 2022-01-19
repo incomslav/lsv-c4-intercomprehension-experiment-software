@@ -1,0 +1,316 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> News Section Management</u></h2>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-12">
+                    <span style="color:red;">Heading will come first and should be in square brackets [ ]. Text outside of brackets will not be a part of heading.</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in English :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionEn }}
+                    {{ form.news_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in German :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Russian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Bulgarian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Ukrainian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Czech :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Polish :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionPl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Croatian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionHr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Bosnian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Serbian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Slovak :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Macedonian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>News Description in Slovenian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtNewsDescriptionSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Priority :</label>
+                </div>
+                <div class="col-md-1">
+                    {{ form.priority }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>ID</th>
+                    <th>News Description EN</th>
+                    <th>Active?</th>
+                    <th>Priority</th>
+                    <th>Created On</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+            <div><a onclick="deleteAllNews();">Delete ALL News</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'news_section_management_gridview' %}"
+            });
+
+        });
+
+        function changePriority(id) {
+            var new_priority = $('#priority_input_' + id).val();
+            var obj = {type: 3, news_id: id, new_priority: new_priority};
+            processAjaxRequest(obj);
+            alert("Priority changed.");
+        }
+
+        function changeActivationStatus(id, was_active) {
+            if (was_active) {
+                if (confirm("Really deactivate this news?")) {
+                    var obj = {type: 2, news_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", false);
+                    }
+                }
+            } else {
+                if (confirm("Really activate this news?")) {
+                    var obj = {type: 1, news_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", true);
+                    }
+                }
+            }
+        }
+
+        function deleteAllNews() {
+            if (confirm("Really delete ALL news?")) {
+                var reply = prompt("Please type 'delete ALL' to confirm deletion.", '');
+                if (reply == 'delete ALL') {
+                    alert("Deleting all news...");
+                    var obj = {type: 11};
+                    processAjaxRequest(obj);
+                    window.location.href ='/admin/NewsSectionManagement';
+
+                } else {
+                    alert("Entered string did not match. Aborting.");
+                }
+            }
+
+        }
+
+
+        function deleteNews(id) {
+            if (confirm("Really delete news?")) {
+                var reply = prompt("Please type the news ID to confirm deletion.", '');
+                if (reply == id) {
+                    alert("Deleting " + id);
+                    var obj = {type: 10, news_id: id};
+                    processAjaxRequest(obj);
+                    window.location.href = '/admin/NewsSectionManagement';
+
+                } else {
+                    alert("Entered ID did not match news ID. Aborting.");
+                }
+            }
+
+        }
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+
+        function processAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/admin/NewsSectionManagement/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if (data == 'True') {
+
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function isValidateForm() {
+            newsEn = $('#id_txtNewsDescriptionEn');
+
+            if (newsEn.val() == '') {
+                alert("News description in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

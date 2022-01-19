@@ -1,0 +1,167 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+
+    .highlight {
+    	background-color: #99b2d2;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Update Audio File</u></h2>
+	            <p style="color: #5f2121;"> To remove the audio file set "Has Audio" field to "No" and <b>Submit</b> </p>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form method="POST" action="" enctype="multipart/form-data">
+					{% csrf_token %}
+					{{ form.as_p }}
+					<button type="sumbit" class="btn btn-primary">Submit</button>
+					
+				</form>
+			</div>
+		</div>
+
+		
+
+	</div>
+
+	
+	
+	{% if questions_list %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4><b style="color: blue;"> {{ exp_type }}</b> Experiments list for <i style="color: blue;">Native {{ native_lang }}</i> to <i style="color: blue;"> Foreign {{ foreign_lang }}</i></h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>#</th>
+						<th>Foreign Word</th>
+						<th>Has Audio</th>
+						<th>Audio File</th>
+						
+					</thead>	
+					<tbody>
+
+						
+
+						{% for id, word, has_audio, path in  questions_list %}
+						<tr>
+							<td>{{ id }}</td>
+							<td>{{ word }}</td>
+							<td>{{ has_audio }}</td>
+                            
+							<td>
+								<audio id="" controls> 
+			                        <source id="" src="test" type="audio/mp3">
+			                    </audio>
+                                <form class="form-inline" id="form_{{ id }}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="form-group col-md-2">
+                                        <label>{{ path }} </label>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <input type="text" name="filename" >
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <button type="button" onclick="uploadAudioFile({{ id }})">Add</button>
+                                    </div>
+                                </form>
+                            </td>
+										
+
+						</tr>
+						{% endfor %}
+
+						
+					</tbody>
+					
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% else %}
+	<div class="row margin-top">
+		<div class="panel panel-default">
+			{%if native_lang %}
+			<h4 style="text-align: center;">No Experiment found for <i style="color: blue;">Native {{ native_lang }}</i> to <i style="color: blue;"> Foreign {{ foreign_lang }}</i></h4>
+			{% else %}
+			<h4 style="text-align: center;">Search to get User mean Intelligibility Score for Experiments</h4>
+			{% endif %}
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+	{% load staticfiles %}
+
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'pace/themes/blue/pace-theme-bounce.css' %}">
+	<script type="text/javascript" src="{% static 'pace/pace.js' %}"></script>
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    
+
+    <script type="text/javascript">
+
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"paging" : true,
+	    		"order": [] 
+	    	});
+	    	
+	    	// $("#total_avg").html("Test");
+
+            var selectedExp = 0;
+
+
+
+
+
+
+				
+		} );
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+    <form id="form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2><u> Upload Medal for Already-Existing Experiment </u></h2>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-3">
+                <label>Choose Experiment:</label>
+            </div>
+            <div class="col-md-5">
+                {{form.experiment_id}}
+            </div>
+            <div class="col-md-1">
+                <span style="color:red;">*</span>
+            </div>
+        </div>
+        <div class="row margin-top">
+            <div class="col-md-3">
+                <label>Upload medal:</label>
+            </div>
+            <div class="col-md-5">
+                {{form.medal}}
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+
+        <div class="row margin-top">
+
+            <div class="col-md-4">
+                <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                       onclick="return isValidateForm();">
+
+            </div>
+        </div>
+    </form>
+
+        {{ msg }}
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+<script language="JavaScript">
+    $(document).ready(function () {
+        
+    });
+</script>
+
+{% endblock %}

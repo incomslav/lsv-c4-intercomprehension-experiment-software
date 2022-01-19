@@ -1,0 +1,326 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+
+    .highlight {
+    	background-color: #99b2d2;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Experiment Statistics</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form id="form" action="{% url 'ExperimentStatistics' %}" method="post">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Select Native Language:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="native_lang_name" required>
+						  		{% for lang in language_list %}
+						  		<option value="{{lang}}">{{ lang }}</option>
+						  		{% endfor %}
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+			        <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Select Foreign Language:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="foreign_lang_name" required>
+						  		{% for lang in language_list %}
+						  		<option value="{{lang}}">{{ lang }}</option>
+						  		{% endfor %}
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+			        <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Experiment Type :</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="experiment_type" required>
+						  		
+						  		<option value="free_translation">Free Translation Experiment</option>
+						  		<option value="gap_filling">Gap Filling Experiment</option>
+						  		<option value="phrase_trans">Phrase Translation Experiment</option>
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+		
+
+	</div>
+
+	
+	
+	{% if table_data %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4><b style="color: blue;"> {{ exp_type }}</b> Experiments list for <i style="color: blue;">Native {{ native_lang }}</i> to <i style="color: blue;"> Foreign {{ foreign_lang }}</i></h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>#</th>
+						<th></th>
+						<th>Experiment Name</th>
+						<th>Total Native</th>
+						<th>Total Participant</th>
+						
+						<th>Mean Intelligibility Socre (%)</th>
+						<th>Average Time (Minute)</th>
+						
+					</thead>	
+					<tbody>
+
+						
+
+						{% for list in  table_data %}
+						<tr>
+							<td>{{ forloop.counter }}</td>
+							<td>
+							{% if list.2 > 0 %}
+							<input type="checkbox" class="table_checkbox" name="tick" id="box_{{ forloop.counter }}" value="{{ list.5 }}"><input type="hidden" name="sample[]" id="h_box_{{ forloop.counter }}" value="{{ list.6 }}">
+							
+							{% endif %}
+							</td>
+							<td>{{ list.0 }}</td>
+							<td>{{ list.1 }}</td>
+							<td id="p_box_{{ forloop.counter }}">{{ list.2 }}</td>
+							
+							<td>{{ list.3 }}</td>
+							<td><input type="hidden" name="" id="t_box_{{ forloop.counter }}" value="{{ list.4 }}">{{ list.4 }}</td>
+										
+
+						</tr>
+						{% endfor %}
+
+						
+					</tbody>
+					<tfoot>
+						<tr style="background-color: #9abc7a;">
+							<th></th>
+							<th><label><input type="checkbox" class="selectall" name="sample" id="master"/></label></th>
+							<th>Overall Statistics</th>
+							<th>{{ list.1 }}</th>
+							<th id="total_participant">{{ total_partpt }}</th>
+							
+							<th id="total_avg">{{ total_mean_avg }}</th>
+							<th id="total_time">{{ total_time_avg }}</th>
+						</tr>
+						
+					</tfoot>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% else %}
+	<div class="row margin-top">
+		<div class="panel panel-default">
+			{%if native_lang %}
+			<h4 style="text-align: center;">No Experiment found for <i style="color: blue;">Native {{ native_lang }}</i> to <i style="color: blue;"> Foreign {{ foreign_lang }}</i></h4>
+			{% else %}
+			<h4 style="text-align: center;">Search to get User mean Intelligibility Score for Experiments</h4>
+			{% endif %}
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+	{% load staticfiles %}
+
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'pace/themes/blue/pace-theme-bounce.css' %}">
+	<script type="text/javascript" src="{% static 'pace/pace.js' %}"></script>
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+    
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"paging" : false,
+	    		"order": [] 
+	    	});
+	    	
+	    	// $("#total_avg").html("Test");
+
+	    	$('.selectall').click(function() {
+			    if ($(this).is(':checked')) {
+			        $('input:checkbox.table_checkbox').prop('checked', true);
+			    } else {
+			        $('input:checkbox.table_checkbox').prop('checked', false);
+			    }
+
+			    $('input:checkbox.table_checkbox').each(function(){
+			    	$(this).closest("tr").toggleClass("highlight", this.checked);
+			    });
+
+			    // $('input:checkbox.table_checkbox').closest("tr").toggleClass("highlight", '.input:checkbox.table_checkbox'.checked);
+
+			    var total_ques = 0;
+			      var total_ans = 0;
+			      var total_acc = 0;
+			      var total_time = 0;
+			      var avg_time = 0.0;
+			      var total_part = 0;
+			      var count = 0;
+
+			      $('input:checkbox:checked.table_checkbox').each(function(){
+
+
+
+			      	count += 1;
+
+			      	val_id = $(this).attr('id');
+			      	ques_id = 'h_' + val_id;
+			      	time_id = 't_' + val_id;
+			      	part_id = 'p_' + val_id;
+			      	
+
+
+			      	// total_ans += isNaN(parseInt($("#" + ques_id).val())) ? 0 : parseInt($(ques_id).val());
+
+			      	// total_ques += isNaN(parseInt($(this).val())) ? 0 : parseInt($(this).val());
+
+			      	total_time += parseFloat($("#" + time_id).val());
+
+			      	total_ans += parseInt($("#" + ques_id).val());
+			      	total_ques += parseInt($(this).val());
+
+			      	total_part += parseInt($("#" + part_id).html())
+			      });  
+
+			      if (count > 0){
+			      	
+			      	total_acc = (total_ans / total_ques) * 100;
+			      	avg_time = total_time / count;
+			      }
+
+			      
+			  
+			      $("#total_avg").html(total_acc.toFixed(2));
+			      $("#total_time").html(avg_time.toFixed(2));
+			      $("#total_participant").html(total_part);
+
+
+
+			});
+
+	    	
+	    	$('input:checkbox.table_checkbox').change(function ()
+			{
+
+				$(this).closest("tr").toggleClass("highlight", this.checked);
+
+				$('input:checkbox:checked.selectall').prop('checked', false);
+
+			      var total_ques = 0;
+			      var total_ans = 0;
+			      var total_acc = 0;
+			      var total_time = 0;
+			      var avg_time = 0.0;
+			      var total_part = 0;
+			      var count = 0;
+
+			      $('input:checkbox:checked.table_checkbox').each(function(){
+
+			      	
+
+			      	count += 1;
+
+			      	val_id = $(this).attr('id');
+			      	ques_id = 'h_' + val_id;
+			      	time_id = 't_' + val_id;
+			      	part_id = 'p_' + val_id;
+			      	
+
+
+			      	// total_ans += isNaN(parseInt($("#" + ques_id).val())) ? 0 : parseInt($(ques_id).val());
+
+			      	// total_ques += isNaN(parseInt($(this).val())) ? 0 : parseInt($(this).val());
+
+			      	total_time += parseFloat($("#" + time_id).val());
+
+			      	total_ans += parseInt($("#" + ques_id).val());
+			      	total_ques += parseInt($(this).val());
+
+			      	total_part += parseInt($("#" + part_id).html())
+			      });  
+
+			      if (count > 0){
+			      	
+			      	total_acc = (total_ans / total_ques) * 100;
+			      	avg_time = total_time / count;
+			      }
+
+			      
+			  
+			      $("#total_avg").html(total_acc.toFixed(2));
+			      $("#total_time").html(avg_time.toFixed(2));
+			      $("#total_participant").html(total_part);
+
+			});
+				
+		} );
+
+    </script>
+{% endblock %}

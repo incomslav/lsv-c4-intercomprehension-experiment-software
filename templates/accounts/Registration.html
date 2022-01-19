@@ -1,0 +1,65 @@
+{% extends "Base.html" %}
+{% load staticfiles %}
+{% block content %}
+
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600" rel='stylesheet'
+      type='text/css'>
+<link href="{% static 'css/fontawesome/css/font-awesome.css' %}" rel="stylesheet" media="screen">
+<link href="{% static 'css/registrationpage.css' %}" rel="stylesheet" media="screen">
+
+<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+    <div class="row margin-top">
+    <div class="col-md-6">
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'error' %}
+        <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% endif %}
+
+    </div>
+</div>
+
+    <div class="container-box">
+
+        <h1>{{loginPageConstants.USER_REGISTRATION_PAGE_HEADER}}</h1>
+        <form method="post" accept-charset="utf-8">
+            {% csrf_token %}
+            <label for="username" class="icon"><i class="fa fa-flag"></i></label>
+            <input type="text" id="username" name="username" placeholder="{{loginPageConstants.LANDING_PAGE_USERNAME_FIELD_TEXT}}" />
+
+            <label for="email" class="icon"><i class="fa fa-envelope-o"></i></label>
+            <input type="text" id="email" name="email" placeholder="{{loginPageConstants.LANDING_PAGE_EMAIL_FIELD_TEXT}}" />
+            <label for="password" class="icon"><i class="fa fa-shield"></i></label>
+            <input type="password" id="password" name="password" placeholder="{{loginPageConstants.LANDING_PAGE_PASSWORD_FIELD_TEXT}}" />
+            <label for="confirmPassword" class="icon"><i class="fa fa-shield"></i></label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="{{loginPageConstants.USER_REGISTRATION_PAGE_CONFIRM_PASSWORD_FIELD_TEXT}}"/>
+
+            <p style="margin-left: 15px; font-size: 12px;line-height:1.5;">
+                {{loginPageConstants.INFORMED_CONSENT_MESSAGE_TEXT}}
+                <br> {{ loginPageConstants.INFORMED_CONSENT_I_AGREE_TEXT }}
+                <input type="checkbox" id="chkInformationConsent" name="chkInformationConsent" checked="checked" />
+            </p>
+
+            <p style="margin-left: 15px; font-size: 12px;line-height:0.2;">
+                <a href="/InformedConsent/" target="_blank"> {{ loginPageConstants.INFORMED_CONSENT_PAGE_LINK_TEXT }} </a>
+            </p>
+
+            <p style="margin-left: 15px;font-size: 12px;line-height:1.5;">{{loginPageConstants.USER_REGISTRATION_PAGE_NEWS_LETTER_QUESTION}}
+                <input type="checkbox" id="chkNewsletter" name="chkNewsLetter" checked="checked" />
+            </p>
+
+            <input type="submit" value="{{loginPageConstants.LANDING_PAGE_REGISTER_BUTTON_TEXT}}" class="button" style="background-color: green;">
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

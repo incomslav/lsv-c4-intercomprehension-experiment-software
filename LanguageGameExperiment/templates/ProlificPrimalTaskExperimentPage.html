@@ -1,0 +1,778 @@
+{% extends "BaseProlific.html" %}
+{% load i18n %}
+{% block content %}
+    {% load staticfiles %}
+    <style type="text/css">
+        
+        .slider-class {
+        width: 96%;
+        }
+    </style>
+
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="frm" method="post" action="post/">
+            {% csrf_token %}
+
+            <div class="row margin-top">
+                <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                    <div id="progressBarLevels">
+                        <div></div>
+                    </div>
+                    <div id="progressBar" class="default-skin">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="header_div" class="row" style="text-align: center;">
+                <div class="col-lg-12">
+                    <h3>{% trans 'PRIMING_EXPERIMENT_1_PAGE_INSTRUCTION_1' %}</h3>
+                    <h5 id="alert_text" style="color: red;">If you don't hear anything, click on the left button to start the experiment</h5>
+{#                    <h3 style="text-align: center;">Press button <b> 'A' for word </b> and  <b> 'L' for Non-word </b> for correct Token2 is in Your Language</h3>#}
+                </div>
+            </div>
+
+
+
+{##}
+{#            <div class="row">#}
+{#                <div class="col-md-12 text-right" style="padding-right:40px;">#}
+{#                    <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label#}
+{#                            id="lblTimer"#}
+{#                            style='color:green;'> </label>#}
+{#                    </h2>#}
+{#                </div>#}
+{#            </div>#}
+
+            <div id="body_div" class="row margin-top">
+                <div class="col-sm-offset-1 col-xs-4 col-sm-4 margin-top">
+
+                    <audio id="lblAudio_token1">
+                        <source id="source_mp3_token1" src="" type="audio/mp3">
+                    </audio>
+
+                    <audio id="lblAudio_token2">
+                        <source id="source_mp3_token2" src="" type="audio/mp3">
+                    </audio>
+
+                    <input type="hidden" id="audio_count" name="audio_count" value="0">
+                    
+{#                    <h3 style="text-align: center; color: #0D3349;"><b>A</b></h3>#}
+                  <button id="button_token1" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_1_BUTTON_TEXT' %}</button>
+                    
+                    <input type="hidden" id="hdnQuestionId">
+                    <input type="hidden", id="hdnAnswerId">
+                    <input type="hidden" id="runningCurrect">
+                </div>
+
+                <div class="col-xs-2">
+                    <p class="task-translate-arrow">
+                        >
+                    </p>
+                </div>
+
+                <div class="col-xs-4 margin-top">
+{#                    <h3 style="text-align: center; color: firebrick;"><b>L</b></h3>#}
+                    <button id="button_token2" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_2_BUTTON_TEXT' %}</button>
+                </div>
+            </div>
+
+            <div class="row margin-top" id="keyboard_div">
+                <div class="col-md-offset-4 col-md-4">
+                    <img style="padding-top: 40px;" src="{{ MEDIA_URL }}keyboard_priming.png" class="img-fluid" height=200 width=500>
+                </div>
+            </div>
+
+            <div class="row" id="feedback_div1">
+                <div class="col-md-3">
+                    <img id="" src="/static/images/s1.png" style="width:75px;">
+                    <input type="hidden" id="hdnQcount" value="0">
+                    
+                </div>
+                <div class="col-xs-9 col-md-9">
+                    <h3 style="color: #0a568c;" id=''><b>Thank you for your Participation, We really appreciate you contribution</b></h3>
+                    <br>
+                    <a name="confirmation_link" href=""><button class="btn btn-primary" type="button">Return to Prolific</button></a>
+                </div>
+
+            </div>
+
+
+        </form>
+        <div class="margin-top col-md-6">
+            <canvas id="myChart" width="300" height="150"></canvas>
+        </div>
+        <div class="margin-top col-md-6">
+            <canvas id="myChart2" width="300" height="150"></canvas>
+        </div>
+        <!-- <div id="div_filler" style="z-index: 6;"
+             title="{{ freeTranslationPageConstants.FREE_TRANSLATION_BREAK_TEXT }} :)">
+            <p>{{ freeTranslationPageConstants.FREE_TRANSLATION_RESUME_AFTER_TEXT }} <span id="spnFillerTime">3</span>
+                {{ commonConstants.SECONDS_TEXT }}.</p>
+            <button id="btnResume"
+                    class="task-step-next-button">{{ freeTranslationPageConstants.FREE_TRANSLATION_RESUME_NOW_BUTTON_TEXT }}</button>
+        </div>
+    -->
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    {% load staticfiles %}
+
+    <script src="{{ STATIC_URL }}Chart.js-2.9.3/dist/Chart.min.js"></script>
+
+    <script language="JavaScript">
+
+        var questionTimer = null;
+        var dialogInnerTimer = null;
+        var dialogCloseTimer = null;
+        var resumeFunc = null;
+        var paused = false;
+
+        var allocatedTime = 11;
+        var s = allocatedTime;
+
+        var inputChanges = [];
+        var dateExperimentStarted = null;
+        var timestampExperimentStarted = null;
+        var timestampFirstInput = null;
+        var timestampLastInput = null;
+        var inputReceived = false;
+        var times_played = 1;
+        var max_plays = 3;
+        var is_break = false;
+
+        var page_start_time = 0;
+        var page_end_time = 0;
+
+        var user_radio_answer = '';
+
+        var audio_1 = $("#lblAudio_token1");
+        var audio_2 = $("#lblAudio_token2");
+        var token1_btn = document.getElementById("button_token1");
+        var token2_btn = document.getElementById("button_token2");
+
+        var answer_start_time = 0;
+        var answer_end_time = 0;
+        var key_fired = false;
+        var user_answer = '';
+
+        $(document).ready(function () {
+
+            $("#btnContinue").hide();
+
+            $("#feedback_div1").hide();
+
+            $("lblAudio_token2").hide();
+            $("#lblAudio_token2").hide();
+
+
+            token1_btn.disabled = true;
+            token2_btn.disabled = true;
+            $("#button_token1").click(function () {
+
+                playAudio1();
+
+            });
+
+            page_start_time = window.performance.now();
+
+            setTimeout(function () {
+                fetchFirstAudio();
+            }, 2500);
+
+
+
+
+
+        });
+
+        $("input[name='user_answer_radio']").change(function () {
+            $("#conf_div").show();
+        });
+
+
+
+
+        $(function(){
+            $("#confidence_range_button").click(function(){
+
+                page_end_time = window.performance.now();
+                var total_time = (page_end_time - page_start_time);
+                var user_radio_answer = $("input[name='user_answer_radio']:checked").val();
+
+                var conf_val = $("#confidence_range").val();
+                {#alert(times_played);#}
+                var dataObj = {
+                    type : '1',
+                    audio_count: $("#audio_count").val(),
+                    user_answer : user_radio_answer,
+                    answer_id: $("#hdnAnswerId").val(),
+                    answer_conf: conf_val,
+                    answer_time: total_time,
+                    listen_count: times_played
+                }
+                dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/en/LanguageGameExperiment/LanguageGameExp/',
+                    data: dataObj,
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                      {#alert(data);#}
+                        if (data['completed'] == 'yes') {
+
+
+                            var pathValue = window.location.pathname;
+                            var langCode = pathValue.split('/')[1];
+                            var stat_id = data['stat_id'];
+                            window.location.href = '/' + langCode + '/LanguageGameExperiment/LaDoShowResult/' + stat_id;
+
+                        }
+
+                        progressBar(parseInt(data['percentage']), data['total'], data['answered'], $('#progressBar'));
+
+                        var audio_2 = $("#lblAudio_2");
+                        times_played = 0;
+                        {#audio_btn.disabled = true;#}
+                        var audio_btn = document.getElementById("playaudio");
+                        audio_btn.innerText = 'Audio Playing...';
+                        audio_btn.disabled = true;
+
+                          $("#source_mp3_2").attr("src", data['file_path']);
+                          audio_2[0].pause();
+                          audio_2[0].load();
+
+                          $("#hdnAnswerId").val(data['answer_id']);
+
+                          page_start_time = window.performance.now();
+
+                          $("#radio_div").hide(1000);
+                          $("#conf_div").hide(1000);
+                          $('input[name=user_answer_radio]').attr('checked', false);
+                          $("#feedback_statement").text(data['answer_status']);
+
+
+                          setTimeout(function() {
+                            audio_2.get(0).play();
+                        }, 2000);
+
+                          setTimeout(function() {
+                                $("#radio_div").show(1000);
+                            }, 2000);
+
+                            {#if (data['answer_status'] == 'Correct'){#}
+                            {#    $("#img_smiley").attr('src', '/static/images/s1.png');#}
+                            {##}
+                            {#    $("#feedback_div").fadeIn();#}
+                            {#    setTimeout(function() {#}
+                            {#        $("#feedback_div").fadeOut(500);#}
+                            {#    }, 2000);#}
+                            {#}#}
+                            {#else {#}
+                            {#    $("#img_smiley").attr('src', '/static/images/sad1.png');#}
+                            {#    $("#feedback_div").fadeIn();#}
+                            {#    setTimeout(function() {#}
+                            {#        $("#feedback_div").fadeOut(500);#}
+                            {#    }, 2000);#}
+                            {#}#}
+
+                        
+
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                  });
+            });
+         });
+
+        function playAudio1() {
+            $("#alert_text").fadeOut(100);
+            token1_btn.disabled = false;
+            audio_1.get(0).play();
+            console.log("playing audio 1");
+
+            audio_1[0].onended = function (ev){
+                token1_btn.disabled = true;
+                setTimeout(function() {
+                    playAudio2();
+                }, 2000);
+
+            };
+        };
+
+        function playAudio2() {
+            token2_btn.disabled = false;
+            audio_2.get(0).play();
+            audio_2[0].onended = function (ev) {
+                console.log('playing audio 2');
+                token2_btn.disabled = true;
+            };
+            key_fired = false;
+            answer_start_time = window.performance.now();
+            keyPressEvent();
+        };
+
+
+        function fetchFirstAudio(){
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                type : '0'
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/ProlificPrimalTaskExperiment/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+
+                    addLabels(myChart ,data['label_list']);
+                    addLabels(myChart2 ,data['label_list']);
+                    $.each(data['answer_time_list'], function (index, value) {
+                        addData(myChart, value);
+                        {#console.log(index, value);#}
+                    });
+
+                    $.each(data['answer_accuracy_list'], function (index, value) {
+                        addData(myChart2, value);
+                        {#console.log(index, value);#}
+                    });
+
+
+                    $("#hdnAnswerId").val(data['answer_id']);
+                    $("#runningCurrect").val(data['running_correct']);
+
+                    $("#source_mp3_token1").attr("src", data['token1_filepath']);
+                    audio_1[0].pause();
+                    audio_1[0].load();
+
+                    $("#source_mp3_token2").attr("src", data['token2_filepath']);
+                    audio_2[0].pause();
+                    audio_2[0].load();
+
+                    context.resume().then(() => {
+
+                        playAudio1();
+
+                    });
+
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+        function keyPressEvent() {
+            $(document).on('keydown',function(e) {
+
+
+                console.log("keypress");
+                if(e.which == 65 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'word';
+                    fetchNextAudio();
+                }
+                if(e.which == 76 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'non-word';
+                    fetchNextAudio();
+                }
+            });
+        }
+
+
+        function fetchNextAudio(){
+
+            console.log('here2');
+            var context = new AudioContext();
+
+            answer_end_time = window.performance.now();
+            var answer_total_time = (answer_end_time - answer_start_time);
+            console.log(answer_total_time, answer_end_time, answer_start_time);
+            var dataObj = {
+                type : '1',
+                answer_id: $("#hdnAnswerId").val(),
+                answer_total_time: answer_total_time,
+                user_answer: user_answer,
+                running_correct : $("#runningCurrect").val()
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/ProlificPrimalTaskExperiment/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+
+                    if(data['completed'] == 'yes') {
+                        $("#header_div").hide();
+                        $("#body_div").hide();
+                        $("#keyboard_div").hide();
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                        $("a[href='']").attr('href', data['prolific_link']);
+                        $("#feedback_div1").show();
+
+                    }
+                    else {
+                        $("#hdnAnswerId").val(data['answer_id']);
+
+                        var audio_1 = $("#lblAudio_token1");
+                        var audio_2 = $("#lblAudio_token2");
+                        addData(myChart, data['time_taken']);
+                        addData(myChart2, data['current_accuracy']);
+                        $("#runningCurrect").val(data['last_running_currect']);
+
+                        $("#source_mp3_token1").attr("src", data['token1_filepath']);
+                        audio_1[0].pause();
+                        audio_1[0].load();
+
+                        $("#source_mp3_token2").attr("src", data['token2_filepath']);
+                        audio_2[0].pause();
+                        audio_2[0].load();
+
+                        playAudio1();
+
+                    }
+
+
+
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+
+        function getResultStatistics(){
+
+
+            var dataObj = {
+                type : '5',
+                audio_count: $("#audio_count").val()
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/LanguageGameExp/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+                    var audio_2 = $("#lblAudio_2");
+
+                    $("#source_mp3_2").attr("src", data['file_path']);
+                    audio_2[0].pause();
+                    audio_2[0].load();
+
+                    setTimeout(function() {
+                            audio_2.get(0).play();
+                        }, 2000);
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Time taken per question (ms)',
+                    data: [],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                        ],
+
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+        var ctx2 = document.getElementById('myChart2').getContext('2d');
+        var myChart2 = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Accuracy %',
+                    data: [],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                        ],
+
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100
+                        }
+                    }]
+                }
+            }
+        });
+
+        function addLabels(chart, label) {
+            $.each(label, function (index, value) {
+                chart.data.labels.push(value);
+            });
+
+
+            chart.update();
+        };
+
+        function addData(chart, data) {
+            {#chart.data.labels.push(label);#}
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            chart.update();
+        };
+
+        function fetchNextWord() {
+
+            var cur_input = $('#txtTranslation').val();
+            var now = window.performance.now();
+            var X = [cur_input, now];
+            inputChanges.push(X);
+
+            var dataObj = {
+                type: 1,
+                qId: $('#hdnWordId').val(),
+                translation: $('#txtTranslation').val(),
+                timestampExperimentStarted: timestampExperimentStarted,
+                timestampCompletion: window.performance.now(),
+                inputChanges: JSON.stringify(inputChanges)
+            };
+            processUserExperimentAjaxRequest(dataObj);
+
+            inputChanges = [['', window.performance.now()]];
+            timestampFirstInput = null;
+            receivedInput = false;
+
+        }
+
+        function processUserExperimentAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/FreeTranslationQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    //alert(data);
+                    var d = data.split('_');
+                    if (d[0] != '0' && d[1] != 'END') {
+                        progressBar(parseInt(d[2]), d[3], d[4], $('#progressBar'));
+                        dateExperimentStarted = new Date();
+                        timestampExperimentStarted = window.performance.now();
+                        timestampFirstInput = null;
+                        inputReceived = false;
+                        timestampLastInput = null;
+                        $('#hdnWordId').val(d[0]);
+                        $('#lblWord').html(d[1]);
+                        var audio = $("#lblAudio");
+                        var src = d[7]
+                        if(d[6] == 'yes'){
+                            
+                            if (src.search('.mp3') >= 0){
+                                src = d[7]
+                            }
+                            else{
+                                src = d[7] + '.mp3'
+                            }
+                            
+                            $("#source_mp3").attr("src", src);
+                        }
+                        var button = document.getElementById("playaudio");
+                        //$("#source_mp3").attr("src", '/home/ayanmaj/Downloads/SampleAudio.mp3');
+                        audio[0].pause();
+                        audio[0].load();
+                        //audio[0].controls = true;
+                        audio[0].oncanplaythrough = button.removeAttribute("disabled");
+                        button.value = "Play Audio";
+                        
+                        $('#txtTranslation').val('');
+                        $('#txtTranslation').focus();
+                        if (d[5] != "") {
+                            var q_count = parseInt($('#hdnQcount').val().trim());
+                            $('#hdnQcount').val(q_count + 1);
+                            if (q_count >= 1) {
+                                $("#img_smiley").show();
+                            }
+                            if (d[5] == 'True') {
+                                $("#img_smiley").attr("src", "/static/images/s1.png");
+                            }
+                            else {
+                                $("#img_smiley").attr("src", "/static/images/sad1.png");
+                            }
+
+                            //fading smiley after 1.5 seconds
+                            $("#img_smiley").fadeOut(1500);
+
+                        }
+                        //--------set word count
+                        clearInterval(questionTimer);
+                        questionTimer = null;
+                        //alert("Here");
+                        //$('#lblTimer').html(' ');
+
+                        document.getElementById("txtTranslation").disabled = true;
+
+                        setWordCount();
+
+                        if (is_break){
+                            setTimeout(function() {
+                                audio[0].play();
+                            }, 3500);
+                            is_break = false;
+                        }
+                        else {
+                            setTimeout(function() {
+                                audio[0].play();
+                            }, 1500);
+                        }
+
+                    }
+                    else {
+                        var pathValue = window.location.pathname;
+                        var langCode = pathValue.split('/')[1];
+                        window.location.href = '/' + langCode + '/ShowExperimentResults/';
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function getUserExperimentProgressAjaxRequest(dataObj) {
+
+            var dataObj = {type: 2};
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/FreeTranslationQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    var d = data.split('_');
+                    progressBar(d[0], d[1], d[2], $('#progressBar'));
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function setWordCount() {
+
+            var hdnWordCount = $("#hdnWordCount");
+            var spnFillerTime = $("#spnFillerTime");
+            var div_filler = $("#div_filler");
+            var lblTimer = $('#lblTimer');
+            var lblWord = $('#lblWord');
+            var oldVal = hdnWordCount.val();
+            var newVal = parseInt(oldVal) + 1;
+
+            if (oldVal == 10) {
+
+                is_break = true;
+
+                hdnWordCount.val('1');
+                clearInterval(questionTimer);
+                questionTimer = null;
+
+                var word = lblWord.html();
+                lblWord.html('');
+
+                div_filler.dialog('open');
+                lblTimer.html('00');
+                var t = parseInt(spnFillerTime.html());
+                dialogInnerTimer = setInterval(function () {
+                    t = t - 1;
+                    spnFillerTime.html(t);
+
+                }, 1000);
+
+                paused = true;
+
+                resumeFunc = function () {
+                    div_filler.dialog('close');
+
+                    lblWord.html(word);
+                    paused = false;
+                    // setQuestionTimer();
+                    s = allocatedTime;
+                    clearInterval(dialogInnerTimer);
+                    spnFillerTime.html(3);
+                };
+
+                dialogCloseTimer = setTimeout(resumeFunc, 3000);
+
+            }
+            else {
+                hdnWordCount.val(newVal);
+            }
+        }
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Add New Menu</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form id="form" action="{% url 'StatisticsPreview:uploadMenu' %}" method="post">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Menu Name:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <input type="text" name="menu_name">
+					  	</div>
+			            
+			        </div>
+
+			        <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Is Root:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="is_root">
+						  		
+						  		<option value='1'>True</option>
+						  		<option value='0'>Flase</option>
+						  		
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+			        <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Parent:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="parent_id">
+				            	<option value="null" selected="True">Null</option>
+						  		{% for menu in menu_list %}
+						  		<option value="{{ menu.id }}">{{ menu.menu_name }}</option>
+						  		{% endfor %}
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+				  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+
+	</div>
+
+	
+	
+	{% if menu_list %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4>User Experiments list for <i style="color: blue;">{{ user_native_language }}</i> Language</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>Menu Name</th>
+						<th>Is Root</th>
+						<th>Parent</th>
+						<th>Compt. Date</th>
+						
+						
+					</thead>	
+					<tbody>
+						{% for menu in  menu_list %}
+						<tr>
+						<td>{{ menu.menu_name }}</td>
+						<td>{{ menu.is_root }}</td>
+						<td>{{ menu.parent_id }}</td>
+
+						</tr>
+						{% endfor %}
+					</tbody>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"order": [] 
+	    	});
+	
+		} );
+
+    </script>
+{% endblock %}

@@ -1,0 +1,685 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+    {% load staticfiles %}
+    <style type="text/css">
+        
+        .slider-class {
+        width: 96%;
+        }
+    </style>
+
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="frm" method="post" action="post/">
+            {% csrf_token %}
+
+            <div class="row margin-top">
+                <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                    <div id="progressBarLevels">
+                        <div></div>
+                    </div>
+                    <div id="progressBar" class="default-skin">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>{% trans 'LADO_LISTEN_AUDIO_TEXT' %}</h2>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12 text-right" style="padding-right:40px;">
+                    <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label
+                            id="lblTimer"
+                            style='color:green;'> </label>
+                    </h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-4 col-sm-4">
+                    <!--<label id="lblWord" style="font-size:25px;"
+                           class="margin-left-medium form-control task-form-control">&nbsp</label>-->
+
+                    <audio id="lblAudio"> 
+                        <source id="source_mp3" src="" type="audio/mp3">
+                    </audio>
+
+                    <audio controls id='lblAudio_2'> 
+                        <source src="" type="audio/mpeg" id="source_mp3_2">
+                    </audio>
+                    <input type="hidden" id="audio_count" name="audio_count" value="0">
+                    
+                    
+                  <button id="playaudio" type="button" class="btn btn-success btn-block">Audio Playing...</button>
+                    
+                    <input type="hidden" id="hdnQuestionId">
+                    <input type="hidden", id="hdnAnswerId">
+                    <input type="hidden" id="hdnWordCount" value="0">
+                </div>
+                <div class="col-xs-2">
+                    <p class="task-translate-arrow">
+                        >
+                    </p>
+                </div>
+                <div class="col-xs-6 col-sm-6" id='radio_div'>
+
+
+                    <div class="form-group">
+                        <h4 style="color: #5cb85c;"><b>{% trans 'LADO_SELECT_YOUR_ANSWER_TEXT' %}</b></h4>
+
+                        <div class="radio">
+                          <label><input type="radio" name="user_answer_radio" value="Bulgarian">{% trans 'LADO_ANSWER_BULGARIAN' %}</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="user_answer_radio" value="Polish">{% trans 'LADO_ANSWER_POLISH' %}</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="user_answer_radio" value="Czech">{% trans 'LADO_ANSWER_CZECH' %}</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="user_answer_radio" value="Russian">{% trans 'LADO_ANSWER_RUSSIAN' %}</label>
+                        </div>
+
+                       <!-- <button class="btn btn-primary" type="button" id="radio_submit_button">Click</button> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8" id="conf_div">
+                    <label for="confidence_range">Confidence: (from 1-5 left to right, 1 being least and 5 being Most) </label>
+                    <input type="range" class="" step="1" min="1" max="5" id="confidence_range" data-popup-enabled="true">
+                    <button class="btn btn-primary" type="button" id="confidence_range_button">Submit</button>
+                </div>
+            </div>
+
+            <div class="row task-step-sucess" id="feedback_div">
+                <div class="col-xs-4">
+                    <img id="img_smiley" src="/static/images/s1.png" style="width:50px;">
+                    <input type="hidden" id="hdnQcount" value="0">
+                    
+                </div>
+                <div class="col-xs-3 col-md-2">
+                    <h2 style="color: red;" id='feedback_statement'></h2>
+                    
+                </div>
+            </div>
+
+
+        </form>
+        <!-- <div id="div_filler" style="z-index: 6;"
+             title="{{ freeTranslationPageConstants.FREE_TRANSLATION_BREAK_TEXT }} :)">
+            <p>{{ freeTranslationPageConstants.FREE_TRANSLATION_RESUME_AFTER_TEXT }} <span id="spnFillerTime">3</span>
+                {{ commonConstants.SECONDS_TEXT }}.</p>
+            <button id="btnResume"
+                    class="task-step-next-button">{{ freeTranslationPageConstants.FREE_TRANSLATION_RESUME_NOW_BUTTON_TEXT }}</button>
+        </div>
+    -->
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    {% load staticfiles %}
+
+    <link href="{% static 'rangeslider.js-2.3.0/rangeslider.css' %}" rel="stylesheet"/>
+    <script src="{% static 'rangeslider.js-2.3.0/rangeslider.js' %}" type="application/javascript"></script>
+
+    <script language="JavaScript">
+
+        var questionTimer = null;
+        var dialogInnerTimer = null;
+        var dialogCloseTimer = null;
+        var resumeFunc = null;
+        var paused = false;
+
+        var allocatedTime = 11;
+        var s = allocatedTime;
+
+        var inputChanges = [];
+        var dateExperimentStarted = null;
+        var timestampExperimentStarted = null;
+        var timestampFirstInput = null;
+        var timestampLastInput = null;
+        var inputReceived = false;
+        var times_played = 1;
+        var max_plays = 3;
+        var is_break = false;
+
+        var page_start_time = 0;
+        var page_end_time = 0;
+
+        var user_radio_answer = '';
+
+        $(document).ready(function () {
+
+            $("#btnContinue").hide();
+
+            var audio = document.getElementById('lblAudio');
+            var audio_2 = document.getElementById('lblAudio_2');
+
+
+            $("#radio_div").hide();
+            $("#conf_div").hide();
+            $("#feedback_div").hide();
+
+            $("#lblAudio_2").hide();
+
+            var audio_btn = document.getElementById("playaudio");
+            audio_btn.disabled = true;
+
+
+            page_start_time = window.performance.now();
+
+            fetchFirstAudio();
+
+            setTimeout(function() {
+                    $("#radio_div").show(500);
+                }, 2000);
+            // var button = document.getElementById("playaudio");
+            // button.disabled = true;
+
+            // button.addEventListener('click', function() {
+            //     //alert("Click");
+            //     audio.play();
+            //     button.disabled = true;
+            //     button.innerText="Playing...";
+            //     times_played++;
+            // });
+
+            // audio_2.play();
+
+            audio_2.addEventListener('ended', function(){
+
+                var button = document.getElementById("playaudio");
+
+
+                times_played++;
+
+
+                if (times_played < max_plays) {
+
+                    button.innerText = 'Play Again';
+                    button.disabled = false;
+
+                    button.addEventListener('click', function (ev) {
+                        audio_2.play();
+                        button.innerText = 'Audio Playing ...';
+                        button.disabled = true;
+                    });
+
+                    
+                    // audio.controls = 0;
+                    // document.getElementById("txtTranslation").removeAttribute('disabled');
+                    // document.getElementById("txtTranslation").focus();
+                    //$("#txtTranslation").removeAttribute('disabled');
+                    // $("#btnContinue").show();
+                    // button.innerText = "Enter Answer";
+                    // setQuestionTimer();
+                    return;
+                }
+                else{
+                    button.innerText = 'Select Option';
+                    button.disabled = true;
+
+                    return;
+                }
+
+                //s = allocatedTime;
+
+                audio_2.currentTime = 0;
+                
+                audio_2.playbackRate = 1;
+                setTimeout(function() {
+                    audio_2.play();
+                }, 1000);
+            });
+
+
+
+        });
+
+        $("input[name='user_answer_radio']").change(function () {
+            $("#conf_div").show();
+        });
+
+
+
+
+        $(function(){
+            $("#confidence_range_button").click(function(){
+
+                page_end_time = window.performance.now();
+                var total_time = (page_end_time - page_start_time);
+                var user_radio_answer = $("input[name='user_answer_radio']:checked").val();
+
+                var conf_val = $("#confidence_range").val();
+                {#alert(times_played);#}
+                var dataObj = {
+                    type : '1',
+                    audio_count: $("#audio_count").val(),
+                    user_answer : user_radio_answer,
+                    answer_id: $("#hdnAnswerId").val(),
+                    answer_conf: conf_val,
+                    answer_time: total_time,
+                    listen_count: times_played
+                }
+                dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/en/LanguageGameExperiment/LanguageGameExp/',
+                    data: dataObj,
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                      {#alert(data);#}
+                        if (data['completed'] == 'yes') {
+
+
+                            var pathValue = window.location.pathname;
+                            var langCode = pathValue.split('/')[1];
+                            var stat_id = data['stat_id'];
+                            window.location.href = '/' + langCode + '/LanguageGameExperiment/LaDoShowResult/' + stat_id;
+
+                        }
+
+                        progressBar(parseInt(data['percentage']), data['total'], data['answered'], $('#progressBar'));
+
+                        var audio_2 = $("#lblAudio_2");
+                        times_played = 0;
+                        {#audio_btn.disabled = true;#}
+                        var audio_btn = document.getElementById("playaudio");
+                        audio_btn.innerText = 'Audio Playing...';
+                        audio_btn.disabled = true;
+
+                          $("#source_mp3_2").attr("src", data['file_path']);
+                          audio_2[0].pause();
+                          audio_2[0].load();
+
+                          $("#hdnAnswerId").val(data['answer_id']);
+
+                          page_start_time = window.performance.now();
+
+                          $("#radio_div").hide(1000);
+                          $("#conf_div").hide(1000);
+                          $('input[name=user_answer_radio]').attr('checked', false);
+                          $("#feedback_statement").text(data['answer_status']);
+
+
+                          setTimeout(function() {
+                            audio_2.get(0).play();
+                        }, 2000);
+
+                          setTimeout(function() {
+                                $("#radio_div").show(1000);
+                            }, 2000);
+
+                            {#if (data['answer_status'] == 'Correct'){#}
+                            {#    $("#img_smiley").attr('src', '/static/images/s1.png');#}
+                            {##}
+                            {#    $("#feedback_div").fadeIn();#}
+                            {#    setTimeout(function() {#}
+                            {#        $("#feedback_div").fadeOut(500);#}
+                            {#    }, 2000);#}
+                            {#}#}
+                            {#else {#}
+                            {#    $("#img_smiley").attr('src', '/static/images/sad1.png');#}
+                            {#    $("#feedback_div").fadeIn();#}
+                            {#    setTimeout(function() {#}
+                            {#        $("#feedback_div").fadeOut(500);#}
+                            {#    }, 2000);#}
+                            {#}#}
+
+                        
+
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                  });
+            });
+         });
+
+
+
+        function fetchFirstAudio(){
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                type : '0',
+                audio_count: $("#audio_count").val(),
+                user_answer : ''
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/LanguageGameExp/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+
+
+                    var audio_2 = $("#lblAudio_2");
+
+                    $("#source_mp3_2").attr("src", data['file_path']);
+                    audio_2[0].pause();
+                    audio_2[0].load();
+
+                    $("#hdnAnswerId").val(data['answer_id']);
+                    setTimeout(function() {
+                            audio_2.get(0).play();
+                        }, 2000);
+
+                    context.resume().then(() => {
+                        console.log('work');
+                        audio_2.get(0).play();
+                    });
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+
+        function getResultStatistics(){
+
+
+            var dataObj = {
+                type : '5',
+                audio_count: $("#audio_count").val()
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/LanguageGameExp/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+                    var audio_2 = $("#lblAudio_2");
+
+                    $("#source_mp3_2").attr("src", data['file_path']);
+                    audio_2[0].pause();
+                    audio_2[0].load();
+
+                    setTimeout(function() {
+                            audio_2.get(0).play();
+                        }, 2000);
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+        // function handleTranslationInput() {
+        //     var cur_input = $('#txtTranslation').val();
+        //     var now = window.performance.now();
+        //     var X = [cur_input, now];
+        //     inputChanges.push(X);
+        //     if (!inputReceived) {
+        //         timestampFirstInput = now;
+        //         inputReceived = true;
+        //     }
+        //     timestampLastInput = now;
+
+        // }
+
+        // function resumeTimers() {
+        //     // setQuestionTimer();
+        //     is_break = true;
+        //     s = allocatedTime;
+        //     clearInterval(dialogInnerTimer);
+        //     $("#spnFillerTime").html(3);
+        //     clearTimeout(dialogCloseTimer); // on its own, this prevents the old word to be put back, breaking this test.
+        //     dialogCloseTimer = setTimeout(resumeFunc, 1); // fix with stored function
+        // }
+
+        // function setQuestionTimer() {
+        //     //alert("BLAH!");
+        //     if (questionTimer !== null) return;
+
+        //     questionTimer = setInterval(function () {
+        //         s = s - 1;
+        //         if (s == 0) {
+        //             $('#lblTimer').html('0' + s);
+        //             s = allocatedTime;
+        //             clearInterval(questionTimer);
+        //             questionTimer = null;
+
+        //             fetchNextWord();
+        //         }
+
+        //         $('#lblTimer').html(s < 10 ? '0' + s : s);
+        //         $('#lblTimer').css("color", (s < 6 ? 'red' : 'green'));
+        //         if (s == allocatedTime) {
+        //             $('#lblTimer').html('');
+        //         }
+
+        //     }, 1000);
+
+        // }
+
+
+
+        function fetchNextWord() {
+
+            var cur_input = $('#txtTranslation').val();
+            var now = window.performance.now();
+            var X = [cur_input, now];
+            inputChanges.push(X);
+
+            var dataObj = {
+                type: 1,
+                qId: $('#hdnWordId').val(),
+                translation: $('#txtTranslation').val(),
+                timestampExperimentStarted: timestampExperimentStarted,
+                timestampCompletion: window.performance.now(),
+                inputChanges: JSON.stringify(inputChanges)
+            };
+            processUserExperimentAjaxRequest(dataObj);
+
+            inputChanges = [['', window.performance.now()]];
+            timestampFirstInput = null;
+            receivedInput = false;
+
+        }
+
+        function processUserExperimentAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/FreeTranslationQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    //alert(data);
+                    var d = data.split('_');
+                    if (d[0] != '0' && d[1] != 'END') {
+                        progressBar(parseInt(d[2]), d[3], d[4], $('#progressBar'));
+                        dateExperimentStarted = new Date();
+                        timestampExperimentStarted = window.performance.now();
+                        timestampFirstInput = null;
+                        inputReceived = false;
+                        timestampLastInput = null;
+                        $('#hdnWordId').val(d[0]);
+                        $('#lblWord').html(d[1]);
+                        var audio = $("#lblAudio");
+                        var src = d[7]
+                        if(d[6] == 'yes'){
+                            
+                            if (src.search('.mp3') >= 0){
+                                src = d[7]
+                            }
+                            else{
+                                src = d[7] + '.mp3'
+                            }
+                            
+                            $("#source_mp3").attr("src", src);
+                        }
+                        var button = document.getElementById("playaudio");
+                        //$("#source_mp3").attr("src", '/home/ayanmaj/Downloads/SampleAudio.mp3');
+                        audio[0].pause();
+                        audio[0].load();
+                        //audio[0].controls = true;
+                        audio[0].oncanplaythrough = button.removeAttribute("disabled");
+                        button.value = "Play Audio";
+                        
+                        $('#txtTranslation').val('');
+                        $('#txtTranslation').focus();
+                        if (d[5] != "") {
+                            var q_count = parseInt($('#hdnQcount').val().trim());
+                            $('#hdnQcount').val(q_count + 1);
+                            if (q_count >= 1) {
+                                $("#img_smiley").show();
+                            }
+                            if (d[5] == 'True') {
+                                $("#img_smiley").attr("src", "/static/images/s1.png");
+                            }
+                            else {
+                                $("#img_smiley").attr("src", "/static/images/sad1.png");
+                            }
+
+                            //fading smiley after 1.5 seconds
+                            $("#img_smiley").fadeOut(1500);
+
+                        }
+                        //--------set word count
+                        clearInterval(questionTimer);
+                        questionTimer = null;
+                        //alert("Here");
+                        //$('#lblTimer').html(' ');
+
+                        document.getElementById("txtTranslation").disabled = true;
+
+                        setWordCount();
+
+                        if (is_break){
+                            setTimeout(function() {
+                                audio[0].play();
+                            }, 3500);
+                            is_break = false;
+                        }
+                        else {
+                            setTimeout(function() {
+                                audio[0].play();
+                            }, 1500);
+                        }
+
+                    }
+                    else {
+                        var pathValue = window.location.pathname;
+                        var langCode = pathValue.split('/')[1];
+                        window.location.href = '/' + langCode + '/ShowExperimentResults/';
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function getUserExperimentProgressAjaxRequest(dataObj) {
+
+            var dataObj = {type: 2};
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/FreeTranslationQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    var d = data.split('_');
+                    progressBar(d[0], d[1], d[2], $('#progressBar'));
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function setWordCount() {
+
+            var hdnWordCount = $("#hdnWordCount");
+            var spnFillerTime = $("#spnFillerTime");
+            var div_filler = $("#div_filler");
+            var lblTimer = $('#lblTimer');
+            var lblWord = $('#lblWord');
+            var oldVal = hdnWordCount.val();
+            var newVal = parseInt(oldVal) + 1;
+
+            if (oldVal == 10) {
+
+                is_break = true;
+
+                hdnWordCount.val('1');
+                clearInterval(questionTimer);
+                questionTimer = null;
+
+                var word = lblWord.html();
+                lblWord.html('');
+
+                div_filler.dialog('open');
+                lblTimer.html('00');
+                var t = parseInt(spnFillerTime.html());
+                dialogInnerTimer = setInterval(function () {
+                    t = t - 1;
+                    spnFillerTime.html(t);
+
+                }, 1000);
+
+                paused = true;
+
+                resumeFunc = function () {
+                    div_filler.dialog('close');
+
+                    lblWord.html(word);
+                    paused = false;
+                    // setQuestionTimer();
+                    s = allocatedTime;
+                    clearInterval(dialogInnerTimer);
+                    spnFillerTime.html(3);
+                };
+
+                dialogCloseTimer = setTimeout(resumeFunc, 3000);
+
+            }
+            else {
+                hdnWordCount.val(newVal);
+            }
+        }
+
+    </script>
+
+{% endblock %}

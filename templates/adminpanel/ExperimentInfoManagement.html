@@ -1,0 +1,269 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Experiment Info Section Management</u></h2>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in English :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoEn }}
+                    {{ form.experiment_info_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in German :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Russian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Bulgarian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Ukrainian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Czech :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Polish :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoPl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Croatian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoHr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Bosnian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Serbian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Slovak :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Macedonian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Experiment Info in Slovenian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtExperimentInfoSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable display">
+                    <thead>
+                    <th>ID</th>
+                    <th>Experiment Info</th>
+                    <th>Created On</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+{#            <div><a onclick="deleteAllExperimentInfo();">Delete ALL Experiment Info</a>#}
+{#            </div>#}
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'experiment_info_section_management_gridview' %}"
+            });
+
+        });
+
+{#        function deleteAllExperimentInfo() {#}
+{#            if (confirm("Really delete ALL experiment info ?")) {#}
+{#                var reply = prompt("Please type 'delete ALL' to confirm deletion.", '');#}
+{#                if (reply == 'delete ALL') {#}
+{#                    alert("Deleting all experiment info...");#}
+{#                    var obj = {type: 2};#}
+{#                    processAjaxRequest(obj);#}
+{#                    window.location.href ='/admin/ExperimentInfoSectionManagement';#}
+{##}
+{#                } else {#}
+{#                    alert("Entered string did not match. Aborting.");#}
+{#                }#}
+{#            }#}
+{##}
+{#        }#}
+
+
+        function deleteExperimentInfo(id) {
+            if (confirm("Really delete experiment info?")) {
+                var reply = prompt("Please type the experiment info ID to confirm deletion.", '');
+                if (reply == id) {
+                    alert("Deleting " + id);
+                    var obj = {type: 1, experiment_info_id: id};
+                    processAjaxRequest(obj);
+                    window.location.href = '/admin/ExperimentInfoSectionManagement';
+
+                } else {
+                    alert("Entered ID did not match news ID. Aborting.");
+                }
+            }
+
+        }
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+
+        function processAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/admin/ExperimentInfoSectionManagement/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if (data == 'True') {
+
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function isValidateForm() {
+            experimentInfoEn = $('#id_txtExperimentInfoEn');
+
+            if (experimentInfoEn.val() == '') {
+                alert("Experiment info in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

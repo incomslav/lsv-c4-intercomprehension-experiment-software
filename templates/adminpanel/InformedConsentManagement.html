@@ -1,0 +1,316 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><u> Informed Consent Page Management</u></h2>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+
+                <div class="col-md-12">
+                    <span style="color:red;">Heading will come first and should be in square brackets [ ]. Text outside of brackets will not be a part of heading.</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in English :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionEn }}
+                    {{ form.informed_consent_id }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in German :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionDe }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Russian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionRu }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Bulgarian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionBg }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Ukrainian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionUk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Czech :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionCs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Polish :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionPl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Croatian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionHr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Bosnian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionBs }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Serbian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionSr }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Slovak :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionSk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Macedonian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionMk }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Consent Description in Slovenian :</label>
+                </div>
+                <div class="col-md-7">
+                    {{ form.txtInformedConsentDescriptionSl }}
+                </div>
+            </div>
+
+            <div class="row margin-top">
+                <div class="col-md-3">
+                    <label>Priority :</label>
+                </div>
+                <div class="col-md-1">
+                    {{ form.priority }}
+                </div>
+                <div class="col-md-1">
+                    <span style="color:red;">*</span>
+                </div>
+            </div>
+
+
+            <div class="row margin-top">
+
+                <div class="col-md-4">
+                    <input id="btnSave" type="submit" value="Save" class="btn btn-primary"
+                           onclick="return isValidateForm();">
+
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row margin-top">
+            <div class="col-md-12">
+                <table class="datatable">
+                    <thead>
+                    <th>ID</th>
+                    <th>Consent Description EN</th>
+                    <th>Active?</th>
+                    <th>Priority</th>
+                    <th>Created On</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+            <div><a onclick="deleteAllInformedConsent();">Delete ALL InformedConsent</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+
+            var oTable = $('.datatable').dataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": "{% url 'informed_consent_management_gridview' %}"
+            });
+
+        });
+
+        function changePriority(id) {
+            var new_priority = $('#priority_input_' + id).val();
+            var obj = {type: 3, informed_consent_id: id, new_priority: new_priority};
+            processAjaxRequest(obj);
+            alert("Priority changed.");
+        }
+
+        function changeActivationStatus(id, was_active) {
+            if (was_active) {
+                if (confirm("Really deactivate this consent?")) {
+                    var obj = {type: 2, informed_consent_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", false);
+                    }
+                }
+            } else {
+                if (confirm("Really activate this consent?")) {
+                    var obj = {type: 1, informed_consent_id: id};
+                    if (processAjaxRequest(obj)) {
+                        $('#is_active_input_' + id).setAttribute("value", true);
+                    }
+                }
+            }
+        }
+
+        function deleteAllInformedConsent() {
+            if (confirm("Really delete ALL consents?")) {
+                var reply = prompt("Please type 'delete ALL' to confirm deletion.", '');
+                if (reply == 'delete ALL') {
+                    alert("Deleting all consent...");
+                    var obj = {type: 11};
+                    processAjaxRequest(obj);
+                    window.location.href ='/admin/InformedConsentManagement';
+
+                } else {
+                    alert("Entered string did not match. Aborting.");
+                }
+            }
+
+        }
+
+
+        function deleteInformedConsent(id) {
+            if (confirm("Really delete consent?")) {
+                var reply = prompt("Please type the consent ID to confirm deletion.", '');
+                if (reply == id) {
+                    alert("Deleting " + id);
+                    var obj = {type: 10, informed_consent_id: id};
+                    processAjaxRequest(obj);
+                    window.location.href = '/admin/InformedConsentManagement';
+
+                } else {
+                    alert("Entered ID did not match consent ID. Aborting.");
+                }
+            }
+
+        }
+
+        function redirectTo(URL) {
+            window.location.href = '/' + URL;
+        }
+
+
+        function processAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/admin/InformedConsentManagement/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if (data == 'True') {
+
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function isValidateForm() {
+            consentEn = $('#id_txtInformedConsentDescriptionEn');
+
+            if (consentEn.val() == '') {
+                alert("Consent description in English is required.");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    </script>
+
+{% endblock %}

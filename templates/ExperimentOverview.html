@@ -1,0 +1,402 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+        .bg-hover:hover {
+            background-color: whitesmoke;
+        }
+
+        div.div-fade:hover{
+            background-color: transparent !important;
+        }
+
+        .medal {
+
+        }
+
+
+    </style>
+	
+	<!--AYAN-->
+    <script type="text/javascript">
+        function toggle(anchorId,elementId) {
+            var text = ($('#'+anchorId).text() === 'Show Details') ? 'Hide Details' : 'Show Details';
+            $('#'+anchorId).text(text);
+            var ele = document.getElementById(elementId);
+            if(ele.style.display == "block") {
+                    ele.style.display = "none";
+            }
+            else {
+                ele.style.display = "block";
+            }
+        }
+    </script>
+	
+	<script type="text/javascript">
+        function toggle2(anchorId,elementId) {
+            var text = ($('#'+anchorId).text() === 'Show Performance Trend') ? 'Hide Performance Trend' : 'Show Performance Trend';
+            $('#'+anchorId).text(text);
+            var ele = document.getElementById(elementId);
+            if(ele.style.display == "block") {
+                    ele.style.display = "none";
+            }
+            else {
+                ele.style.display = "block";
+            }
+        }
+    </script>
+
+    <!--AYAN-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {packages:['corechart', 'line']});
+        google.charts.setOnLoadCallback(drawBasic);
+        function drawBasic(anchorId,elementId,list_plot) {
+            var text = ($('#'+anchorId).text() === 'Show Performance Trend') ? 'Hide Performance Trend' : 'Show Performance Trend';
+            $('#'+anchorId).text(text);
+            var ele = document.getElementById(elementId);
+            if(ele.style.display == "block") {
+                    ele.style.display = "none";
+            }
+            else {
+                ele.style.display = "block";
+            }
+            var list_data = list_plot;
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Experiment');
+            data.addColumn('number', 'Accuracy');
+            data.addRows(list_data);
+            var options = {
+                hAxis: {
+                    title: 'Experiment'
+                },
+                vAxis: {
+                    title: 'Accuracy (%)'
+                },
+                animation: {
+                    duration: 560,
+                    startup: true,
+                    easing: 'out',
+                },
+                legend: {
+                    position: 'bottom',
+                    //alignment: 'right',
+                },
+                pointSize: 5,
+                title: 'Performance Trend',
+                height: (65 * list_data.length)
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+            chart.draw(data,options);
+
+        }
+    </script>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+        <h1>{% trans 'WELCOME_TEXT' %}, {{ user.username }}!</h1>
+
+
+        {% if not cleared_for_experiments %}
+            <p>
+                {% trans 'FIRST_ENTER_USER_INFORMATION_TEXT' %}</p>
+            <a href="{% url 'UserInfoForm' %}">{% trans 'GO_TO_USER_INFO_FORM_LINK_TEXT' %}</a>
+
+        {% else %}
+            <p>
+                {% trans 'WANT_TO_CHANGE_USER_INFORMATION_TEXT' %}
+                <a href="{% url 'UserInfoForm' %}">{% trans 'GO_TO_USER_INFO_FORM_LINK_TEXT' %}</a>
+            </p>
+
+
+
+            {% if lado_available_experiments %}
+                <h2>New Language Game Experiment Available for you</h2>
+
+                    <div class="row margin-top" style="border: 3px solid; border-radius: 5px; border-color: darkred">
+                        <form method="post">
+
+                            <div class="col-md-2"
+                                 style="background-image: url('/static/media/close_test_input_files/Logo_Cloze_Test.png');
+                                         background-size: 270px;
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <a href="{% url 'LanguageGameExperiment:CloseTestWelcomePage' 8 %}">
+                                <div class="div-fade" style="width: 100%; height: 175px; margin-left: -15px; opacity: 0.7;"></div>
+                                </a>
+
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                </p>
+                            </div>
+
+                            <div class="col-md-6" style="height: 175px;">
+                                <div style="margin-top: 45px;">
+                                   <a href="{% url 'LanguageGameExperiment:CloseTestWelcomePage' 8 %}"> <b>{% trans 'CLOZE TEST_TITLE1' %}</b> </a>
+                                    <br>
+
+                                </div>
+                            </div>
+
+                        </form>
+
+
+                            <form action="" method="post">
+
+
+                                <a href="{% url 'LanguageGameExperiment:CloseTestWelcomePage' 8 %}"><button type="button"class="btn btn-danger">Try Experiment</button> </a>
+                            </form>
+
+
+                    </div>
+
+                    {% for exp in lado_available_experiments %}
+
+                    <div class="row margin-top" style="border: 1px solid; border-radius: 5px;">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="hdnId" value="{{ exp.id }}">
+                            <input type="hidden" name="lado_type" value="{{ exp.experiment_type }}">
+
+                            <div class="col-md-2"
+                                 style="background-image: url(
+                                         {% if exp.experiment_type == 'de compound' %} '/static/media/IncomSlavGer_new.png'
+                                         {% else %}  '/static/images/we-want-you.jpg'
+                                         {% endif %})
+                                            ;
+                                         {% if exp.experiment_type == 'de compound' %} background-size: 210px;
+                                         {% else %} background-size: 175px;
+                                         {% endif %}
+
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <a onclick="$(this).closest('form').submit();">
+                                <div class="div-fade" style="width: 100%; height: 175px; margin-left: -15px; opacity: 0.7;"></div>
+                                </a>
+
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                </p>
+                            </div>
+
+                            <div class="col-md-6" style="height: 175px;">
+                                <div style="margin-top: 45px;">
+                                   <a onclick="$(this).closest('form').submit();"> <b>{{ exp.experiment_name|safe }}</b> </a>
+                                    <br>
+                                    {% if exp.experiment_type == 'lado' %}
+                                    Can your slavic "ear and intution" help the police to identify the mother tounge of the suspect!!
+
+                                    {% elif exp.experiment_type == 'de compound' or exp.experiment_type == 'sentence translation' %}
+                                        {{ exp.experiment_description }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </form>
+
+
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                    <input type="hidden" name="hdnId" value="{{ exp.id }}">
+
+                                    <input type="hidden" name="lado_type" value="{{ exp.experiment_type }}">
+                                    <button type="submit" class="btn btn-primary btn-sm" name='lado_exp_btn'>Try Experiment </button>
+                            </form>
+
+
+                    </div>
+
+                    {% endfor %}
+
+
+            {% endif %}
+
+            {% if completed_experiments %}
+                <div>
+                    <h2>{% trans 'COMPLETED_EXPERIMENTS_OVERVIEW_HEADER' %}:</h2>
+
+                    <!--AYAN-->
+                    {% for exp,toFromLangTable, num_total, num_correct, percen,fromL,toL,medal,date, ex_id, is_audio_experiment, is_active, text_exp, audio_exp in completed_experiments %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p style="font-weight: bold">
+
+                                </p>
+
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-2"
+                                 style="background-image: url('/static/images/medals/{{ medal }}.png'); background-size: 175px;
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                    {{ fromL }} - {{ toL }}
+                                </p>
+
+                                <p style="position: absolute; bottom: 0px;left: 40px;">{{ date }}</p>
+                            </div>
+                            <div class="col-md-6" style="height: 250px;">
+                                <div style="margin-top: 45px;">
+                                    <b>{{ exp|safe }}</b>
+                                    {{ toFromLangTable|safe }}
+            			  	    
+                                    <div>
+                                    {% if ex_id in free_trans_exp_list and is_active == True %}
+                                        {% if text_exp %}
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            
+                                                <input type="hidden" name="hdnId" value="{{ ex_id }}">
+                                                <input type="hidden" name="status" value="complete">
+
+                                                <!--
+                                                <a href="" onclick="$(this).closest('form').submit();">Do again</a>
+                                            -->
+                                                <button class="btn btn-primary btn-sm">Try Again</button>
+                                        </form>
+
+                                        {% endif%}
+
+                                        {% if audio_exp %}
+                                        <form action="" method="post">
+                                            {% csrf_token %}
+                                                <input type="hidden" name="hdnId" value="{{ ex_id }}">
+                                                <input type="hidden" name="status" value="complete">
+                                                <input type="hidden" name="is_audio" value="{{ is_audio_experiment }}">
+                                                <button type="submit" class="btn btn-success btn-sm" name='audio_btn'>Audio Experiment</button>
+                                        </form>
+                                        {% endif %}
+
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!--AYAN-->
+                                    <a id="displayText{{forloop.counter}}" href="javascript:toggle('displayText{{forloop.counter}}','toggleText{{forloop.counter}}');">Show Details</a>
+                                    <div>
+                                        <div id="toggleText{{forloop.counter}}" style="display:none; border-width:2px; border-style:solid">
+                                            <b>&nbsp Total Questions: {{num_total}}</b><br>
+                                            <b>&nbsp Attempt 1 :-&nbsp&nbsp  Correct: {{ num_correct }}; </b>
+                                            {% if percen >= 80 %}
+                                                <b><font color=#264d00>&nbspAccuracy: {{percen}}%</font></b>
+                                            {% elif percen >= 60 %}
+                                                <b><font color=#cc6600>&nbspAccuracy: {{percen}}%</font></b>
+                                            {% else %}
+                                                <b><font color=#cc0000>&nbspAccuracy: {{percen}}%</font></b>
+                                            {% endif %}
+
+                                            
+                                                {% for k,v in retry_stat_dict.items %}
+                                                    {% if k == ex_id %}
+                                                    {% for k2, v2 in v.items %}
+                                                        <br><b>&nbsp Attempt {{k2}} :-&nbsp&nbsp Correct: {{ v2.Correct}}; &nbspAccuracy: {{v2.Accuracy}}</b>
+                                                    {% endfor %}   
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                            
+                                        </div>
+                                    </div>
+
+                            </div>
+
+
+
+                        </div>
+
+                    {% endfor %}
+                    <br>
+                    <p>{% trans 'EXPERIMENT_FINAL_APPRECIATION_MESSAGE' %}
+                    </p>
+					
+		    <!--AYAN-->
+		    <h3>Graph of Performance History:</h3>
+		    {% if num_exp > 1 %}
+		    <p>You can click on the link below to see the graph of your experiment performances.</p>
+		    <a id="displayGraph" href="javascript:drawBasic('displayGraph','chart_div',{{list_plot|safe}});">Show Performance Trend</a>
+		    <div>
+		        <div id="chart_div" style="display: none;"></div>
+		    </div>
+		    {% else %}
+		        <p>Not enough experiments done. Complete more experiments to see your performance trend!</p>
+		    {% endif %}
+                </div>
+            {% endif %}
+            {% if available_experiments %}
+                <h2>{% trans 'AVAILABLE_EXPERIMENTS_OVERVIEW_HEADER' %}:</h2>
+
+                    {% for ex_id,a_exp,a_toFromLangTable, a_fromL,a_toL, is_audio_exp, text_exp, audio_exp in available_experiments %}
+
+                    <div class="row margin-top" style="border: 1px solid; border-radius: 5px;">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="hdnId" value="{{ ex_id }}">
+
+                            <div class="col-md-2"
+                                 style="background-image: url('/static/images/medals/grayscale.png'); background-size: 175px;
+                                         background-repeat: no-repeat; height: 175px; position: relative;">
+                                <a onclick="$(this).closest('form').submit();">
+                                <div class="div-fade" style="width: 100%; height: 175px; margin-left: -15px; opacity: 0.7;"></div>
+                                </a>
+
+                                <p style="position: absolute;top:65px;left:60px;font-weight: bold;"
+                                   class="text-uppercase">
+                                    {{ a_fromL }} - {{ a_toL }}
+                                </p>
+                            </div>
+
+                            <div class="col-md-6" style="height: 175px;">
+                                <div style="margin-top: 45px;">
+                                   <a onclick="$(this).closest('form').submit();"> <b>{{ a_exp|safe }}</b> </a>
+                                    {{ a_toFromLangTable|safe }}
+                                </div>
+                            </div>
+                            
+                        </form>
+
+                        {% if text_exp %}
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                    <input type="hidden" name="hdnId" value="{{ ex_id }}">
+                                    
+                                    <input type="hidden" name="exp_type" value="text">
+                                    <button type="submit" class="btn btn-primary btn-sm" name='submit_btn'>Text Experiment </button>
+                            </form>
+                        {% endif %}
+                        {% if audio_exp %}
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                    <input type="hidden" name="hdnId" value="{{ ex_id }}">
+                                    
+                                    <input type="hidden" name="exp_type" value="audio">
+                                    <button type="submit" class="btn btn-success btn-sm" name='submit_btn'>Audio Experiment</button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% endfor %}
+                {% else %}
+                    <p>{% trans 'NO_EXPERIMENTS_AVAILABLE_AT_ALL_TEXT' %}</p>
+                    <p>{% trans 'STAY_TUNED_TEXT' %}</p>
+
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

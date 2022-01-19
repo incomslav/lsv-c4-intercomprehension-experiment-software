@@ -1,0 +1,232 @@
+{% load staticfiles %}
+{% load navbar_extras %}
+{% load i18n %}
+
+<html>
+
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+"palette": {
+"popup": {
+"background": "#f5f5f5",
+"text": "#008000"
+},
+"button": {
+"background": "transparent",
+"text": "#008000",
+"border": "green"
+}
+},
+"position": "top"
+})});
+</script>
+
+
+<head>
+
+    <link href="{% static 'css/site.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/userinfopage.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'jqueryui/jquery-ui.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'jqueryui/jquery-ui-timepicker-addon.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/progressbar.css' %}" rel="stylesheet" type="text/css">
+
+    <link href="{% static 'css/rangeslider/rangeSlider.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/fontawesome/css/font-awesome.min.css' %}" rel="stylesheet" media="screen"/>
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
+    <title>{% trans 'BROWSER_TAB_TITLE_TEXT' %}</title>
+
+    <style type="text/css">
+        html, body {
+            height: 100%;
+        }
+
+        .dropdown-menu:hover {
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+<body class="background">
+
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="http://www.uni-saarland.de/nc/startseite.html"><img class="img-responsive" src="/static/images/siteimages/owl.jpg"></a>
+            <a class="navbar-brand" style="margin-left: 5px;" href="http://www.sfb1102.uni-saarland.de/?page_id=296"><img class="img-responsive"
+                                                  src="/static/images/siteimages/logo.png"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active navbar-text padding-right-large">
+                    <a href="{% url 'ExperimentOverview' %}">{% trans 'NAVIGATION_BAR_HOME_BUTTON_TEXT' %}</a>
+                </li>
+                <!--<li class="navbar-text padding-right-large"><a href="{% url 'ExperimentOverview' %}">{% trans 'NAVIGATION_BAR_EXPERIMENT_OVERVIEW_BUTTON_TEXT' %}</a></li>-->
+                <!--<li class="navbar-text padding-right-large"><a>Badges</a></li>-->
+            </ul>
+
+
+            <ul class="nav navbar-nav navbar-right">
+                <!--<li class="navbar-flag"><img src="assets/flags/russia.png" alt="..." class="img-circle"></li>-->
+                <!--<li class="navbar-user"><img src="assets/users/user1.png" alt="..." class="img-circle"></li>-->
+                <li class="dropdown navbar-text">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        {{user.username}}
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="separator" class="divider"></li>
+                        <li>
+                            <a href="{% url 'ChangePassword' %}">{% trans 'NAVIGATION_BAR_USER_MENU_CHANGE_PASSWORD_TEXT'%}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'NewsLetter' %}">{% trans 'NAVIGATION_BAR_NEWSLETTER_SUBSCRIPTION_MENU_TEXT'%}</a>
+                        </li>
+                        <li role="separator" class="divider"></li>
+                        <li>
+                            <a href="{% url 'Logout' %}">{% trans 'NAVIGATION_BAR_USER_MENU_LOGOUT_TEXT'%}</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!------------>
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">
+                        <span id="spn_language_name">
+                                {{ LANGUAGE_CODE }}
+                            </span>
+                            <span>
+                                <img id="img_language_flag" src="/static/images/flags/{{ LANGUAGE_CODE }}.png">
+                            </span>
+                        <span class="caret"></span>
+                    </a>
+
+                    <ul class="dropdown-menu">
+                    <form id="setlang" action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_view }}" />
+                        {% for language in languages %}
+                            <li style="padding: 5px">
+                                <a style="padding: 10px;" onclick='changeWebsiteLanguage("{{ language.code }}");'>
+                                    <input name="language" style="display: none;" type="radio" value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} checked{% endif %}>
+                                    <img src="/static/images/flags/{{ language.code }}.png">
+                                    <span style="margin-left:5px;">
+                                        {{ language.name_local }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endfor %}
+
+                        <input style="display:none;" type="submit" value="Go" />
+                    </form>
+                    </ul>
+                </li>
+            </ul>
+            <!-------------------->
+
+        </div>
+    </div>
+</nav>
+
+
+<div style="min-height: 92%;margin: 0 auto;">
+    <div class="container" style="margin-top:10px;">
+        <div class="row">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+</div>
+<div id="loading"
+     style="position:fixed; top:0; left:0;z-index:5; width:100%; height:100%; text-align: right; display:none;">
+    <img src="{{ static }}/static/images/loader.gif">
+</div>
+
+<nav class="navbar navbar-default" role="footer"
+     style="position:relative; margin-bottom:0; left:0; right:0; bottom:0; !important;background-color:#F5F5F5; padding:5px;">
+
+    <p style="margin:10px" class="navbar-text">SFB 1102 - C4 INCOMSLAV &copy; {% now 'Y' %}</p>
+    
+    <p style="margin:10px;" class="navbar-text"><a href="http://www.uni-saarland.de/footer/dialog/impressum.html">Impressum</a></p>
+
+</nav>
+
+
+<script src="{{ STATIC_URL }}jquery/jquery.js"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{{ STATIC_URL }}js/progressbar.js"></script>
+<script src="{{ STATIC_URL }}js/rangeslider/rangeSlider.js"></script>
+<script src="{{ STATIC_URL }}jqueryui/jquery-ui.js"></script>
+<script src="{{ STATIC_URL }}jqueryui/jquery-ui-timepicker-addon.js"></script>
+
+
+{% block scripts %}
+
+{% endblock %}
+
+<script type="text/javascript">
+    $(window).load(function () {
+    });
+
+    $(document).ready(function () {
+        $(document).ajaxStart(function () {
+            $("#loading").show();
+        }).ajaxStop(function () {
+            $("#loading").hide();
+        });
+    });
+
+    function getMessageByAjaxRequest(messageId) {
+        var path = window.location.pathname;
+        lang = path.split('/')[1];
+        var obj = {
+            csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            type: '1',
+            messageId: messageId
+        };
+        var message = '';
+        $.ajax({
+            type: "POST",
+            url: "/" + lang + "/MessageView/",
+            data: obj,
+            cache: false,
+            async: false,
+            success: function (data) {
+                if (data != '') {
+                    message = data;
+                }
+            }
+        });
+        return message;
+    }
+
+    function changeWebsiteLanguage(langCode){
+        $("input[name=language][value="+langCode+"]").prop("checked",true);
+        $("#setlang").submit();
+    }
+
+
+</script>
+
+</body>
+</html>

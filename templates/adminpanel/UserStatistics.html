@@ -1,0 +1,163 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> User Statistics</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form id="form" action="{% url 'ShowStatistics' %}" method="post">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Select Native Language:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="lang_name">
+						  		{% for lang in language_list %}
+						  		<option value="{{lang}}">{{ lang }}</option>
+						  		{% endfor %}
+						  	</select>
+					  	</div>
+			            
+			        </div>
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+				  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<table class="table table-striped table-bordered">
+				<tbody>
+					<tr>
+						<td>Total Users:</td>
+						<td>{{ overall_user }}</td>
+					</tr>
+					{% if total_native and participant_count %}
+					<tr>
+						<td>{{user_native_language}} Native:</td>
+						<td>{{ total_native }}</td>
+					</tr>
+					<tr>
+						<td>Exp. Participant:</td>
+						<td>{{ participant_count }}</td>
+					</tr>
+					{% endif %}
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+	
+	
+	{% if user_ex_performed %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4>User Experiments list for <i style="color: blue;">{{ user_native_language }}</i> Language</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>Name/Email</th>
+						<th>User Languages</th>
+						<th>Exp. Order</th>
+						<th>Compt. Date</th>
+						<th>Experiment Type</th>
+						<th>Experiment Name</th>
+						<th>Correct/Total</th>
+						<th>Accuracy</th>
+						
+					</thead>	
+					<tbody>
+						{% for list in  user_ex_performed %}
+						<tr>
+
+						<td>{% ifchanged list.0.user.username %} <b>{{ list.0.user.username }}</b> <br> {{list.0.user.email}} {%endifchanged%}</td>
+						<td>
+							{% ifchanged list.1 %}
+							{% for item in list.1 %}
+							 	{% if item in list.2 %}
+							 		<strong style="color: darkgreen;">{{item}} </strong>
+							 	{% else %}
+							 		{{item}} 
+							 	{% endif %}
+							{%endfor%}
+							{% endifchanged %}
+						</td>
+						<td>{{ list.3 }}</td>
+						<td>{{ list.4 }}</td>
+						<td>{{ list.5 }}</td>
+						<td>{{ list.6 }}</td>
+						<td>{{ list.7 }}</td>
+						<td>{{ list.8 }}</td>
+
+						</tr>
+						{% endfor %}
+					</tbody>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"order": [] 
+	    	});
+	
+		} );
+
+    </script>
+{% endblock %}

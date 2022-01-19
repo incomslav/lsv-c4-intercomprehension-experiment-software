@@ -1,0 +1,230 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+
+    .highlight {
+    	background-color: #99b2d2;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+            {% if message %}
+            <h3>{{ message }}</h3>
+            {% endif %}
+
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Select An Experiment to Upload Questions Audio</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				
+				<form method="get" action="{% url 'FreeTranslationQuestionAnswerList' 0 %}">
+					{% csrf_token %}
+					<div class="row margin-top">
+			            <div class="col-md-2">
+			                <label>Experiments:</label>
+			            </div>
+			            <div class="col-md-8">
+			            	<select class="form-control" name="experiment_id" id="e1">
+						  		{% for exp in experiment_list %}
+						  		<option value="{{exp.experiment_ptr_id}}">{{ exp.experiment_name }}</option>
+						  		{% endfor %}
+						  	</select>
+				            
+					  	</div>
+					  	<div class="col-md-2">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+			            
+			        </div>
+
+		        </form>
+
+
+
+			</div>
+		</div>
+
+		
+		<br>
+		<br>
+		<br>
+		<br>
+
+	
+	
+	{% if experiment_list %}
+		<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4><b style="color: blue;"> {{ exp_type }}</b>Free Translation Experiment List</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>#</th>
+						<th>Exp ID</th>
+						<th>Experiment Name</th>
+						<th>Is Active</th>
+						<th>Has Audio</th>
+						
+					</thead>	
+					<tbody>
+
+						
+
+						{% for exp in  experiment_list %}
+						<tr>
+							<td>{{ forloop.counter }}</td>
+							<td>{{ exp.experiment_ptr_id }}</td>
+							<td><a href="{% url 'FreeTranslationQuestionAnswerList' exp.experiment_ptr_id %}">{{ exp.experiment_name }}</a></td>
+							<td>{{ exp.is_active }}</td>
+                            <td>{{ exp.is_audio_experiment }}</td>
+							
+										
+
+						</tr>
+						{% endfor %}
+
+						
+					</tbody>
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+	{% load staticfiles %}
+
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'pace/themes/blue/pace-theme-bounce.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'select2-4/dist/css/select2.css' %}">
+	<script type="text/javascript" src="{% static 'pace/pace.js' %}"></script>
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+
+    {# JQUERY FILE UPLOAD SCRIPTS #}
+   <script type="text/javascript" src="{% static 'jquery-file-upload/js/vendor/jquery.ui.widget.js' %}"></script>
+   <script type="text/javascript" src="{% static 'jquery-file-upload/js/jquery.iframe-transport.js' %}"></script>
+   <script type="text/javascript" src="{% static 'jquery-file-upload/js/jquery.fileupload.js' %}"></script>
+   <script type="text/javascript" src="{% static 'select2-4/dist/js/select2.js' %}"></script>
+
+    
+
+    <script type="text/javascript">
+
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"paging" : true,
+	    		"order": [] 
+	    	});
+
+	    	 $("#e1").select2();
+	    	
+	    	// $("#total_avg").html("Test");
+
+            var selectedExp = 0;
+
+
+
+
+            $("select.experiments").change(function () {
+                selectedExp = $(this).children("option:selected").val();
+                {#alert(selectedExp);#}
+            });
+
+
+	    	function QAprocessAjaxRequest() {
+	    	    {#alert(3);#}
+                var csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                {#var csrftoken = getCookie('csrftoken');#}
+
+                $.ajax({
+                    type: "POST",
+                    url: "/en/admin/QuestionsAudio/",
+                    data: {
+                        csrfmiddlewaretoken : csrftoken,
+                        exp_id : selectedExp
+                    },
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                        alert(data);
+
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
+            }
+
+
+				
+		} );
+
+    </script>
+
+    <script>
+        function uploadAudioFile(qstn_id) {
+	    	    {#alert(3);#}
+                var csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                {#var csrftoken = getCookie('csrftoken');#}
+
+                var formdata = new FormData($('#form_'+ qstn_id).get(0));
+                {#alert(formdata);#}
+
+                $.ajax({
+                    type: "POST",
+                    url: "/en/admin/QuestionsAudio/",
+                    data: formdata,
+                    cache: false,
+                    async: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        alert(data);
+
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
+            }
+    </script>
+{% endblock %}

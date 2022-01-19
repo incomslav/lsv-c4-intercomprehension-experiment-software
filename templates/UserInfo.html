@@ -1,0 +1,800 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+<style type="text/css">
+    #id_is_lived_in_other_area {
+        list-style: none;
+        padding-left: 0px;
+    }
+
+    #id_is_multilingual {
+        list-style: none;
+        padding-left: 0px;
+    }
+
+    #id_have_linguistics_degree{
+        list-style: none;
+        padding-left: 0px;
+    }
+
+    fieldset {
+        border: 1px solid green;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    legend {
+        width: auto;
+        padding: 0 10px; /* To give a bit of padding on the left and right */
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 15px;
+        margin-bottom: 0;
+    }
+
+</style>
+<div class="col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h3 style="color: green;font-weight:bold;"><u> {{userInfoPageConstants.USER_INFO_PAGE_HEADER}} </u></h3>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-6">
+{#                {{ missingEntries }}#}
+                {% if messages %}
+                {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Error:</span>
+                    {{ message }}
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                {% endif %}
+
+            </div>
+        </div>
+
+        <div class="margin-top">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_AGE_TEXT}}</legend>
+
+                <div class="col-md-3">
+                    {{ form.age }}
+                </div>
+            </fieldset>
+            {% if form.age.errors %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'INVALID_AGE_ERROR_MESSAGE' %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="margin-top">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_GENDER_TEXT}}</legend>
+
+                <div class="col-md-3">
+                    {{ form.gender }}
+                </div>
+            </fieldset>
+            {% if form.gender.errors %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_GENDER_TEXT' %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="margin-top">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_LIVING_COUNTRY_QUESTION}}</legend>
+
+                <div class="col-md-4">
+                    {{ form.area_country }}
+                </div>
+            </fieldset>
+            {% if form.area_country.errors %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_COUNTRY_TEXT' %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div id="div_area_lang" class="margin-top">
+
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_LIVING_COUNTRY_LANGUAGE_QUESTION}}</legend>
+                <div id="div_area_lang_inner" class="row padding-bottom">
+
+                    <div class="col-md-4">
+                        {{ form.area_language }}
+                    </div>
+                    <div class="col-md-2 margin-top" style="font-weight:bold;">
+                        <a id="lnk_add_area_language">
+                            {{userInfoPageConstants.USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT}}
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+            {% if missingEntries.location_language_missing %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_A_LANGUAGE_TEXT'%}
+            </div>
+            {% endif %}
+        </div>
+
+
+        <div class="margin-top ">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_LIVING_PERIOD_QUESTION}}</legend>
+
+                <div class="col-md-3">
+                    {{ form.living_period }}
+                </div>
+            </fieldset>
+            {% if form.living_period.errors %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% for error in form.living_period.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="margin-top ">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_LIVED_IN_ANOTHER_LANGUAGE_SPOKEN_AREA_QUESTION}}</legend>
+
+                <div class="col-md-1">
+                    {{ form.is_lived_in_other_area }}
+                </div>
+
+                <div id="div_another_area_lang" class="margin-top another_area">
+
+                    <fieldset>
+                        <legend>{{userInfoPageConstants.USER_INFO_PAGE_ANOTHER_AREA_LANGUAGE_QUESTION}}</legend>
+                        <div id="div_another_area_lang_inner" class="row padding-bottom">
+                            <div class="col-md-4">
+                                {{ form.living_area_language }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="font13" style="padding-top:10px;">
+                                    {{userInfoPageConstants.USER_INFO_PAGE_ANOTHER_AREA_LIVING_PERIOD_QUESTION}}
+                                </label>
+                            </div>
+                            <div class="col-md-1">
+                                {{ form.living_area_period }}
+                            </div>
+                            <div class="col-md-2 margin-top" style="font-weight:bold;">
+                                <a id="lnk_add_another_area_lang">
+                                    {{userInfoPageConstants.USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT}}
+                                </a>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </fieldset>
+        </div>
+
+
+        <div class="margin-top">
+            <fieldset>
+                <legend>{{userInfoPageConstants.USER_INFO_PAGE_GROW_UP_MULTILINGUALLY_QUESTION}}</legend>
+
+                <div class="col-md-2">
+                    {{ form.is_multilingual }}
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="div_native_lang" class="multilingual margin-top">
+            <fieldset>
+                <legend>
+                    {{userInfoPageConstants.USER_INFO_PAGE_NATIVE_LANGUAGES_QUESTION}}
+                </legend>
+                <div id="div_native_lang_inner" class="row padding-bottom">
+                    <div class="col-md-4">
+                        {{ form.native_language }}
+                    </div>
+                    <div class="col-md-3 margin-top" style="font-weight:bold;">
+                        <a id="lnk_add_native_lang">
+                            {{userInfoPageConstants.USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT}}
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+            {% if missingEntries.native_language_missing %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_A_LANGUAGE_TEXT'%}
+            </div>
+            {% endif %}
+        </div>
+        <div id="div_education_country" class="margin-top">
+            <fieldset>
+                <legend>{% trans 'USER_INFO_PAGE_WHERE_DID_YOU_GO_TO_SCHOOL_QUESTION' %}</legend>
+                <div id="div_education_country_inner" class="row padding-bottom">
+                    <div class="col-md-4">
+                        {{ form.education_country }}
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <label class="font13" style="padding-top: 10px;"> {% trans 'USER_INFO_PAGE_FOR_HOW_LONG_QUESTION' %}</label>
+
+                    </div>
+                    <div class="col-md-1">
+                        {{ form.education_time }}
+                    </div>
+                    <div class="col-md-2 margin-top" style="font-weight:bold;">
+                        <a id="lnk_add_education_country">
+                            {% trans 'USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT' %}
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+            {% if missingEntries.education_missing %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+{#                {% trans 'PLEASE_SELECT_COUNTRY_TEXT'%}#}
+                {% trans 'PLEASE_SELECT_COUNTRY_AND_ENTER_DURATION_TEXT'%}
+            </div>
+            {% endif %}
+        </div>
+
+    <div id="div_highest_education_degree" class="margin-top">
+            <fieldset>
+                <legend>{% trans 'USER_INFO_PAGE_WHAT_IS_YOUR_HIGHEST_EDUCATION_DEGREE_QUESTION' %}</legend>
+                <div id="div_education_country_inner" class="row padding-bottom">
+                    <div class="col-md-4">
+                        {{ form.highest_education_degree }}
+                    </div>
+                </div>
+            </fieldset>
+            {% if missingEntries.degree_missing %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_HIGHEST_EDUCATION_DEGREE_TEXT'%}
+            </div>
+            {% endif %}
+        </div>
+
+    <div class="margin-top">
+            <fieldset>
+                <legend>{% trans 'USER_INFO_PAGE_DO_YOU_HAVE_A_UNIVERSITY_DEGREE_IN_LINGUISTICS_QUESTION'%}</legend>
+
+                <div class="col-md-2">
+                    {{ form.have_linguistics_degree }}
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="div_home_lang" class="margin-top">
+            <fieldset>
+                <legend>{% trans 'USER_INFO_PAGE_LANGUAGES_SPEAK_AT_HOME_QUESTION' %}</legend>
+                <div id="div_home_lang_inner" class="row padding-bottom">
+
+                    <div class="col-md-4">
+                        {{ form.home_language }}
+                    </div>
+                    <div class="col-md-2 margin-top" style="font-weight:bold;">
+                        <a id="lnk_add_home_lang">
+                            {% trans 'USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT' %}
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+            {% if missingEntries.home_language_missing %}
+            <div class="alert alert-danger" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {% trans 'PLEASE_SELECT_A_LANGUAGE_TEXT'%}
+            </div>
+            {% endif %}
+        </div>
+
+        <div id="div_learned_lang" class="margin-top">
+            <fieldset>
+                <legend>{% trans 'USER_INFO_PAGE_LIST_ALL_LEARNED_LANGUAGES_QUESTION' %}</legend>
+
+                <div id="div_learned_lang_inner" class="row padding-bottom">
+                    <div class="col-md-4">
+                        {{ form.learned_language }}
+                    </div>
+                    <div class="col-md-2">
+
+                        <label class="font13" style="padding-top:10px;"> {% trans 'USER_INFO_PAGE_FOR_HOW_LONG_QUESTION' %}</label>
+
+                    </div>
+                    <div class="col-md-1">
+                        {{ form.learned_language_time }}
+                    </div>
+                    <div class="col-md-2 margin-top" style="font-weight:bold;">
+                        <a id="lnk_add_learned_lang">
+                            {% trans 'USER_INFO_PAGE_ADD_ANOTHER_BUTTON_TEXT' %}
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="margin-top">
+            <fieldset>
+                <legend>{% trans 'PROLIFIC_ACADEMIC_PARTICIPANT' %}</legend>
+                <div class="row padding-bottom">
+                    <div class="col-md-3">
+                        <label class="font13" style="padding-top:10px;"> {% trans 'Please enter your Prolific ID:' %}</label>
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.prolific_id }}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="row margin-top">
+
+            <div class="col-md-4">
+                <input type="submit" value="{% trans 'USER_INFO_PAGE_CONTINUE_BUTTON_TEXT' %}" class="btn btn-primary">
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+
+<script language="JavaScript">
+
+    $(document).ready(function () {
+        $(".onlyInt").keydown(function (event) {
+            if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105) && (event.keyCode < 37 || event.keyCode > 40) && event.keyCode != 46 && event.keyCode != 8 && event.keyCode != 9) {
+                event.preventDefault();
+            }
+        });
+
+        if ($('input:radio[name="is_lived_in_other_area"]:checked').val() == 'False') {
+        $('.another_area').hide();
+        }
+
+    });
+
+
+    $(window).load(function () {
+        loadLivingAreaLanguages();
+        loadAnotherAreaLanguages();
+        loadNativeLanguages();
+        loadEducationCountries();
+        loadHomeLanguages();
+        loadLearnedLanguages();
+    });
+
+    //        $('.multilingual').hide();
+    //$("#id_is_lived_in_other_area_0").prop("checked", true)
+    //$("#id_is_multilingual_0").prop("checked", true)
+
+    $('input:radio[name="is_lived_in_other_area"]').change(
+            function () {
+                if ($(this).val() == 'True') {
+                    $('.another_area').show();
+                }
+                else {
+                    $('.another_area').hide();
+                }
+            });
+
+    //        $('input:radio[name="is_multilingual"]').change(
+    //                function () {
+    //                    if ($(this).val() == 'True') {
+    //                        $('.multilingual').show();
+    //                    }
+    //                    else {
+    //                        $('.multilingual').hide();
+    //                    }
+    //                });
+
+
+    $('#lnk_add_area_language').click(function () {
+        saveAreaLanguage();
+    });
+
+
+    $('#lnk_add_another_area_lang').click(function () {
+        saveAnotherAreaLanguage();
+    });
+
+    $('#lnk_add_native_lang').click(function () {
+        saveNativeLanguage();
+    });
+
+    $('#lnk_add_education_country').click(function () {
+        saveEducationCountry();
+    });
+
+    $('#lnk_add_home_lang').click(function () {
+        saveHomeLanguage();
+    });
+
+
+    $('#lnk_add_learned_lang').click(function () {
+        saveLearnedLanguage();
+    });
+
+    function saveAreaLanguage() {
+
+        if ($("#id_area_language").val() != '') {
+
+            var dataObj = {
+                type: 1,
+                languageId: $('#id_area_language').val(),
+                language: $('#id_area_language option:selected').text()
+            };
+
+//            var successObjId = "#div_area_lang";
+            var successObjId = "#div_area_lang_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+            $("#id_area_language").prop('selectedIndex', 0);
+        }
+        else {
+            $("#id_area_language").focus();
+        }
+
+    }
+
+    function deleteAreaLanguage(divId, languageId, languageType) {
+
+        var dataObj = {
+            type: '7',
+            languageId: languageId,
+            languageType: languageType
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+    }
+
+    function saveAnotherAreaLanguage() {
+
+        if ($("#id_living_area_language").val() != '' && $("#id_living_area_period").val() != '') {
+
+            var dataObj = {
+                type: 2,
+                languageId: $('#id_living_area_language').val(),
+                language: $('#id_living_area_language option:selected').text(),
+                livingYear: $('#id_living_area_period').val()
+            };
+
+//            var successObjId = "#div_another_area_lang";
+            var successObjId = "#div_another_area_lang_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+
+            $("#id_living_area_language").prop('selectedIndex', 0);
+            $("#id_living_area_period").val('')
+        }
+        else {
+            $("#id_living_area_language").focus();
+        }
+
+    }
+
+    function deleteAnotherAreaLanguage(divId, languageId, languageType) {
+
+        var dataObj = {
+            type: '7',
+            languageId: languageId,
+            languageType: languageType
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+    }
+
+    function saveNativeLanguage() {
+
+        if ($("#id_native_language").val() != '') {
+
+            var dataObj = {
+                type: 3,
+                languageId: $('#id_native_language').val(),
+                language: $('#id_native_language option:selected').text()
+            };
+
+//            var successObjId = "#div_native_lang";
+            var successObjId = "#div_native_lang_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+            $("#id_native_language").prop('selectedIndex', 0);
+        }
+        else {
+            $("#id_native_language").focus();
+        }
+
+    }
+
+    function deleteNativeLanguage(divId, languageId, languageType) {
+        var dataObj = {
+            type: '7',
+            languageId: languageId,
+            languageType: languageType
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+    }
+
+    function saveEducationCountry() {
+
+        if ($("#id_education_country").val() != '' && $('#id_education_time').val() != '') {
+
+            var dataObj = {
+                type: 4,
+                countryId: $('#id_education_country').val(),
+                countryName: $('#id_education_country option:selected').text(),
+                educationYear: $('#id_education_time').val()
+            };
+
+//            var successObjId = "#div_education_country";
+            var successObjId = "#div_education_country_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+            $("#id_education_country").prop('selectedIndex', 0);
+            educationYear: $('#id_education_time').val('');
+        }
+        else {
+            $("#id_education_country").focus();
+        }
+    }
+
+    function deleteEducationCountry(divId, educationCountryId) {
+        var dataObj = {
+            type: '12',
+            educationCountryId: educationCountryId
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+    }
+
+
+    function saveHomeLanguage() {
+
+        if ($("#id_home_language").val() != '') {
+
+            var dataObj = {
+                type: 5,
+                languageId: $('#id_home_language').val(),
+                language: $('#id_home_language option:selected').text()
+            };
+
+//            var successObjId = "#div_home_lang";
+            var successObjId = "#div_home_lang_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+            $("#id_home_language").prop('selectedIndex', 0);
+        }
+        else {
+            $("#id_home_language").focus();
+        }
+
+    }
+
+    function deleteHomeLanguage(divId, languageId, languageType) {
+        var dataObj = {
+            type: '7',
+            languageId: languageId,
+            languageType: languageType
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+    }
+
+
+    function saveLearnedLanguage() {
+
+        if ($("#id_learned_language").val() != '' && $("#id_learned_language_time").val() != '') {
+
+            var dataObj = {
+                type: 6,
+                languageId: $('#id_learned_language').val(),
+                language: $('#id_learned_language option:selected').text(),
+                learningTime: $('#id_learned_language_time').val()
+            };
+
+
+//            var successObjId = "#div_learned_lang";
+            var successObjId = "#div_learned_lang_inner";
+            processUserInfoAjaxRequest(dataObj, successObjId);
+
+            $("#id_learned_language").prop('selectedIndex', 0);
+            $("#id_learned_language_time").val('')
+        }
+        else {
+            $("#id_learned_language").focus();
+        }
+
+    }
+
+    function deleteLearnedLanguage(divId, languageId, languageType) {
+        var dataObj = {
+            type: '7',
+            languageId: languageId,
+            languageType: languageType
+        };
+
+        msg = getMessageByAjaxRequest(1);
+        var r = confirm(msg);
+        if (r == true) {
+            processDeleteAjaxRequest(dataObj);
+            $(divId).remove();
+        }
+
+    }
+
+    function loadLivingAreaLanguages() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 8, 'websiteLanguage': langCode};
+        var successObjId = "#div_area_lang_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+    }
+
+    function loadAnotherAreaLanguages() {
+
+        if ($('input:radio[name="is_lived_in_other_area"]:checked').val() == 'True') {
+//            $('.another_area').show();
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 9, 'websiteLanguage': langCode};
+//            var successObjId = "#div_another_area_lang";
+        var successObjId = "#div_another_area_lang_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+        }
+        else {
+            $('.another_area').hide();
+        }
+
+    }
+
+    function loadNativeLanguages() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 10, 'websiteLanguage': langCode};
+//        var successObjId = "#div_native_lang";
+        var successObjId = "#div_native_lang_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+    }
+
+    function loadEducationCountries() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 11, 'websiteLanguage': langCode};
+//        var successObjId = "#div_education_country";
+        var successObjId = "#div_education_country_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+    }
+
+    function loadHomeLanguages() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 13, 'websiteLanguage': langCode};
+//        var successObjId = "#div_home_lang";
+        var successObjId = "#div_home_lang_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+    }
+
+    function loadLearnedLanguages() {
+        var pathValue = window.location.pathname;
+        var langCode = (pathValue.split('/')[1]).toString().toLowerCase();
+        var dataObj = {'type': 14, 'websiteLanguage': langCode};
+//        var successObjId = "#div_learned_lang";
+        var successObjId = "#div_learned_lang_inner";
+        loadUserInfoAjaxRequest(dataObj, successObjId);
+    }
+
+    function processUserInfoAjaxRequest(dataObj, successObjId) {
+
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+        dataObj["age"] = $('#id_age').val();
+        dataObj["gender"] = $('#id_gender').val();
+
+        $.ajax({
+            type: "POST",
+            url: "/en/UpdateUserLanguages/",
+            data: dataObj,
+            cache: false,
+            //alert(data);
+            success: function (data) {
+                $(successObjId).after(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+    function processDeleteAjaxRequest(dataObj) {
+
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+        $.ajax({
+            type: "POST",
+            url: "/en/UpdateUserLanguages/",
+            data: dataObj,
+            cache: false,
+            success: function (data) {
+                //alert(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+    function loadUserInfoAjaxRequest(dataObj, successObjId) {
+
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+        $.ajax({
+            type: "POST",
+            url: "/en/UpdateUserLanguages/",
+            data: dataObj,
+            cache: false,
+            async: true,
+            success: function (data) {
+                $(successObjId).after(data);
+
+                // show another area language div
+                if (dataObj['type'] == 9 && data != '') {
+                    $('.another_area').show();
+//                    $('input:radio[name="is_lived_in_other_area"]').attr('checked', true);
+//                    $('input:radio[name="is_lived_in_other_area"]:checked').val(true);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+</script>
+
+{% endblock %}

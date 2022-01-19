@@ -1,0 +1,45 @@
+{% extends "BaseProlific.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:65px;">
+
+        <div class="row">
+            <div class="col-md-1">
+                <img src="/static/images/winner-badge.png" style="width: 50px;">
+            </div>
+            <div class="col-md-11">
+                <h2>
+                    {#                    {% trans 'EXPERIMENT_FINAL_THANK_YOU_TEXT' %}#}
+                    Thank You for your Participation in the Experiment
+                </h2>
+                <h4>
+                    Your contribution is priceless to us!
+                </h4>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <a href="#"><button class="btn btn-primary" type="">Return to Prolific</button> </a>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+
+
+{% endblock %}

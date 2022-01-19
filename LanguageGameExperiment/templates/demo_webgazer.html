@@ -1,0 +1,457 @@
+{% extends "BaseProlific.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        h1, h2, h3, h4 {
+            color: green;
+            font-weight: bold;
+        }
+
+    </style>
+    {% load staticfiles %}
+
+    <div class="content-div col-lg-12 col-xs-12" style="padding-top:65px;">
+
+        <div class="row">
+            <div class="col-md-offset-5 col-md-7">
+                <h4>press '[A]' for YES and [L] for 'NO' on your keyboard.</h4>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+            </div>
+
+            <div class="col-md-3" id="image_1">
+
+                <img style="padding-top: 10px;" id="img1_src" src="" class="img-rounded" height=150 width=150>
+            </div>
+
+            <div class="col-md-3">
+{#                <form method="post">#}
+{#                {% csrf_token %}#}
+{#                    <button type="button" id="btn_1">click</button>#}
+{#                </form>#}
+            </div>
+
+            <div class="col-md-3" id="image_2">
+                <img style="padding-top: 10px;" id="img2_src" src="" class="img-rounded" height=150 width=150>
+            </div>
+        </div>
+
+        <div class="row margin-top">
+            <div class="col-md-3">
+
+            </div>
+
+            <div class="col-md-3" style="padding-top: 80px;">
+{#                <button  id="button_token1" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_1_BUTTON_TEXT' %}</button>#}
+
+            </div>
+            <div class="col-md-3">
+                <img style="padding-top: 10px; align-content: center;" id="img_center" src="{{ MEDIA_URL }}demo_webgazer/centre.png" class="img-rounded" height=150 width=150>
+
+            </div>
+            <div class="col-md-3" style="padding-top: 80px">
+{#                 <button id="button_token2" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_2_BUTTON_TEXT' %}</button>#}
+
+            </div>
+
+        </div>
+
+        <div class="row" style="padding-top: 100px;">
+
+            <div class="col-md-3">
+
+            </div>
+
+            <div class="col-md-3" id="image_3">
+
+                <img style="padding-top: 10px; align-content: left;" id="img3_src" src="" class="img-rounded" height=150 width=150>
+            </div>
+
+            <div class="col-md-3">
+{#                <form method="post">#}
+{#                {% csrf_token %}#}
+{#                    <button type="button" id="btn_1">click</button>#}
+{#                </form>#}
+            </div>
+
+            <div class="col-md-3" id="image_4">
+
+                <img style="padding-top: 10px; align-content: right;" id="img4_src" src="" class="img-rounded" height=150 width=150>
+
+            </div>
+        </div>
+
+        <div class="row" id="audio_div">
+{#            <h1>Printing there</h1>#}
+            <audio id="lblAudio_token1">
+                <source id="source_mp3_token1" src="" type="audio/wav">
+            </audio>
+
+            <audio id="lblAudio_token2">
+                <source id="source_mp3_token2" src="" type="audio/wav">
+            </audio>
+        </div>
+
+
+
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+
+    {% load staticfiles %}
+
+    <script src="{% static 'webgazer.js' %}" type="application/javascript"></script>
+
+    <script>
+
+        var audio_1 = $("#lblAudio_token1");
+        var audio_2 = $("#lblAudio_token2");
+        {#var token1_btn = document.getElementById("button_token1");#}
+        {#var token2_btn = document.getElementById("button_token2");#}
+        $("#audio_div").hide();
+        pred_x = 0;
+        pred_y = 0;
+        var images_name_list;
+        var current_answer_id;
+        var x_preds = []
+        var y_preds = []
+
+
+
+
+        $(document).ready(function () {
+
+            hide_image_div();
+            $("#img_center").hide();
+
+            webgazer.setGazeListener(function(data, elapsedTime) {
+                if (data == null) {
+                    return;
+                }
+                var xprediction = data.x; //these x coordinates are relative to the viewport
+                var yprediction = data.y; //these y coordinates are relative to the viewport
+                {#console.log(elapsedTime, data); //elapsed time is based on time since begin was called#}
+            }).begin();
+
+            webgazer.pause();
+
+            setTimeout(function () {
+                fetchFirstAudio();
+            }, 3000);
+
+        });
+
+
+        function hide_image_div() {
+            $("#image_1").hide();
+            $("#image_2").hide();
+            $("#image_3").hide();
+            $("#image_4").hide();
+        }
+
+        function show_image_div() {
+            $("#image_1").show();
+            $("#image_2").show();
+            $("#image_3").show();
+            $("#image_4").show();
+        }
+
+        function offset(el) {
+            var rect = el.getBoundingClientRect(),
+            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
+        }
+
+
+
+
+
+        {#function for keypress#}
+        function keyPressEvent() {
+            $(document).on('keydown',function(e) {
+
+
+                console.log("keypress");
+                if(e.which == 65 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = '1';
+                    fetchNextAudio();
+                }
+                if(e.which == 76 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = '0';
+                    fetchNextAudio();
+                }
+            });
+        }
+
+        function playAudio1() {
+            $("#alert_text").fadeOut(100);
+            {#token1_btn.disabled = false;#}
+            {#audio_1.get(0).play();#}
+            var myInterval;
+            clearInterval(myInterval);
+            x_preds = [];
+            y_preds = [];
+            myInterval = setInterval(function() {
+                var prediction = webgazer.getCurrentPrediction();
+                prediction.then(function (p_data) {
+                    // example use
+
+                    console.log(p_data.y, p_data.x, p_data.eyeFeatures);
+                    x_preds.push(p_data.x);
+                    y_preds.push(p_data.y);
+                    console.log(prediction);
+                    {#alert(x_preds);#}
+
+
+                }).catch(e => {
+                    console.log(e);
+                });
+            }, 100);
+
+            var playPromise = audio_1.get(0).play();
+            // In browsers that don’t yet support this functionality,
+            // playPromise won’t be defined.
+            if (playPromise !== undefined) {
+                playPromise.then(function() {
+                // Automatic playback started!
+                    console.log("playing audio 1");
+
+
+                    audio_1[0].onended = function (ev){
+                        {#token1_btn.disabled = true;#}
+                        setTimeout(function() {
+                            playAudio2();
+                        }, 2000);
+                    };
+                }).catch(function(error) {
+                // Automatic playback failed.
+                // Show a UI element to let the user manually start playback.
+                    console.log("Audio not playing");
+                });
+            }
+
+        };
+
+        function playAudio2() {
+            console.log("playing audio 2");
+            {#token2_btn.disabled = false;#}
+            audio_2.get(0).play();
+            audio_2[0].onended = function (ev) {
+                console.log('playing audio 2');
+                {#token2_btn.disabled = true;#}
+            };
+            key_fired = false;
+            answer_start_time = window.performance.now();
+            keyPressEvent();
+        };
+
+        function fetchFirstAudio() {
+            var dataObj = {
+                    type : 1
+                };
+                dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "/en/LanguageGameExperiment/demo_webgazer/",
+                    data: dataObj,
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                        console.log(data['user_id'], data['exp_id'], data['req_type']);
+                        $('#img1_src').attr('src', data['images_list'][0]);
+                        $('#img2_src').attr('src', data['images_list'][1]);
+                        $('#img3_src').attr('src', data['images_list'][2]);
+                        $('#img4_src').attr('src', data['images_list'][3]);
+                        images_name_list = data['images_name_list'];
+                        current_answer_id = data['answer_id']
+
+                        $("#img_center").show();
+                        show_image_div();
+
+                        $("#source_mp3_token1").attr("src", data['audio1_src']);
+                        audio_1[0].pause();
+                        audio_1[0].load();
+
+                        $("#source_mp3_token2").attr("src", data['audio2_src']);
+                        audio_2[0].pause();
+                        audio_2[0].load();
+
+                        playAudio1();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
+
+        };
+        {#let timerId = setInterval(() => alert('tick'), 2000);#}
+
+
+
+
+        function getPrediction() {
+
+            var prediction = webgazer.getCurrentPrediction();
+
+            prediction.then(function (p_data) {
+                // example use
+
+                console.log(p_data.y, p_data.x, p_data.eyeFeatures);
+                console.log(prediction);
+
+
+            }).catch(e => {
+                console.log(e);
+            });
+        };
+
+        function setValue(p_obj) {
+            pred_x = p_obj.x;
+            pred_y = p_obj.y;
+        }
+
+
+        function fetchNextAudio(){
+
+            var img1 = $("#image_1").offset();
+            console.log(img1.top, img1.left);
+            var img2 = $("#image_2").offset();
+            console.log(img2.top, img2.left);
+
+            var img3 = $("#image_3").offset();
+            console.log(img3.top, img3.left);
+            var img4 = $("#image_4").offset();
+            console.log(img4.top, img4.left);
+
+
+
+            var prediction = webgazer.getCurrentPrediction();
+            prediction.value
+            prediction.then(function (p_data) {
+                // example use
+
+                console.log(p_data.y, p_data.x, p_data.eyeFeatures);
+                console.log(prediction);
+                setValue(p_data);
+
+            }).catch(e => {
+                console.log(e);
+            });
+
+
+            var dataObj = {
+                type: 2,
+                prediction_x: pred_x,
+                prediction_y: pred_y,
+                img1_top: img1.top,
+                img1_left: img1.left,
+                img2_top: img2.top,
+                img2_left: img2.left,
+                img3_top: img3.top,
+                img3_left: img3.left,
+                img4_top: img4.top,
+                img4_left: img4.left,
+                images_name_list: images_name_list,
+                current_answer_id: current_answer_id,
+                x_preds: x_preds,
+                y_preds: y_preds
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            dataObj['prediction'] = JSON.stringify(dataObj['prediction']);
+            dataObj['img1'] = JSON.stringify(img1);
+
+            $.ajax({
+                type: "POST",
+                url: "/en/LanguageGameExperiment/demo_webgazer/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    console.log("success");
+                    console.log(data['audio1_src'], data['audio2_src']);
+                    $('#img1_src').attr('src', data['images_list'][0]);
+                    $('#img2_src').attr('src', data['images_list'][1]);
+                    $('#img3_src').attr('src', data['images_list'][2]);
+                    $('#img4_src').attr('src', data['images_list'][3]);
+                    images_name_list = data['images_name_list'];
+                    show_image_div();
+
+                    $("#source_mp3_token1").attr("src", data['audio1_src']);
+                    audio_1[0].pause();
+                    audio_1[0].load();
+
+                    $("#source_mp3_token2").attr("src", data['audio2_src']);
+                    audio_2[0].pause();
+                    audio_2[0].load();
+
+                    playAudio1();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        };
+
+
+        $("#btn_1").click(function () {
+
+
+            // example use
+            var img1 = $("#image_1").offset();
+            console.log(img1.top, img1.left);
+            var img2 = $("#image_2").offset();
+            console.log(img2.top, img2.left);
+
+            var img3 = $("#image_3").offset();
+            console.log(img3.top, img3.left);
+            var img4 = $("#image_4").offset();
+            console.log(img4.top, img4.left);
+
+            var prediction = webgazer.getCurrentPrediction();
+
+            prediction.then(function (data) {
+                console.log(data.y, data.x, data.eyeFeatures);
+                console.log(prediction);
+                var dataObj = {
+                    prediction_x: data.x,
+                    prediction_y: data.y,
+                    prediction: data
+                };
+                dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                dataObj['prediction'] = JSON.stringify(dataObj['prediction']);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/en/LanguageGameExperiment/demo_webgazer/",
+                    data: dataObj,
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                        console.log("success");
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                });
+            });
+        });
+
+
+    </script>
+
+{% endblock %}

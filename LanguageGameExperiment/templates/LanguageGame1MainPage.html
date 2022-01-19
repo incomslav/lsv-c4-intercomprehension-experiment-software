@@ -1,0 +1,377 @@
+{% extends "BaseProlific.html" %}
+{% load i18n %}
+{% block content %}
+
+    {% load staticfiles %}
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+            <div class="row">
+                <div class="col-md-12" align="center">
+
+                    <h2 style="align-content: center; color: darkgreen;"><b>{% trans 'LADO_WELCOME_TEXT_TITLE' %}</b></h2>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-8" style="padding-top: 20px;">
+
+                    {% if  selected_lado_exp_id == 1 %}
+                    <div class="panel panel-body" style="color: 0a568c;" id="intro_div">
+                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_1' %}</h4>
+                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_2' %}</h4>
+                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_3' %}</h4>
+                        <h4>{% trans 'LADO_WELCOME_TEXT_LINE_4' %}</h4>
+
+                        <!--
+                        <h4 id="">Local Police Department arrested several suspects from: Bulgaria, Czechia, Poland and Russia.</h4>
+                        <h4>They communicate with each other with secret language to mislead the police.</h4>
+                        <h4><b>In this Experiment You hear their voice and detect their origin</b></h4>
+                        <h4>Please read the "Experiment Instructions" carefully and try a trail first.</h4>
+                        -->
+                    </div>
+
+                    {% else %}
+                    <div class="panel panel-body" style="color: 0a568c;" id="intro_div">
+                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_1' %}</h4>
+                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_2' %}</h4>
+                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_3' %}</h4>
+                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_4' %}</h4>
+                        <h4>{% trans 'LADO_2_WELCOME_TEXT_LINE_5' %}</h4>
+
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="panel panel-body" style="color: green;" id="instruction_div">
+
+                        <h3 style="color: darkred;"><b>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TITLE' %}</b></h3>
+
+                        <ul>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_1' %}</li>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_2' %}</li>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_3' %}</li>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_4' %}</li>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_5' %}</li>
+                            <li>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TEXT_LINE_6' %}</li>
+                            <!--
+                            <li>This is an Audio Experiment, Please make sure the sound of your computer is working properly</li>
+                            <li><b>Please Use Headphones for this Experiment</b></li>
+                            <li>After each voice recordins played, You have to select one answer from the list options shown in the screen</li>
+                            <li>You also have to select the confidence (scaled from 1-5) for your answer</li>
+                            <li>You can hear the recording maximum for 2 times for each of the cases</li>
+                            -->
+                        </ul>
+
+
+
+                    </div>
+
+
+
+
+
+
+                    <div class="panel panel-heading" id="trial_btn">
+
+                        <button class="btn btn-sm btn-primary" type="button">{% trans 'LADO_PLAY_TRIAL_BUTTON' %}</button>
+                    </div>
+
+                    <div class="row" id="trail_div">
+                      <!--  <h3 style="padding-bottom: 20px;">Listen to the Audio and Detect its Language of Origin</h3> -->
+                        <h3 style="padding-bottom: 20px;">{% trans 'LADO_LISTEN_AUDIO_TEXT' %}</h3>
+
+                        <div class="col-xs-5 col-sm-offset-1 col-sm-4">
+                            <!--<label id="lblWord" style="font-size:25px;"
+                                   class="margin-left-medium form-control task-form-control">&nbsp</label>-->
+
+
+
+                            <audio controls id='lblAudio'>
+                                {% if selected_lado_exp_id == 1 %}
+                                <source src="{{ MEDIA_URL }}\Randomized Stimuli\Czech\cz_m_a1_d0_cz1_rec8a_CVCV.wav" type="audio/mpeg" id="source_mp3_2">
+                                {% else %}
+                                <source src="{{ MEDIA_URL }}\lado_experiment_2\Czech\filtered400_czech9.wav" type="audio/mpeg" id="source_mp3_2">
+                                {% endif %}
+                            </audio>
+
+
+                          <button id="playaudio" type="button" class="btn btn-success btn-block" disabled>Audio Playing</button>
+
+
+                        </div>
+                        <div class="col-xs-2">
+                            <p class="task-translate-arrow">
+                                >
+                            </p>
+                        </div>
+                        <div class="col-xs-5 col-sm-4" id='radio_div'>
+
+                            <div class="btn-group">
+
+                                <p style="color: green">{% trans 'LADO_SELECT_YOUR_ANSWER_TEXT' %}</p>
+                                <div class="radio">
+                                  <label><input type="radio" name="user_answer_radio" value="Bulgarian">{% trans 'LADO_ANSWER_BULGARIAN' %}</label>
+                                </div>
+                                <div class="radio">
+                                  <label><input type="radio" name="user_answer_radio" value="Polish">{% trans 'LADO_ANSWER_POLISH' %}</label>
+                                </div>
+                                <div class="radio">
+                                  <label><input type="radio" name="user_answer_radio" value="Czech">{% trans 'LADO_ANSWER_CZECH' %}</label>
+                                </div>
+                                <div class="radio">
+                                  <label><input type="radio" name="user_answer_radio" value="Russian">{% trans 'LADO_ANSWER_RUSSIAN' %}</label>
+                                </div>
+
+                            </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8" id="conf_div">
+{#                            <label for="confidence_range">Confidence: (from 1-5 left to right, 1 being least and 5 being Most) </label>#}
+                            <label for="confidence_range">{% trans 'LADO_CONFIDENCE_INTERVAL_TEXT' %} </label>
+                            <input type="range" class="" step="1" min="1" max="5" id="confidence_range" data-popup-enabled="true">
+                            <button class="btn btn-primary" type="button" id="confidence_range_button">{% trans 'LADO_SUBMIT_BUTTON' %}</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                 <div class="row task-step-sucess" id="feedback_div">
+                    <div class="col-xs-4">
+                        <img id="img_smiley" src="/static/images/s1.png" style="width:50px;">
+                        <input type="hidden" id="hdnQcount" value="0">
+
+                    </div>
+                    <div class="col-xs-3 col-md-2">
+                        <h2 style="color: red;" id='feedback_statement'></h2>
+
+                    </div>
+                </div>
+
+                    <div class="" id="start_exp_div">
+                        <h3 style="color: #0a568c;">Great!! Now You Can Start The Experiment.</h3>
+                        <h3 style="color: #0a568c;">Please Provide Few Information</h3>
+                        <form action="" method="post" >
+                            {% csrf_token %}
+                            <input type="hidden" name="exp_id" value="{{ selected_lado_exp_id }}">
+
+                            <div class="row margin-top">
+                                <div class="col-md-3">
+                                    <label>Age:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <input class="form-control" type="number" name="age" value="" required>
+                                </div>
+
+
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-md-3">
+                                    <label>Gender:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <select class="form-control custom-select" name="gender_id" required>
+                                        {% for gen in gender_list %}
+                                        <option value="{{gen.id}}">{{ gen.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="row margin-top">
+                                <div class="col-md-3">
+                                    <label>First Language:</label>
+                                </div>
+                                <div class="col-md-5">
+                                    <select class="form-control custom-select" name="language_id" required>
+                                        {% for lang in language_list %}
+                                        <option value="{{lang.language_id}}">{{ lang }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="margin-top">
+                                <button class="btn btn-sm btn-primary" type="submit" id="start_exp_btn">{% trans 'LADO_START_EXPERIMENT_BUTTON' %}</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="col-md-4">
+                    <img src="{{ MEDIA_URL }}bank_robbery_front" class="img-fluid" height=700 width=600>
+                </div>
+
+            </div>
+
+        
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script src="{% static 'Typewriter/core.js' %}"></script>
+
+    <script type="text/javascript">
+
+        var app = document.getElementById('app');
+
+        var typewriter = new Typewriter(app, {
+            loop: false
+        });
+
+        typewriter.typeString('Local Police Department arrested several suspects from: \n Bulgaria, Czechia, Poland and Russia.')
+            .pauseFor(2000)
+            //.deleteAll()
+            .typeString( 'They communicate with each other with secret language to mislead the police. ' +
+            'You hear their voice and detect their origin')
+            // .pauseFor(2500)
+            // .deleteChars(7)
+            // .typeString('<strong>altered!</strong>')
+            // .pauseFor(2500)
+            .pause()
+            .start();
+            
+
+
+        $(window).keypress(function(e) {
+            if (e.which === 32) {
+
+            //Your code goes here
+                var dataObj = {};
+
+                dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+                
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/en/LanguageGameExperiment/ExperimentTextViewLado1/',
+                    data: dataObj,
+                    cache: false,
+                    async: false,
+                    success: function (data) {
+                      alert(1);
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                    }
+                  });
+
+            }
+        });
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#start_exp_div").hide();
+
+            $("#trail_div").hide();
+            $("#conf_div").hide();
+
+            var audio_2 = document.getElementById("lblAudio");
+            var timeplay = 0;
+            $("#lblAudio").hide();
+            $('input[name=user_answer_radio]').attr('checked', false);
+            $("#feedback_div").hide();
+
+            $("#trial_btn").click(function () {
+
+                $("#trial_btn").hide();
+
+
+
+                $("#intro_div").hide();
+                $("#instruction_div").hide();
+
+                $("#trail_div").fadeIn(1500);
+                {#$("#start_exp_btn").show();#}
+
+
+
+
+                audio_2.currentTime = 0;
+
+                audio_2.playbackRate = 1;
+                setTimeout(function() {
+                    audio_2.play();
+                }, 2000);
+
+            });
+
+
+
+            $("input[name='user_answer_radio']").change(function () {
+                $("#conf_div").show(500);
+            });
+
+            $("#confidence_range_button").click(function () {
+
+                var user_radio_answer = $("input[name='user_answer_radio']:checked").val();
+
+                if(user_radio_answer == 'Czech'){
+
+                    $("#img_smiley").attr('src', '/static/images/s1.png');
+                    $("#feedback_statement").text("Correct!");
+
+                }
+                else {
+                     $("#img_smiley").attr('src', '/static/images/sad1.png');
+                     $("#feedback_statement").text("Wrong!");
+                }
+
+                audio_2.pause();
+                $("#trail_div").hide(500);
+                $("#feedback_div").fadeIn();
+                setTimeout(function () {
+                    $("#start_exp_div").fadeIn();
+                    $("#feedback_div").hide(500);
+                }, 2000);
+
+
+
+
+            });
+
+
+            audio_2.addEventListener('ended', function() {
+
+                var button = document.getElementById("playaudio");
+                timeplay++;
+
+                if (timeplay < 2){
+                    button.innerText = "Play Again";
+                    button.disabled = false;
+
+                    button.addEventListener('click', function (ev) {
+                        audio_2.play();
+                        button.innerText = 'Audio Playing';
+                        button.disabled = true;
+                    });
+
+                    return
+                }
+                else {
+                    button.innerText = 'Select Answer'
+                }
+
+            });
+
+        });
+
+    </script>
+
+
+    
+
+{% endblock %}

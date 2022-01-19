@@ -1,0 +1,323 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+    <form id="frm" method="post" action="post/">
+        {% csrf_token %}
+
+        <div class="row margin-top">
+            <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                <div id="progressBarLevels">
+                    <div></div>
+                </div>
+                <div id="progressBar" class="default-skin">
+                    <div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <p class="task-text-translate">
+                    {{sentenceTranslationPageConstants.SENTENCE_TRANSLATION_TRANSLATE_WORD_TEXT}}
+
+                </p>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12 text-right" style="padding-right:40px;">
+                <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label
+                        id="lblTimer"
+                        style='color:green;'> </label>
+                </h2>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-xs-12 col-sm-12">
+
+                <label id="lblWord" style="font-size:25px;"
+                       class="form-control task-form-control">&nbsp</label>
+                <input type="hidden" id="hdnWordId">
+                <input type="hidden" id="hdnWordCount" value="0">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12">
+                <textarea id="txtTranslation" rows="7" cols="80"
+                          class="form-control"
+                          oninput="handleTranslationInput()"
+                       placeholder="{% trans UserLanguage %}">
+
+                </textarea>
+            </div>
+        </div>
+
+        <div class="row task-step-sucess">
+            <div style="float:right;" class="col-xs-offset-3 col-xs-3 col-md-offset-4 col-md-2">
+                <input id="btnContinue" type="button" class="task-step-next-button" value="{{sentenceTranslationPageConstants.SENTENCE_TRANSLATION_CONTINUE_BUTTON_TEXT}} ">
+            </div>
+        </div>
+
+
+    </form>
+    <div id="div_filler" style="z-index: 6;" title="{{sentenceTranslationPageConstants.SENTENCE_TRANSLATION_BREAK_TEXT}} :)">
+        <p>{{sentenceTranslationPageConstants.SENTENCE_TRANSLATION_RESUME_AFTER_TEXT}} <span id="spnFillerTime">3</span>
+            {{commonConstants.SECONDS_TEXT}}.</p>
+        <button id="btnResume" class="task-step-next-button">{{sentenceTranslationPageConstants.SENTENCE_TRANSLATION_RESUME_NOW_BUTTON_TEXT}}</button>
+    </div>
+
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script language="JavaScript">
+
+    var questionTimer = null;
+    var dialogInnerTimer = null;
+    var dialogCloseTimer = null;
+    var resumeFunc = null;
+    var paused = false;
+
+    var allocatedTime = 121;
+    var s = allocatedTime;
+
+    var inputChanges = [];
+    var dateExperimentStarted = null;
+    var timestampExperimentStarted = null;
+    var timestampFirstInput = null;
+    var timestampLastInput = null;
+    var inputReceived = false;
+
+    $(document).ready(function () {
+
+
+//        $("#div_filler").dialog();
+        $("#img_smiley").hide();
+        $("#div_filler").dialog({
+            autoOpen: false,
+            close: function (event, ui) {
+                resumeTimers();
+            }
+        });
+
+        $("#btnResume").click(function () {
+            $("#div_filler").dialog('close');
+            resumeTimers();
+        });
+
+        getUserExperimentProgressAjaxRequest();
+
+        //---------------
+        fetchNextWord();
+
+        $("#txtTranslation").focus();
+
+        // ------------
+        setQuestionTimer();
+
+        $('#btnContinue').click(function () {
+            s = allocatedTime;
+            fetchNextWord();
+        });
+
+        $(document).keypress(function (e) {
+            if (!paused){
+                if (e.which == 13) {
+                    if (s>1) {
+                        $('#btnContinue').click();
+                    }
+                    e.preventDefault();
+                }
+            }
+        });
+
+    });
+
+    function handleTranslationInput(){
+        var cur_input = $('#txtTranslation').val();
+        var now = window.performance.now();
+        var X = [cur_input, now];
+        inputChanges.push(X);
+        if (!inputReceived){
+            timestampFirstInput = now;
+            inputReceived = true;
+        }
+        timestampLastInput = now;
+        
+    }
+
+    function resumeTimers() {
+        setQuestionTimer();
+        s = allocatedTime;
+        clearInterval(dialogInnerTimer);
+        $("#spnFillerTime").html(3);
+        clearTimeout(dialogCloseTimer); // on its own, this prevents the old word to be put back, breaking this test.
+        dialogCloseTimer = setTimeout(resumeFunc, 1); // fix with stored function
+    }
+
+    function setQuestionTimer() {
+        if (questionTimer !== null) return;
+
+        questionTimer = setInterval(function () {
+            s = s - 1;
+            
+            var minutes = Math.floor(s / 60);
+            var seconds = s - (minutes * 60);
+
+            var lblstring = minutes+':'+seconds;
+
+            if (s == 0) {
+                $('#lblTimer').html(lblstring);
+                s = allocatedTime;
+                fetchNextWord();
+            }
+            
+            $('#lblTimer').html(lblstring);
+            $('#lblTimer').css("color", (s < 31 ? 'red' : 'green'));
+
+        }, 1000);
+
+    }
+
+    function fetchNextWord() {
+
+        var cur_input = $('#txtTranslation').val();
+        var now = window.performance.now();
+        var X = [cur_input, now];
+        inputChanges.push(X);
+        
+        var dataObj = {
+            type: 1,
+            qId: $('#hdnWordId').val(),
+            translation: $('#txtTranslation').val(),
+            timestampExperimentStarted: timestampExperimentStarted,
+            timestampCompletion: window.performance.now(),
+            inputChanges: JSON.stringify(inputChanges),
+        };
+        processUserExperimentAjaxRequest(dataObj);
+
+        inputChanges = [['', window.performance.now()]];
+        timestampFirstInput = null;
+        receivedInput = false;
+        
+    }
+
+    function processUserExperimentAjaxRequest(dataObj) {
+
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+        $.ajax({
+            type: "POST",
+            url: "/en/SentenceTranslationQuestions/",
+            data: dataObj,
+            cache: false,
+            async: false,
+            success: function (data) {
+                //alert(data);
+                var d = data.split('_');
+                if (d[0] != '0' && d[1] != 'END') {
+                    progressBar(parseInt(d[2]), d[3], d[4], $('#progressBar'));
+                    dateExperimentStarted = new Date();
+                    timestampExperimentStarted = window.performance.now();
+                    timestampFirstInput = null;
+                    inputReceived = false;
+                    timestampLastInput = null;
+                    $('#hdnWordId').val(d[0]);
+                    $('#lblWord').html(d[1]);
+                    $('#txtTranslation').val('');
+                    $('#txtTranslation').focus();
+                    //--------set word count
+                    setWordCount();
+                }
+                else {
+                    var pathValue = window.location.pathname;
+                    var langCode = pathValue.split('/')[1];
+                    window.location.href = '/' + langCode + '/ShowExperimentResults/';
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+    function getUserExperimentProgressAjaxRequest(dataObj) {
+
+        var dataObj = {type: 2};
+        dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+        $.ajax({
+            type: "POST",
+            url: "/en/SentenceTranslationQuestions/",
+            data: dataObj,
+            cache: false,
+            async: false,
+            success: function (data) {
+                var d = data.split('_');
+                progressBar(d[0], d[1], d[2], $('#progressBar'));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+            }
+        });
+    }
+
+    function setWordCount() {
+
+        var hdnWordCount = $("#hdnWordCount");
+        var spnFillerTime = $("#spnFillerTime");
+        var div_filler = $("#div_filler");
+        var lblTimer = $('#lblTimer');
+        var lblWord = $('#lblWord');
+        var oldVal = hdnWordCount.val();
+        var newVal = parseInt(oldVal) + 1;
+
+        if (oldVal == 10) {
+
+            hdnWordCount.val('1');
+            clearInterval(questionTimer);
+            questionTimer = null;
+
+            var word = lblWord.html();
+            lblWord.html('');
+
+            //div_filler.dialog('open');
+            //lblTimer.html('00');
+            //var t = parseInt(spnFillerTime.html());
+            //dialogInnerTimer = setInterval(function () {
+            //    t = t - 1;
+            //    spnFillerTime.html(t);
+            //
+            //}, 1000);
+            //
+            //paused = true;
+            //
+            //resumeFunc = function ()
+            //    {
+            //    div_filler.dialog('close');
+
+            //    lblWord.html(word);
+            //    paused = false;
+            //    setQuestionTimer();
+            //    s = allocatedTime;
+            //    clearInterval(dialogInnerTimer);
+            //    spnFillerTime.html(3);
+            //    };
+
+            //dialogCloseTimer = setTimeout(resumeFunc, 3000);
+
+        }
+        else {
+            hdnWordCount.val(newVal);
+        }
+    }
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		{{message}}
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Create New Experiment</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+
+				<form id="form" action="{% url 'CreateNewLaDoExp' %}" method="post">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>New LaDo Experiment Name:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <input type="text" class="form-control" name="experiment_name">
+					  	</div>
+			            
+			        </div>
+
+                    <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Experiment Type:</label>
+			            </div>
+			            <div class="col-md-6">
+
+                            <select class="form-control" name="experiment_type">
+                                <option value="lado" selected>Lado</option>
+                                <option value="primal">Primal</option>
+                                <option value="webgazing">Web Gazing</option>
+                                <option value="sentence translation">Sentence Translation</option>
+                                <option value="de compound">DE compound</option>
+                            </select>
+					  	</div>
+
+			        </div>
+                    <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Publish:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <select class="form-control" name="publish">
+                                <option value="1" selected>True</option>
+                                <option value="0">False</option>
+                            </select>
+					  	</div>
+
+			        </div>
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary" disabled>Submit</button>
+					  	</div>
+				  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+	
+	
+	{% if experiment_list %}
+	<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4>Language Game Experiments list</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>Exp. Name</th>
+                        <th>Exp. Type</th>
+						<th>Created on</th>
+						<th>Has Audio</th>
+						<th>Is Active</th>
+                        <th>Publish</th>
+                        <th>Results</th>
+                        <th>Download</th>
+						
+						
+					</thead>	
+					<tbody>
+						{% for list in  experiment_list %}
+
+						<tr>
+                        {% if list.experiment_type == 'lado' %}
+                            <td><a href="{% url 'LaDoExperimentQuestionView' list.id %}">{{ list.experiment_name }}</a></td>
+
+                        {% elif list.experiment_type == 'sentence translation' %}
+                            <td><a href="{% url 'SentenceTranslationUploadQuestion' list.id %}">{{ list.experiment_name }}</a></td>
+
+                        {% elif list.experiment_type == 'de compound' %}
+                            <td><a href="{% url 'DECompoundUploadQuestion' list.id %}">{{ list.experiment_name }}</a></td>
+                        {% else %}
+                            <td>
+                                <a href="{% url 'PrimalExperimentQuestionView' list.id %}">{{ list.experiment_name }}</a>
+                                <a href="{% url 'LanguageGameExperiment:PrimalTaskExperimentText' %}" style="color: green">(Test Experiment)</a>
+
+                            </td>
+                        {% endif %}
+                            <td>{{ list.experiment_type }}</td>
+                            <td>{{ list.created_on }}</td>
+                            <td>{{ list.has_audio }}</td>
+                            <td>{{ list.is_active }}</td>
+                            <td>{{ list.publish }}</td>
+                        {% if list.experiment_type == 'sentence translation' or list.experiment_type == 'de compound'%}
+                            <td> - </td>
+                        {% else %}
+                            <td><a href="{% url 'AdminLadoResultsView' list.id %}">View Results</a></td>
+                        {% endif %}
+
+                        {% if list.experiment_type == 'de compound' %}
+                            <td><a href="{% url 'LanguageGameExperiment:DECompoundResultDownloadCSV' list.id %}">Download CSV</a></td>
+                        {% else %}
+                            <td><a href="{% url 'LanguageGameExperiment:LaDoResultDownloadCSV' list.id %}">Download CSV</a></td>
+                        {% endif %}
+
+						</tr>
+						{% endfor %}
+					</tbody>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"order": [] 
+	    	});
+	
+		} );
+
+    </script>
+{% endblock %}

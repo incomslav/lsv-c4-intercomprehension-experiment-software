@@ -1,0 +1,777 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+    {% load staticfiles %}
+    <style type="text/css">
+        
+        .slider-class {
+        width: 96%;
+        }
+    </style>
+
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+
+
+            <div class="row margin-top">
+                <div class="col-md-12 margin-top" style="padding-left: 10px;" id="progressbar_div">
+                    <div id="progressBarLevels">
+                        <div></div>
+                    </div>
+                    <div id="progressBar" class="default-skin">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="header_div" class="row">
+                <div class="col-md-12" align="center">
+{#                    <h3>{% trans 'PRIMING_EXPERIMENT_1_PAGE_INSTRUCTION_1' %}</h3>#}
+                    <h3 style="color: green;font-weight:bold;">Усвоение составных слов немецкого языка с помощью определения на русском языке!</h3>
+                </div>
+            </div>
+
+{##}
+{#            <div class="row">#}
+{#                <div class="col-md-12 text-right" style="padding-right:40px;">#}
+{#                    <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label#}
+{#                            id="lblTimer"#}
+{#                            style='color:green;'> </label>#}
+{#                    </h2>#}
+{#                </div>#}
+{#            </div>#}
+
+            <div id="body_div" class="row margin-top">
+                <form class="" id="frm" method="post" action="post/">
+                    {% csrf_token %}
+                    <div class="row margin-top">
+                        <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                            <div id="progressBarLevels">
+                                <div></div>
+                            </div>
+                            <div id="progressBar" class="default-skin">
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 margin-top" style="text-align: center;" id="">
+                        <p style="font-size: larger; line-height: 2; color: #337ab7">
+                            <b><span style="color: black;" id="ru_def_span"></span></b>
+                        </p>
+                        <p style="font-size: larger; line-height: 2; color: #337ab7">
+                            <b><span style="color: black;" id="de_comp_span"> </span></b>
+                        </p>
+
+
+                        <div class="form-group row" style="padding-top: 20px; text-align: center" id="first_question_div">
+                            <p style="font-size: larger; line-height: 2; color: #337ab7">
+                            В какой степени определение на русском языке выявляет смысл сложного немецкого слова?
+                        </p>
+
+                            <div class="col-sm-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="4">
+                                    <label class="form-check-label" for="inlineRadio1">4 (очень хорошо)</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="3">
+                                    <label class="form-check-label" for="inlineRadio2">3 (скорее хорошо)</label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="2">
+                                    <label class="form-check-label" for="inlineRadio3">2 (скорее плохо)</label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="1">
+                                    <label class="form-check-label" for="inlineRadio4">1(совсем плохо)</label>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group row" style="padding-top: 20px; text-align: center" id="second_question_div">
+                            <p style="font-size: larger; line-height: 2; color: #337ab7">
+                            Какие из частей сложного слова Вы знаете как отдельные существительные немецкого языка?
+                            </p>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="1" name="second_answer_checkbox" id="second_answer_checkbox_id1">
+                              <label class="form-check-label" for="second_answer_checkbox_id1">
+                                  1-ое &nbsp; &nbsp; &nbsp;
+                              </label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="2" name="second_answer_checkbox" id="second_answer_checkbox_id2">
+                              <label class="form-check-label" for="second_answer_checkbox_id2">
+                                2-ое &nbsp; &nbsp; &nbsp;
+                              </label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="4" name="second_answer_checkbox" id="second_answer_checkbox_id3">
+                              <label class="form-check-label" for="second_answer_checkbox_id3">
+                                никакое
+                              </label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+
+
+            <div id="button_div" class="row margin-top">
+                <div class="col-md-offset-11 col-md-1">
+                    <button class="btn btn-success" type="button" id="click_button">Следующий</button>
+                </div>
+            </div>
+
+{##}
+            <div class="row margin-top" id="feedback_div1">
+
+                <div class="row margin-top">
+                    <div class="col-md-offset-3 col-md-1">
+                        <img id="" src="/static/images/s1.png" style="width:90px;">
+{#                        <input type="hidden" id="hdnQcount" value="0">#}
+
+                    </div>
+                    <div class="col-xs-7 col-md-7" style="padding-top: 35px;">
+                        <h4 style="color: #0a568c;" id=''>Большое спасибо за проделанный эксперимент!</h4>
+                        <h4 style="color: #0a568c;" id=''>Мы высоко ценим Ваше участие.</h4>
+                        <br>
+{#                        <a id="confirmation_link" href="https://intercomprehension.coli.uni-saarland.de/en/Experiments/">Return to Home Page</a>#}
+                    </div>
+                </div>
+
+
+                <div class="row margin-top">
+                    <div class="col-md-offset-3 col-md-6">
+                        <table class="table table-bordered table-striped">
+                            <tbody>
+                                <tr>
+                                    <td>Средний показатель времени за задание: (секунда)</td>
+                                    <td id="td_0"></td>
+                                </tr>
+                                <tr>
+                                    <td>Средний показатель времени за сессию: (минута)</td>
+                                    <td id="td_1"></td>
+                                </tr>
+                                <tr>
+                                    <td>Общее затраченное время (минута)</td>
+                                    <td id="td_2"></td>
+                                </tr>
+                                <tr>
+                                    <td>Всего сессий</td>
+                                    <td id="td_3"></td>
+                                </tr>
+                                <tr>
+                                    <td>Всего заданий</td>
+                                    <td id="td_4"></td>
+                                </tr>
+                                <tr>
+                                    <td>Выполненные сессии</td>
+                                    <td id="td_5"></td>
+                                </tr>
+                                <tr>
+                                    <td>Выполненные задания</td>
+                                    <td id="td_6"></td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row margin-top">
+                    <div class="col-md-5">
+
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/Experiments"> <button class="btn btn-primary" type="button" id="home_button">Вернуться на главную страницу</button></a>
+                    </div>
+                    <div class="col-md-2">
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="row" id="interval_div">
+                <div class="row">
+                    <div class="col-md-12" style="text-align: center">
+                        <h2 style="color: green;font-weight:bold;">Время сделать паузу!</h2>
+                    </div>
+                </div>
+                <div class="row margin-top">
+                    <div class="col-md-offset-4 col-md-1">
+                        <img id="" src="/static/images/s1.png" style="width:90px;">
+{#                        <input type="hidden" id="hdnQcount" value="0">#}
+
+                    </div>
+                    <div class="col-xs-7 col-md-7" style="padding-top: 35px;">
+                        <h4 style="color: #0a568c;" id=''>Большое спасибо за Ваше участие!</h4>
+
+                        <br>
+{#                        <a id="confirmation_link" href="https://intercomprehension.coli.uni-saarland.de/en/Experiments/">Return to Home Page</a>#}
+                    </div>
+                </div>
+
+                <div class="row margin-top">
+                    <div class="col-md-offset-3 col-md-6">
+                        <table class="table table-bordered table-striped">
+                            <tbody>
+
+                                <tr>
+                                    <td>Средний показатель времени за задание: (секунда)</td>
+                                    <td id="td_0_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Средний показатель времени за сессию: (минута)</td>
+                                    <td id="td_1_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Общее затраченное время (минута)</td>
+                                    <td id="td_2_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Всего сессий</td>
+                                    <td id="td_3_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Всего заданий</td>
+                                    <td id="td_4_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Выполненные сессии</td>
+                                    <td id="td_5_f"></td>
+                                </tr>
+                                <tr>
+                                    <td>Выполненные задания</td>
+                                    <td id="td_6_f"></td>
+                                </tr>
+
+{#                                <tr>#}
+{#                                    <td>Average time/task (sec)</td>#}
+{#                                    <td id="td_0_f"></td>#}
+{#                                </tr>#}
+{#                                #}
+{#                                <tr>#}
+{#                                    <td>Average time/block (sec)</td>#}
+{#                                    <td id="td_1_f"></td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td>Total Time spent (sec)</td>#}
+{#                                    <td id="td_2_f"></td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td>Total blocks</td>#}
+{#                                    <td id="td_3_f"></td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td>Total task</td>#}
+{#                                    <td id="td_4_f"></td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td>Completed blocks</td>#}
+{#                                    <td id="td_5_f"></td>#}
+{#                                </tr>#}
+{#                                <tr>#}
+{#                                    <td>Completed task</td>#}
+{#                                    <td id="td_6_f"></td>#}
+{#                                </tr>#}
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row margin-top">
+                    <div class="col-md-3">
+
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/Experiments"> <button class="btn btn-primary" type="button" id="home_button">Вернуться на главную страницу</button></a>
+                    </div>
+                    <div class="col-md-2">
+
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success" type="button" id="break_button">Продолжить эксперимент</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    {% load staticfiles %}
+
+
+
+    <script language="JavaScript">
+
+        var questionTimer = null;
+        var dialogInnerTimer = null;
+        var dialogCloseTimer = null;
+        var resumeFunc = null;
+        var paused = false;
+
+        var allocatedTime = 11;
+        var s = allocatedTime;
+
+        var inputChanges = [];
+        var dateExperimentStarted = null;
+        var timestampExperimentStarted = null;
+        var timestampFirstInput = null;
+        var timestampLastInput = null;
+        var inputReceived = false;
+        var times_played = 1;
+        var max_plays = 3;
+        var is_break = false;
+
+        var page_start_time = 0;
+        var page_end_time = 0;
+
+        var user_radio_answer = '';
+
+        var audio_1 = $("#lblAudio_token1");
+        var audio_2 = $("#lblAudio_token2");
+        var token1_btn = document.getElementById("button_token1");
+        var token2_btn = document.getElementById("button_token2");
+
+        var answer_start_time = 0;
+        var answer_end_time = 0;
+        var key_fired = false;
+        var user_answer = '';
+        var user_answer_ids = []
+        var user_answer_ids_len = 0;
+        var count = 0;
+
+        var answer_1_start_time = 0;
+        var answer_1_end_time = 0;
+        var answer_2_start_time = 0;
+        var answer_2_end_time = 0;
+        var answer_1_total_time = 0;
+        var answer_2_total_time = 0;
+
+
+        // Declare a global object to store view data.
+        var viewData;
+
+        viewData = {};
+
+
+
+        $(document).ready(function () {
+
+            $("#btnContinue").hide();
+
+            $("#feedback_div1").hide();
+            $("#interval_div").hide();
+
+            $("lblAudio_token2").hide();
+            $("#lblAudio_token2").hide();
+
+            $("#input_div").hide();
+
+            page_divs_hide();
+
+            page_start_time = window.performance.now();
+
+
+            setTimeout(function () {
+                fetchFirstAudio();
+            }, 1000);
+
+
+        });
+
+        function page_divs_hide() {
+            $("#second_question_div").hide();
+            $("#button_div").hide();
+
+        };
+
+        function page_div_show(){
+            $("#second_question_div").show(200);
+            $("#button_div").show(200);
+        };
+
+
+        $(function() {
+            // Update the viewData object with the current field keys and values.
+            function updateViewData(key, value) {
+                viewData[key] = value;
+
+
+            }
+
+            // Register all bindable elements
+            function detectBindableElements() {
+                var bindableEls;
+
+                bindableEls = $('[data-bind]');
+
+                // Add event handlers to update viewData and trigger callback event.
+                bindableEls.on('change', function() {
+                    var $this;
+
+                    $this = $(this);
+
+
+                    updateViewData($this.data('bind'), $this.val());
+
+                    $(document).trigger('updateDisplay');
+                });
+
+                // Add a reference to each bindable element in viewData.
+                bindableEls.each(function() {
+                    updateViewData($(this));
+                });
+            }
+
+            // Trigger this event to manually update the list of bindable elements, useful when dynamically loading form fields.
+            $(document).on('updateBindableElements', detectBindableElements);
+
+            detectBindableElements();
+        });
+
+        $(function() {
+            // An example of how the viewData can be used by other functions.
+            function updateDisplay() {
+                var updateEls;
+
+                updateEls = $('[data-update]');
+                console.log(updateEls);
+
+                updateEls.each(function() {
+
+                    $(this).html(viewData[$(this).data('update')]);
+                    console.log(viewData[$(this).data('update')]);
+                });
+            }
+
+            // Run updateDisplay on the callback.
+            $(document).on('updateDisplay', updateDisplay);
+        });
+
+
+        $('#second_answer_checkbox_id3').change(function() {
+            if($(this).is(":checked")) {
+
+                $("#second_answer_checkbox_id1").prop("disabled", true);
+                $("#second_answer_checkbox_id2").prop("disabled", true);
+                {#var returnVal = confirm("Are you sure?");#}
+                {#$(this).attr("checked", returnVal);#}
+            }
+            {#$('#textbox1').val($(this).is(':checked'));#}
+        });
+
+        $('#second_answer_checkbox_id2').change(function() {
+            if($(this).is(":checked")) {
+
+                $("#second_answer_checkbox_id3").prop("disabled", true);
+
+            }
+        });
+
+
+        $('#second_answer_checkbox_id1').change(function() {
+            if($(this).is(":checked")) {
+
+                $("#second_answer_checkbox_id3").prop("disabled", true);
+
+            }
+
+        });
+
+
+        $("#break_button").click(function () {
+            fetchFirstAudio();
+        })
+
+        $("input[name='inlineRadioOptions']").change(function () {
+
+            answer_1_end_time = window.performance.now();
+            answer_2_start_time = answer_1_end_time;
+
+            $("#second_question_div").show();
+            $(":radio[name='inlineRadioOptions']").attr("disabled", true);
+        });
+
+        $("input[name='second_answer_checkbox']").change(function () {
+
+            answer_2_end_time = window.performance.now();
+
+            $("#button_div").show();
+            {#$(":radio[name='inlineRadioOptions']").attr("disabled", true);#}
+        });
+        {##}
+        {#$(document).on('keypress',function(e) {#}
+        {#    if(e.which == 13) {#}
+        {#        fetchFirstAudio();#}
+        {#    }#}
+        {#});#}
+
+        $("#click_button").click(function () {
+            fetchNextAudio();
+        });
+
+        {#$("#input_0_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {##}
+        {#$("#input_1_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {##}
+        {#$("#input_2_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {#$("#input_3_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {#$("#input_4_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+
+
+        function clearFields() {
+
+            $("input:radio").attr("checked", false);
+            $("input:radio").attr("disabled", false);
+
+            $("input:checkbox").attr("checked", false);
+
+            $("#second_answer_checkbox_id1").prop("disabled", false);
+            $("#second_answer_checkbox_id2").prop("disabled", false);
+            $("#second_answer_checkbox_id3").prop("disabled", false);
+
+            {#$('#frm input[type="radio":checked]').each(function(){#}
+            {#    $(this).checked = false;#}
+            {#});#}
+        };
+
+        function fetchFirstAudio(){
+
+            $("#interval_div").hide();
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                type : '0',
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/DECompoundExperimentPage/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    if(data['completed'] == 'yes') {
+
+                        progressBar(100, 25, 25, $('#progressBar'));
+                        $("#td_0").text(data['avg_time_task']);
+                        $("#td_1").text(data['avg_time_block']);
+                        $("#td_2").text(data['total_time']);
+                        $("#td_3").text(data['total_blocks']);
+                        $("#td_4").text(data['total_tasks']);
+                        $("#td_5").text(data['completed_block']);
+                        $("#td_6").text(data['completed_task']);
+
+                        $("#progressbar_div").hide();
+                        $("#header_div").hide();
+                        $("#body_div").hide();
+                        $("#button_div").hide();
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                        $("a[href='']").attr('href', data['prolific_link']);
+                        $("#interval_div").hide();
+                        $("#feedback_div1").show();
+
+                    }
+                    {#else if(data['completed'] == 'break'){#}
+                    {##}
+                    {##}
+                    {#    $("#td_0").text(data['avg_time_task']);#}
+                    {#    $("#td_1").text(data['avg_time_block']);#}
+                    {#    $("#td_2").text(data['total_time']);#}
+                    {#    $("#td_3").text(data['total_blocks']);#}
+                    {#    $("#td_4").text(data['total_tasks']);#}
+                    {#    $("#td_5").text(data['completed_block']);#}
+                    {#    $("#td_6").text(data['completed_task']);#}
+                    {##}
+                    {#    $("#progressbar_div").hide();#}
+                    {#    $("#header_div").hide();#}
+                    {#    $("#body_div").hide();#}
+                    {#    $("#button_div").hide();#}
+                    {#    $("#feedback_div1").hide();#}
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                    {#    $("a[href='']").attr('href', data['prolific_link']);#}
+                    {#    $("#interval_div").show();#}
+                    {#}#}
+
+                    else {
+
+                        {#progressBar(34, 50, 25, $('#progressBar'));#}
+                        progressBar(data['percentage'], data['total_ques'], data['answered_ques'], $('#progressBar'));
+                        $("#ru_def_span").text(data['ru_def']);
+                        $("#de_comp_span").text(data['de_com']);
+
+                        $("#progressbar_div").show();
+                        $("#header_div").show();
+                        clearFields();
+                        $("#body_div").show();
+                        page_divs_hide();
+                        count = data['count'];
+
+                        answer_1_start_time = window.performance.now();
+                    }
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+
+
+
+        function fetchNextAudio(){
+
+            console.log('here2');
+            var context = new AudioContext();
+
+            {#answer_end_time = window.performance.now();#}
+            {#var answer_total_time = (answer_end_time - answer_start_time);#}
+            {#console.log(answer_total_time, answer_end_time, answer_start_time);#}
+
+            answer_1_total_time = (answer_1_end_time - answer_1_start_time);
+            answer_2_total_time = (answer_2_end_time - answer_2_start_time);
+
+            var answer1_value = $('input[name="inlineRadioOptions"]:checked').val();
+            var checkbox_1_val = 0;
+            var checkbox_2_val = 0;
+            var checkbox_3_val = 0;
+
+            if ($('#second_answer_checkbox_id1').is(':checked')) {
+                checkbox_1_val = 1;
+            }
+            if ($('#second_answer_checkbox_id2').is(':checked')) {
+                checkbox_2_val = 1;
+            }
+            if ($('#second_answer_checkbox_id3').is(':checked')) {
+                checkbox_3_val = 1;
+            }
+
+            var dataObj = {
+                type : '1',
+                old_count: count,
+                answer1_value: answer1_value,
+                checkbox_1_val: checkbox_1_val,
+                checkbox_2_val: checkbox_2_val,
+                checkbox_3_val: checkbox_3_val,
+                answer_1_total_time: answer_1_total_time,
+                answer_2_total_time: answer_2_total_time
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/DECompoundExperimentPage/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+                    if(data['completed'] == 'yes') {
+
+                        progressBar(100, 25, 25, $('#progressBar'));
+
+                        $("#td_0").text(data['avg_time_task']);
+                        $("#td_1").text(data['avg_time_block']);
+                        $("#td_2").text(data['total_time']);
+                        $("#td_3").text(data['total_blocks']);
+                        $("#td_4").text(data['total_tasks']);
+                        $("#td_5").text(data['completed_block']);
+                        $("#td_6").text(data['completed_task']);
+
+                        $("#progressbar_div").hide();
+                        $("#header_div").hide();
+                        $("#body_div").hide();
+                        $("#button_div").hide();
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                        $("a[href='']").attr('href', data['prolific_link']);
+                        $("#interval_div").hide();
+                        $("#feedback_div1").show();
+
+                    }
+                    else if(data['completed'] == 'break'){
+
+                        progressBar(100, 25, 25, $('#progressBar'));
+                        $("#td_0_f").text(data['avg_time_task']);
+                        $("#td_1_f").text(data['avg_time_block']);
+                        $("#td_2_f").text(data['total_time']);
+                        $("#td_3_f").text(data['total_blocks']);
+                        $("#td_4_f").text(data['total_tasks']);
+                        $("#td_5_f").text(data['completed_block']);
+                        $("#td_6_f").text(data['completed_task']);
+
+                        $("#progressbar_div").hide();
+                        $("#header_div").hide();
+                        $("#body_div").hide();
+                        $("#button_div").hide();
+                        $("#feedback_div1").hide();
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                        $("a[href='']").attr('href', data['prolific_link']);
+                        $("#interval_div").show();
+                    }
+                    else {
+                        progressBar(data['percentage'], data['total_ques'], data['answered_ques'], $('#progressBar'));
+                        clearFields();
+                        $("#ru_def_span").text(data['ru_def']);
+                        $("#de_comp_span").text(data['de_com']);
+                        count = data['count'];
+
+                        answer_1_start_time = window.performance.now();
+                        page_divs_hide();
+
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        };
+
+    </script>
+
+{% endblock %}

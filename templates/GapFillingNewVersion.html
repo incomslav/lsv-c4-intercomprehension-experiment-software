@@ -1,0 +1,448 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+
+    <style type="text/css">
+        .spnWords {
+            cursor: pointer;
+        }
+
+        .wrapper-div{
+            display:inline-block;
+            position:relative;
+            height: 55px;
+            margin-top:20px;
+        }
+
+        .floating-label {
+            position: absolute;
+            pointer-events: none;
+            left: 10px;
+            top: -30px;
+            color:gray;
+        }
+
+    </style>
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="frm" method="post" action="post/">
+            {% csrf_token %}
+
+            <div class="row margin-top">
+                <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                    <div id="progressBarLevels">
+                        <div></div>
+                    </div>
+                    <div id="progressBar" class="default-skin">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <p id="p_without_gaps" class="task-text-translate">
+                        {% trans "GAP_FILLING_CLICK_ON_WORD_TEXT" %}
+                    </p>
+
+                    <p id="p_with_gaps" class="task-text-translate">
+                        {% trans "GAP_FILLING_SENTENCE_TEXT" %}
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-12 text-right" style="padding-right:40px;">
+                    <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label
+                            id="lblTimer"
+                            style='color:green;'> </label>
+                    </h2>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-10 col-sm-offset-1 col-sm-10">
+                    <!-- div to hold sentence without gap indication -->
+                    <div id="divSentenceWithoutGapIndication" style="font-size:25px;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-10 col-sm-offset-1 col-sm-10">
+
+                    <input type="hidden" id="hdnSentenceId">
+
+                    <!-- div to hold sentence -->
+                    <div id="divSentence" style="font-size:25px;">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row task-step-sucess">
+                <div class="col-xs-6">
+                    <img id="img_smiley" src="/static/images/s1.png" style="width:50px;">
+                    <input type="hidden" id="hdnQcount" value="0">
+                </div>
+                <div class="col-md-2 col-xs-3 col-md-offset-4 col-sm-offset-3">
+                    <input id="btnContinue" type="button" class="task-step-next-button"
+                           value="{% trans "GAP_FILLING_CONTINUE_BUTTON_TEXT" %}">
+                </div>
+            </div>
+
+        </form>
+
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script language="JavaScript">
+
+        //for gap filling sentence (with gaps)
+        var questionTimer = null;
+        var allocatedTime = null;
+        var s = allocatedTime;
+        var gapsInputChanges = [];
+        var timestampExperimentStarted = null;
+        //var timestampFirstInput = null;
+        //var timestampLastInput = null;
+        var inputReceived = false;
+        //-------------------------------
+
+        //for gap filling sentence (without gaps)
+        var questionReadTimer = null;
+        var allocatedReadTime = 300;
+        var sRead = allocatedReadTime;
+        var clickedWordsTime = [];
+        var timestampReadSentenceStarted = null;
+        var allClicked = false;
+        var latestVisibleId = 0;
+        //-------------------------------
+
+        $(document).ready(function () {
+
+            $("#img_smiley").hide();
+            //$('#btnContinue').prop("disabled",true);
+
+            getUserExperimentProgressAjaxRequest();
+
+            //---------------
+            fetchNextSentence();
+
+            // ------------
+            setQuestionReadTimer();
+            //setQuestionTimer();
+
+            $('#btnContinue').click(function (e) {
+                {#                if (allClicked) {#}
+                var gaps_empty = areAllGapsEmpty();
+                if (gaps_empty == true) {
+                    msg = getMessageByAjaxRequest(5);
+                    //alert(msg);
+                    if (confirm(msg)) {
+                        s = allocatedTime;
+                        fetchNextSentence();
+                    }
+                    else {
+                        e.preventDefault();
+                    }
+                }
+                else {
+                    s = allocatedTime;
+                    fetchNextSentence();
+                }
+                {#                }#}
+                {#                else {#}
+                {#                    //showNextWord(latestVisibleId);#}
+                {#                    msg = getMessageByAjaxRequest(7);#}
+                {#                    alert(msg);#}
+                {#                }#}
+
+            });
+
+            $(document).keypress(function (e) {
+                if (e.which == 13) {
+                    if (s > 1) {
+                        if ($('#btnContinue').is(':disabled') == false) {
+                            $('#btnContinue').click();
+                        }
+                        else {
+                            e.preventDefault();
+                        }
+                    }
+                    e.preventDefault();
+                }
+            });
+
+        });
+
+        {#        window.onbeforeunload = function () {#}
+        {#            if (document.hidden) {#}
+        {#                msg = getMessageByAjaxRequest(6);#}
+        {#                alert(msg);#}
+        {#            } else {#}
+        {#                //alert("Welcome back!");#}
+        {#            }#}
+        {##}
+        {#        }#}
+
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                msg = getMessageByAjaxRequest(6);
+                alert(msg);
+            } else {
+                //alert("Welcome back!");
+            }
+        }
+        document.addEventListener("visibilitychange", handleVisibilityChange, false);
+
+
+        function hideAllWords() {
+            $('#divSentenceWithoutGapIndication [id^="spnWord"]').hide();//hide all words
+            $('#spnWord0').show();//show 1st word
+
+            var now = window.performance.now();
+            clickedWordsTime.push(["_0", now]);
+
+        }
+
+        function showNextWord(id) {
+
+            if (!allClicked) {
+                //alert(id);
+                nextId = 'spnWord' + (parseInt(id) + 1);
+                if ($("#" + nextId).length > 0) {
+                    $('#' + nextId).show();
+                }
+                else {
+                    $('#btnContinue').prop("disabled", false).css({'opacity': 1.0, 'cursor': 'pointer'});
+                    showSentenceWithGaps();
+                }
+                handleWordClick(id);
+                latestVisibleId = parseInt(id) + 1;
+            }
+        }
+
+        function showSentenceWithGaps() {
+            $('#divSentenceWithoutGapIndication').hide();
+            $('#p_without_gaps').hide();
+            allClicked = true;
+            latestVisibleId = 0;
+            $('#p_with_gaps').show();
+            $('#divSentence').show();
+            setQuestionTimer();
+            //sentence with gaps
+            {#            var cur_input = getUserAnswer();#}
+            var cur_input = '';
+            var now = window.performance.now();
+            var X = [cur_input, now];
+            gapsInputChanges.push(X);
+            timestampExperimentStarted = window.performance.now();
+
+            //$("#divSentence:input").each(function(e) {
+            //    $(this).val('ab');
+            //});
+        }
+
+        function handleGapInput(id) {
+
+            //var cur_input = getUserAnswer();
+            var cur_input = $('#' + id).val();
+            var now = window.performance.now();
+            var X = [cur_input + '_' + id.replace('txt', ''), now];
+            gapsInputChanges.push(X);
+            if (!inputReceived) {
+                inputReceived = true;
+            }
+        }
+
+        function handleWordClick(id) {
+
+            var cur_word = $('#spnWord' + id).html().trim();
+            var now = window.performance.now();
+            var i = parseInt(id) + 1;
+            var Y = [cur_word + '_' + i, now];
+            clickedWordsTime.push(Y);
+        }
+
+        function setQuestionTimer() {
+            if (questionTimer !== null) return;
+            clearInterval(questionReadTimer);// clear read timer
+            questionReadTimer = null;
+            questionTimer = setInterval(function () {
+                s = s - 1;
+                if (s == 0) {
+                    $('#lblTimer').html('0' + s);
+                    s = allocatedTime;
+                    //M.A
+                    fetchNextSentence();
+                }
+
+                $('#lblTimer').html(s < 10 ? '0' + s : s);
+                $('#lblTimer').css("color", (s < 6 ? 'red' : 'green'));
+
+            }, 1000);
+        }
+
+        function setQuestionReadTimer() {
+            if (questionReadTimer !== null) return;
+            questionReadTimer = setInterval(function () {
+                sRead = sRead - 1;
+                if (sRead == 0) {
+                    $('#lblTimer').html('0' + s);
+                    sRead = allocatedReadTime;
+                    showSentenceWithGaps();
+                }
+
+                $('#lblTimer').html(sRead < 10 ? '0' + sRead : sRead);
+                $('#lblTimer').css("color", (sRead < 6 ? 'red' : 'green'));
+
+            }, 1000);
+        }
+
+        function getUserAnswer() {
+            if ($('#divSentence').html() != '') {
+                answers = '';
+                $("#divSentence :input").each(function (e) {
+                    answers += this.value + ',';
+                });
+                return answers.slice(0, -1);
+            }
+        }
+
+        function fetchNextSentence() {
+
+            var dataObj = {
+                type: 1,
+                qId: $('#hdnSentenceId').val(),
+                gapsAnswers: getUserAnswer(),
+                timestampExperimentStarted: timestampExperimentStarted,
+                timestampCompletion: window.performance.now(),
+                inputChanges: JSON.stringify(gapsInputChanges),
+                timestampReadSentenceStarted: timestampReadSentenceStarted,
+                clickedWordsTime: JSON.stringify(clickedWordsTime)
+            };
+
+            //alert(JSON.stringify(clickedWordsTime));
+            clearInterval(questionTimer);
+            questionTimer = null;
+            receivedInput = false;
+            latestVisibleId = 0;
+            allClicked = false;
+            gapsInputChanges = [];
+            clickedWordsTime = [];
+            $('#btnContinue').prop("disabled", true).css({'opacity': 0.5, 'cursor': 'not-allowed'});
+            processUserExperimentAjaxRequest(dataObj);
+
+        }
+
+        function areAllGapsEmpty() {
+            var empty = true;
+            $("#divSentence :input").each(function (e) {
+                if (this.value.trim() != '') {
+                    empty = false;
+                    return false;
+                }
+            });
+            return empty;
+        }
+
+        function processUserExperimentAjaxRequest(dataObj) {
+
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/GapFillingQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    var d = data.split('_');
+
+                    if (d[0] != '0' && d[1] != 'END') {
+                        allocatedTime = parseInt(d[6]);
+                        s = allocatedTime;
+                        sRead = allocatedReadTime;
+                        progressBar(parseInt(d[2]), d[3], d[4], $('#progressBar'));
+                        inputReceived = false;
+
+                        //----------sentence without gaps
+                        timestampReadSentenceStarted = window.performance.now();
+                        allClicked = false;
+
+                        $('#hdnSentenceId').val(d[0]);
+                        $('#divSentence').html(d[1]);
+                        $('#divSentence').hide();
+                        $('#p_with_gaps').hide();
+
+                        setQuestionReadTimer();
+                        $('#divSentenceWithoutGapIndication').show();
+                        $('#p_without_gaps').show();
+
+                        $('#divSentenceWithoutGapIndication').html(d[7]);
+                        hideAllWords();
+
+                        if (d[5] != "") {
+                            var q_count = parseInt($('#hdnQcount').val().trim());
+                            $('#hdnQcount').val(q_count + 1);
+                            if (q_count >= 1) {
+                                $("#img_smiley").show();
+                            }
+                            if (d[5] == 'True') {
+                                $("#img_smiley").attr("src", "/static/images/s1.png");
+                            }
+                            else {
+                                $("#img_smiley").attr("src", "/static/images/sad1.png");
+                            }
+
+                            //fading smiley after 5 seconds
+                            $("#img_smiley").fadeOut(5000);
+                        }
+
+                    }
+                    else {
+                        var pathValue = window.location.pathname;
+                        var langCode = pathValue.split('/')[1];
+                        window.location.href = '/' + langCode + '/ShowExperimentResults/';
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+        function getUserExperimentProgressAjaxRequest(dataObj) {
+
+            var dataObj = {type: 2};
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+            $.ajax({
+                type: "POST",
+                url: "/en/GapFillingQuestions/",
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    var d = data.split('_');
+                    progressBar(d[0], d[1], d[2], $('#progressBar'));
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}

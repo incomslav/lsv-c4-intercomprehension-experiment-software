@@ -1,0 +1,574 @@
+{% extends "Base.html" %}
+{% load i18n %}
+{% block content %}
+    {% load staticfiles %}
+    <style type="text/css">
+        
+        .slider-class {
+        width: 96%;
+        }
+    </style>
+
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+        <form id="frm" method="post" action="post/">
+            {% csrf_token %}
+
+            <div class="row margin-top">
+                <div class="col-md-12 margin-top" style="padding-left: 10px;">
+                    <div id="progressBarLevels">
+                        <div></div>
+                    </div>
+                    <div id="progressBar" class="default-skin">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="header_div" class="row">
+                <div class="col-md-12" align="center">
+{#                    <h3>{% trans 'PRIMING_EXPERIMENT_1_PAGE_INSTRUCTION_1' %}</h3>#}
+                    <h3 style="color: green;font-weight:bold;">{% trans 'SENTENCE_TRANSLATION_INSTRUCTION_3' %}</h3>
+                    <h3 style="color: #337ab7;font-weight:bold;">{{ exp_obj.experiment_description }}</h3>
+{#                    <h3 style="text-align: center;">Press button <b> 'A' for word </b> and  <b> 'L' for Non-word </b> for correct Token2 is in Your Language</h3>#}
+                </div>
+            </div>
+
+{##}
+{#            <div class="row">#}
+{#                <div class="col-md-12 text-right" style="padding-right:40px;">#}
+{#                    <h2><img src="{{ static }}/static/images/timer.png" style="width: 50px;"> <label#}
+{#                            id="lblTimer"#}
+{#                            style='color:green;'> </label>#}
+{#                    </h2>#}
+{#                </div>#}
+{#            </div>#}
+
+            <div id="body_div" class="row margin-top">
+
+                <div class="col-md-5 margin-top" id="">
+                    <p style="font-size: larger; line-height: 2;">
+                    <span class="text-primary" id="0_line1"></span>
+                    <span class="text-danger bg-success" id="0_line2" data-update="input_0"></span>
+                    <span class="text-primary" id="1_line1"></span>
+                    <span class="text-danger bg-success" id="1_line2" data-update="input_1"></span>
+                    <span class="text-primary" id="2_line1"></span>
+                    <span class="text-danger bg-success" id="2_line2" data-update="input_2"></span>
+                    <span class="text-primary" id="3_line1"></span>
+                    <span class="text-danger bg-success" id="3_line2" data-update="input_3"></span>
+                    <span class="text-primary" id="4_line1"></span>
+                    <span class="text-danger bg-success" id="4_line2" data-update="input_4"></span>
+                    </p>
+
+
+
+                </div>
+
+                <div class="col-md-1" style="padding-top: 150px;">
+
+                    <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                </div>
+
+                <div class="col-md-6 margin-top" id="input_div">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <p class="text-danger" id="trans_0_line1" style="margin-top: 10px;"></p>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+
+                        <div class="col-md-10">
+                            <input class="form-control" placeholder="Translate Here...." type="text" id="input_0_line2" data-bind="input_0" style="margin-top: 10px;"/>
+                        </div>
+                        <div class="col-md-2">
+                            <a class="aaf" id="input_0_" title="delete"><img id="input_0_cross_img" style="height: 35px; padding-top: 10px;" src="{% static 'images/delete.jpg' %}"></a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <p class="text-danger col-md-12" id="trans_1_line1" style="margin-top: 10px;"></p>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+
+                        <div class="col-md-10">
+                            <input class="form-control" placeholder="Translate Here...." type="text" id="input_1_line2" data-bind="input_1" style="margin-top: 10px;"/>
+                        </div>
+                        <div class="col-md-2">
+                            <a class="aaf" id="input_1_" title="delete"><img id="input_1_cross_img" style="height: 35px; padding-top: 10px;" src="{% static 'images/delete.jpg' %}"></a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <p class="text-danger " id="trans_2_line1" style="margin-top: 10px;"></p>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+
+                        <div class="col-md-10">
+                            <input class="form-control" placeholder="Translate Here...." type="text" id="input_2_line2" data-bind="input_2" style="margin-top: 10px;"/>
+                        </div>
+                        <div class="col-md-2">
+                           <a class="aaf" id="input_2_" title="delete"><img id="input_2_cross_img" style="height: 35px; padding-top: 10px;" src="{% static 'images/delete.jpg' %}"></a>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <p class="text-danger" id="trans_3_line1" style="margin-top: 10px;"></p>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+
+                        <div class="col-md-10">
+                            <input class="form-control" placeholder="Translate Here...." type="text" id="input_3_line2" data-bind="input_3" style="margin-top: 10px;"/>
+                        </div>
+                        <div class="col-md-2">
+                           <a class="aaf" id="input_3_" title="delete"><img id="input_3_cross_img" style="height: 35px; padding-top: 10px;" src="{% static 'images/delete.jpg' %}"></a>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <p class="text-danger" id="trans_4_line1" style="margin-top: 10px;"></p>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+
+                        <div class="col-md-10">
+                            <input class="form-control" placeholder="Translate Here...." type="text" id="input_4_line2" data-bind="input_4" style="margin-top: 10px;"/>
+                        </div>
+                        <div class="col-md-2">
+                           <a class="aaf" id="input_4_" title="delete"><img id="input_4_cross_img" style="height: 35px; padding-top: 10px;" src="{% static 'images/delete.jpg' %}"></a>
+                        </div>
+                   </div>
+                </div>
+{#                <div class="col-md-1">#}
+{#                    <p></p>#}
+{#                    #}
+{#                </div>#}
+            </div>
+
+
+            <div id="button_div" class="row margin-top" style="padding-top: 15px;">
+                <div class="col-md-offset-10 col-md-2">
+                    <button class="btn btn-success" type="button" id="click_button">  Next  </button>
+                </div>
+            </div>
+
+{##}
+            <div class="row" id="feedback_div1">
+                <div class="col-md-3">
+                    <img id="" src="/static/images/s1.png" style="width:75px;">
+                    <input type="hidden" id="hdnQcount" value="0">
+
+                </div>
+                <div class="col-xs-9 col-md-9">
+                    <h4 style="color: #0a568c;" id=''><b>Thank you for your Participation, We really appreciate you contribution</b></h4>
+                    <br>
+                    <a id="confirmation_link" href="">Go back to Prolific</a>
+                </div>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    {% load staticfiles %}
+
+
+
+    <script language="JavaScript">
+
+        var questionTimer = null;
+        var dialogInnerTimer = null;
+        var dialogCloseTimer = null;
+        var resumeFunc = null;
+        var paused = false;
+
+        var allocatedTime = 11;
+        var s = allocatedTime;
+
+        var inputChanges = [];
+        var dateExperimentStarted = null;
+        var timestampExperimentStarted = null;
+        var timestampFirstInput = null;
+        var timestampLastInput = null;
+        var inputReceived = false;
+        var times_played = 1;
+        var max_plays = 3;
+        var is_break = false;
+
+        var page_start_time = 0;
+        var page_end_time = 0;
+
+        var user_radio_answer = '';
+
+        var audio_1 = $("#lblAudio_token1");
+        var audio_2 = $("#lblAudio_token2");
+        var token1_btn = document.getElementById("button_token1");
+        var token2_btn = document.getElementById("button_token2");
+
+        var answer_start_time = 0;
+        var answer_end_time = 0;
+        var key_fired = false;
+        var user_answer = '';
+        var user_answer_ids = []
+        var user_answer_ids_len = 0;
+        var count = 0;
+
+
+        // Declare a global object to store view data.
+        var viewData;
+
+        viewData = {};
+
+
+
+        $(document).ready(function () {
+
+            $("#btnContinue").hide();
+
+            $("#feedback_div1").hide();
+
+            $("lblAudio_token2").hide();
+            $("#lblAudio_token2").hide();
+
+            $("#input_div").hide();
+
+            page_start_time = window.performance.now();
+
+            setTimeout(function () {
+                fetchFirstAudio();
+            }, 1000);
+
+            $('.aaf').on("click",function(){
+                var usersid =  $(this).attr("id");
+
+                if ($("#" + usersid + "line2").attr('disabled')){
+                    $("#" + usersid + "line2").prop('disabled', false);
+                    $("#" + usersid + "cross_img").attr('src', '/static/images/delete.jpg');
+                }
+                else {
+                    $("#" + usersid + "line2").val('');
+                    $("#" + usersid + "line2").prop('disabled', true);
+                    $("#" + usersid + "cross_img").attr('src', '/static/images/green-tick.png');
+                }
+
+
+              //post code
+            });
+
+
+        });
+
+
+        $(function() {
+            // Update the viewData object with the current field keys and values.
+            function updateViewData(key, value) {
+                viewData[key] = value;
+
+
+            }
+
+            // Register all bindable elements
+            function detectBindableElements() {
+                var bindableEls;
+
+                bindableEls = $('[data-bind]');
+
+                // Add event handlers to update viewData and trigger callback event.
+                bindableEls.on('change', function() {
+                    var $this;
+
+                    $this = $(this);
+
+
+                    updateViewData($this.data('bind'), $this.val());
+
+                    $(document).trigger('updateDisplay');
+                });
+
+                // Add a reference to each bindable element in viewData.
+                bindableEls.each(function() {
+                    updateViewData($(this));
+                });
+            }
+
+            // Trigger this event to manually update the list of bindable elements, useful when dynamically loading form fields.
+            $(document).on('updateBindableElements', detectBindableElements);
+
+            detectBindableElements();
+        });
+
+        $(function() {
+            // An example of how the viewData can be used by other functions.
+            function updateDisplay() {
+                var updateEls;
+
+                updateEls = $('[data-update]');
+                console.log(updateEls);
+
+                updateEls.each(function() {
+
+                    $(this).html(viewData[$(this).data('update')]);
+                    console.log(viewData[$(this).data('update')]);
+                });
+            }
+
+            // Run updateDisplay on the callback.
+            $(document).on('updateDisplay', updateDisplay);
+        });
+
+
+        {##}
+        {#$("input[name='user_answer_radio']").change(function () {#}
+        {#    $("#conf_div").show();#}
+        {#});#}
+        {##}
+        {#$(document).on('keypress',function(e) {#}
+        {#    if(e.which == 13) {#}
+        {#        fetchFirstAudio();#}
+        {#    }#}
+        {#});#}
+
+        $("#click_button").click(function () {
+            fetchNextAudio();
+        });
+
+        {#$("#input_0_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {##}
+        {#$("#input_1_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {##}
+        {#$("#input_2_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {#$("#input_3_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+        {#$("#input_4_line2").focus(function () {#}
+        {#    $(this).val('');#}
+        {#});#}
+
+
+        function clearFields() {
+            $("#0_line1").text('');
+            $("#1_line1").text('');
+            $("#2_line1").text('');
+            $("#3_line1").text('');
+            $("#4_line1").text('');
+
+            $("#0_line2").text('');
+            $("#1_line2").text('');
+            $("#2_line2").text('');
+            $("#3_line2").text('');
+            $("#4_line2").text('');
+
+            $("#trans_0_line1").text('');
+            $("#trans_1_line1").text('');
+            $("#trans_2_line1").text('');
+            $("#trans_3_line1").text('');
+            $("#trans_4_line1").text('');
+
+            $("#input_0_line2").hide();
+            $("#input_1_line2").hide();
+            $("#input_2_line2").hide();
+            $("#input_3_line2").hide();
+            $("#input_4_line2").hide();
+
+            $("#input_0_").hide();
+            $("#input_1_").hide();
+            $("#input_2_").hide();
+            $("#input_3_").hide();
+            $("#input_4_").hide();
+
+            $("#input_0_line2").prop('disabled', false);
+            $("#input_1_line2").prop('disabled', false);
+            $("#input_2_line2").prop('disabled', false);
+            $("#input_3_line2").prop('disabled', false);
+            $("#input_4_line2").prop('disabled', false);
+
+            $("#input_0_cross_img").attr('src', '/static/images/delete.jpg');
+            $("#input_1_cross_img").attr('src', '/static/images/delete.jpg');
+            $("#input_2_cross_img").attr('src', '/static/images/delete.jpg');
+            $("#input_3_cross_img").attr('src', '/static/images/delete.jpg');
+            $("#input_4_cross_img").attr('src', '/static/images/delete.jpg');
+
+        };
+
+        function fetchFirstAudio(){
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                type : '0',
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/SentenceTranslationExperimentPage/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    {#alert(data['question']);#}
+                    console.log(data['question']);
+                    clearFields();
+                    data['question'].forEach(myFunction);
+
+                    function myFunction(currentValue, index) {
+                        {#console.log("Array Current Index is: " + index + " :: Value is: " + currentValue['line1']);#}
+
+                        $("#"+index.toString()+"_line1").text(currentValue['question__line1']);
+                        $("#"+index.toString()+"_line2").text(currentValue['question__line2']);
+                        $("#trans_"+index.toString()+"_line1").text(currentValue['question__line2']);
+                        $("#input_"+index.toString()+"_line2").attr("placeholder", currentValue['question__line2']);
+                        $("#input_"+index.toString()+"_line2").val('');
+                        $("#input_" + index.toString() + "_line2").show();
+                        $("#input_" + index.toString() + "_").show();
+                        viewData['input_'+index.toString()] = currentValue['question__line2'];
+
+
+
+                    }
+
+                    user_answer_ids = data['answer_ids'];
+
+                    {#alert(paragraph);#}
+                    {#$("#0_line1").text(paragraph);#}
+                    {#$("#trans_div").empty();#}
+                    {#$("#trans_div").append(data['para_div']);#}
+                    answer_start_time = window.performance.now()
+                    $("#input_div").show();
+                    {#count = data['r_count'];#}
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+        function keyPressEvent() {
+            $(document).on('keydown',function(e) {
+                if (e.which == 13){
+                    fetchFirstAudio();
+
+                }
+
+
+                {#console.log("keypress");#}
+                {#if(e.which == 65 && key_fired == false) {#}
+                {#    key_fired = true;#}
+                {#    user_answer = 'word';#}
+                {#    fetchNextAudio();#}
+                {#}#}
+                {#if(e.which == 76 && key_fired == false) {#}
+                {#    key_fired = true;#}
+                {#    user_answer = 'non-word';#}
+                {#    fetchNextAudio();#}
+                {#}#}
+            });
+        }
+
+
+        function fetchNextAudio(){
+
+            console.log('here2');
+            var context = new AudioContext();
+
+            answer_end_time = window.performance.now();
+            var answer_total_time = (answer_end_time - answer_start_time);
+            console.log(answer_total_time, answer_end_time, answer_start_time);
+            var dataObj = {
+                type : '1',
+                answer_0: $("#input_0_line2").val(),
+                answer_1: $("#input_1_line2").val(),
+                answer_2: $("#input_2_line2").val(),
+                answer_3: $("#input_3_line2").val(),
+                answer_4: $("#input_4_line2").val(),
+                answer_total_time: answer_total_time,
+                user_answer_ids: user_answer_ids
+
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/SentenceTranslationExperimentPage/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+
+                    if(data['completed'] == 'yes') {
+                        $("#header_div").hide();
+                        $("#body_div").hide();
+                        $("#button_div").hide();
+                        {#$("a.confirmation_link").attr("href", data['prolific_link'])#}
+                        $("a[href='']").attr('href', data['prolific_link']);
+                        $("#feedback_div1").show();
+
+                    }
+                    else {
+
+                        clearFields();
+                        data['question'].forEach(myFunction);
+
+                        function myFunction(currentValue, index) {
+                            {#console.log("Array Current Index is: " + index + " :: Value is: " + currentValue['line1']);#}
+
+                            $("#" + index.toString() + "_line1").text(currentValue['question__line1']);
+                            $("#" + index.toString() + "_line2").text(currentValue['question__line2']);
+                            $("#trans_" + index.toString() + "_line1").text(currentValue['question__line2']);
+                            $("#input_" + index.toString() + "_line2").attr("placeholder", currentValue['question__line2']);
+                            $("#input_" + index.toString() + "_line2").val('');
+                            $("#input_" + index.toString() + "_line2").show();
+                            $("#input_" + index.toString() + "_").show();
+
+                            viewData['input_' + index.toString()] = currentValue['question__line2'];
+
+
+                        }
+
+                        user_answer_ids = data['answer_ids'];
+                        {#alert(paragraph);#}
+                        {#$("#0_line1").text(paragraph);#}
+                        {#$("#trans_div").empty();#}
+                        {#$("#trans_div").append(data['para_div']);#}
+                        answer_start_time = window.performance.now()
+                        {#$("#input_div").show();#}
+                        {#count = data['r_count'];#}
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        };
+
+    </script>
+
+{% endblock %}

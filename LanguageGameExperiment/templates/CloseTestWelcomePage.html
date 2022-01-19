@@ -1,0 +1,335 @@
+{% extends "Base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+    {% load staticfiles %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+    <div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+            <div class="row">
+                <div class="col-md-12" align="center">
+
+{#                    <h2 style="align-content: center; color: darkgreen;"><b>{% trans 'PRIMING_TASK_INTRO' %}</b></h2>#}
+
+                    {%  if experiment_completed%}
+                        <h2 style="align-content: center; color: darkgreen;"><b>{% trans 'DE_COMPOUNDS_RU_DEFINITION_EXPERIMENT_TEXT_BREAK_PAGE_2' %}</b></h2>
+
+                    {% else %}
+                        <h2 style="align-content: center; color: darkgreen;"><b>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_WELCOME_HEADER'%}</b></h2>
+                    {% endif %}
+
+                    {% if finished_all_experiment %}
+                        <h3>You have finished all the close test experiments! </h3>
+                    {% else %}
+                        {% if experiment_completed %}
+                        <h3>{% trans 'EXPERIMENT_FINAL_MORE_EXPERIMENTS_AVAILABLE_TEXT_2' %} </h3>
+                        {% endif %}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+            {% if not finished_all_experiment %}
+                <div class="col-md-7" style="padding-top: 20px;">
+                    <div class="panel panel-body" style="color: green;" id="instruction_div">
+                        <h2 style="color: darkred;"><b>{% trans 'LADO_EXPERIMENT_INSTRUCTION_TITLE' %}</b></h2>
+                        <ul>
+                            <li>{% trans 'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_1' %} {{ exp_language }}</li>
+                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_2'%}</li>
+                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_3_1'%} 7 {% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_3_2'%}</li>
+                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_4'%}</li>
+                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_5_1'%} 5 {% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_5_2'%}</li>
+                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_HOW_FAST_ARE_YOU_TEXT'%}</li>
+                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_START_WHEN_READY_TEXT'%}</li>
+{##}
+{#                            <li>{% trans  'CLOZE TEST_TITLE1'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_HEADER'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_CHECK_AUDIO_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_AUDIO_ONLY_TEXT_1'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_AUDIO_ONLY_TEXT_2'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_AUDIO_ONLY_TEXT_3'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_AUDIO_ONLY_TEXT_4'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_AUDIO_ONLY_TEXT_5'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_HOW_FAST_ARE_YOU_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_START_WHEN_READY_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_FINAL_CORRECT_INSERTIONS_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_FINAL_TOTAL_TIME_TEXT'%}</li>#}
+{#                            <li>{% trans  'SPOKEN_CLOZE_TEST_FINAL_TOTAL_GAPS_TEXT'%}</li>#}
+{#                            <li>{% trans  'EXPERIMENT_FINAL_MORE_EXPERIMENTS_AVAILABLE_TEXT'%}</li>#}
+{#                            <li>{% trans  'EXPERIMENT_FINAL_CONTINUE_TO_NEXT_EXPERIMENT_BUTTON_TEXT'%}</li>#}
+{#                            <li>{% trans  'CLOZE_TEST_TITLE2'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_WELCOME_HEADER'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_1'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_2'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_3_1'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_3_2'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_4'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_5_1'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_TEXT_5_2'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_HOW_FAST_ARE_YOU_TEXT'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_EXPERIMENT_WELCOME_PAGE_START_WHEN_READY_TEXT'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_TEXT_EXAMPLE'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_TEXT_EXPERIMENT_PAGE_INSTRUCTION_1'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_FINAL_CORRECT_INSERTIONS_TEXT'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_FINAL_TOTAL_TIME_TEXT'%}</li>#}
+{#                            <li>{% trans  'WRITTEN_CLOZE_TEST_FINAL_TOTAL_GAPS_TEXT'%}</li>#}
+{#                            <li>{% trans  'EXPERIMENT_FINAL_MORE_EXPERIMENTS_AVAILABLE_TEXT'%}</li>#}
+{#                            <li>{% trans  'EXPERIMENT_FINAL_CONTINUE_TO_NEXT_EXPERIMENT_BUTTON_TEXT'%}</li>#}
+
+
+                        </ul>
+
+                    </div>
+                {% endif %}
+{##}
+{#                    <div class="margin-top">#}
+{#                        <button class="btn btn-sm btn-primary" type="button" id="trial_btn">{% trans 'LADO_PLAY_TRIAL_BUTTON' %}</button>#}
+{#                    </div>#}
+
+                </div>
+
+                {% if completed_exp_list %}
+                <div class="col-md-5">
+                    <div class="panel panel-body" style="color: green;" id="instruction_div">
+
+                        <h2 style="color: #8b0000; padding-top: 15px;"><b>{% trans 'COMPLETED_EXPERIMENTS_OVERVIEW_HEADER' %}</b></h2>
+                        <table class="table table-striped table-bordered"">
+                            <thead>
+                                <tr>
+                                  <th scope="col">{% trans 'WRITTEN_CLOZE_TEST_FINAL_LANGUAGE_TEXT' %}</th>
+                                  <th scope="col">{% trans 'WRITTEN_CLOZE_TEST_FINAL_TOTAL_GAPS_TEXT' %}</th>
+                                  <th scope="col">{% trans 'WRITTEN_CLOZE_TEST_FINAL_CORRECT_INSERTIONS_TEXT' %}</th>
+                                  <th scope="col">{% trans 'WRITTEN_CLOZE_TEST_FINAL_TOTAL_TIME_TEXT' %}</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for list in completed_exp_list %}
+                            <tr>
+                              <td>{{ list.0 }}</td>
+                              <td>{{ list.1 }}</td>
+                              <td>{{ list.2 }}</td>
+                              <td>{{ list.3 }}</td>
+
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="row margin-top" id="">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if finished_all_experiment %}
+                        <h2 style="align-content: center; color: #062c6f;"><b>Return Home for more <a href="https://intercomprehension.coli.uni-saarland.de/en/Experiments/">Experiments</a> </b></h2>
+
+                    {% else %}
+                        <div class="col-xs-2">
+                            <button id="" type="submit" class="btn btn-success btn-block">{% trans 'LADO_START_EXPERIMENT_BUTTON' %}</button>
+                        </div>
+                    {% endif %}
+                </form>
+
+            </div>
+
+{##}
+{#            <div class="row" id="trial_div">#}
+{#                <div class="col-xs-4 col-sm-4">#}
+{##}
+{#                    <audio id="lblAudio_token1">#}
+{#                        <source id="source_mp3_token1" src="" type="audio/mp3">#}
+{#                    </audio>#}
+{##}
+{#                    <audio id="lblAudio_token2">#}
+{#                        <source id="source_mp3_token2" src="" type="audio/mp3">#}
+{#                    </audio>#}
+{##}
+{#                    <input type="hidden" id="audio_count" name="audio_count" value="0">#}
+{##}
+{##}
+{#                  <button id="button_token1" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_1_BUTTON_TEXT' %}</button>#}
+{##}
+{#                    <input type="hidden" id="hdnQuestionId">#}
+{#                    <input type="hidden", id="hdnAnswerId">#}
+{#                    <input type="hidden" id="runningCurrect">#}
+{#                </div>#}
+{##}
+{#                <div class="col-xs-2">#}
+{#                    <p class="task-translate-arrow">#}
+{#                        >#}
+{#                    </p>#}
+{#                </div>#}
+{##}
+{#                <div class="col-xs-4">#}
+{##}
+{#                    <button id="button_token2" type="button" class="btn btn-success btn-block">{% trans 'TOKEN_2_BUTTON_TEXT' %}</button>#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#        #}
+
+    </div>
+
+
+{% endblock %}
+{% block scripts %}
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script type="text/javascript">
+
+
+
+            {#$("#trial_div").hide();#}
+
+
+            var audio_1 = $("#lblAudio_token1");
+            var audio_2 = $("#lblAudio_token2");
+            var token1_btn = document.getElementById("button_token1");
+            var token2_btn = document.getElementById("button_token2");
+
+            var answer_start_time = 0;
+            var answer_end_time = 0;
+            var key_fired = false;
+            var user_answer = '';
+            var count = 0;
+
+        $(document).ready(function () {
+
+            $("#start_exp_div").show();
+            $("#trial_div").hide();
+            $("#trial_btn").hide();
+
+
+            $("#trial_btn").click(function () {
+                $("#trial_div").show();
+                $("#trial_btn").hide();
+                fetchFirstAudio();
+            });
+
+            {#$('.other_language').select2();#}
+
+        function playAudio1() {
+            token1_btn.disabled = false;
+            audio_1.get(0).play();
+            console.log("playing audio 1");
+
+            audio_1[0].onended = function (ev){
+                token1_btn.disabled = true;
+                setTimeout(function() {
+                    playAudio2();
+                }, 250);
+
+            };
+        };
+
+        function playAudio2() {
+            token2_btn.disabled = false;
+            audio_2.get(0).play();
+            audio_2[0].onended = function (ev) {
+                console.log('working');
+                token2_btn.disabled = true;
+            };
+            key_fired = false;
+            answer_start_time = window.performance.now();
+            keyPressEvent();
+        };
+
+        function fetchFirstAudio(){
+
+            console.log('here');
+            var context = new AudioContext();
+
+
+            var dataObj = {
+                count : count
+            };
+            dataObj["csrfmiddlewaretoken"] = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/LanguageGameExperiment/PrimalTaskExperimentText/',
+                data: dataObj,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    count = data['count'];
+                    if(data['count'] < 5) {
+
+
+                        {##}
+                        {#$("#hdnAnswerId").val(data['answer_id']);#}
+                        {#$("#runningCurrect").val(data['running_correct']);#}
+
+                        $("#source_mp3_token1").attr("src", data['token1_filepath']);
+                        audio_1[0].pause();
+                        audio_1[0].load();
+
+                        $("#source_mp3_token2").attr("src", data['token2_filepath']);
+                        audio_2[0].pause();
+                        audio_2[0].load();
+                        playAudio1();
+
+                        {#context.resume().then(() = > {#}
+                        {##}
+                        {#    playAudio1();#}
+                        {##}
+
+                    }
+                    else
+                    {
+                        $("#trial_div").hide();
+                        $("#trial_btn").hide();
+                        $("#start_exp_div").show(500);
+                    }
+
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert("Please report this error: " + errorThrown + xhr.status + xhr.responseText);
+                }
+            });
+
+        }
+
+        function keyPressEvent() {
+            $(document).on('keydown',function(e) {
+
+
+                console.log("keypress");
+                if(e.which == 65 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'word';
+                    fetchFirstAudio();
+                }
+                if(e.which == 76 && key_fired == false) {
+                    key_fired = true;
+                    user_answer = 'non-word';
+                    fetchFirstAudio();
+                }
+            });
+        }
+
+
+
+
+    });
+
+    </script>
+
+
+    
+
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "adminpanel/Base.html" %}
+{% load i18n %}
+{% block content %}
+
+<style type="text/css">
+    h1, h2, h3, h4 {
+        color: green;
+        font-weight: bold;
+    }
+
+    .bg-hover:hover {
+        background-color: whitesmoke;
+    }
+</style>
+
+	<div class="content-div col-lg-12 col-xs-12 task-background" style="padding-top:50px;">
+		{{message}}
+
+        {% if total_entry_count %}
+            <h4>Total row inserted {{ total_entry_count }}</h4>
+        {% endif %}
+		<div class="row">
+	        <div class="col-md-12">
+	            <h2><u> Submit path to export questions</u></h2>
+	        </div>
+	    </div>
+		<div class="row">
+			<div class="col-md-8">
+                {% load staticfiles %}
+
+				<form id="form" action="" method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					
+
+					<div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>Experiment Name:</label>
+			            </div>
+			            <div class="col-md-6">
+				            <input type="text" class="form-control" name="experiment_name" value="{{ exp_obj.experiment_name }}" disabled>
+					  	</div>
+			            
+			        </div>
+
+                    <div class="row margin-top">
+			            <div class="col-md-4">
+			                <label>CSV File Path:</label>
+			            </div>
+			            <div class="col-md-6">
+{#				            <input type="text" class="form-control" name="csv_file_path" placeholder="Be careful, the file has to be in the server location" >#}
+					  	    <input type="file" name="question_file">
+                        </div>
+
+			        </div>
+
+					<div class="row margin-top">
+						<div class="col-md-4 offset-md-4">
+					  		<button type="submit" class="btn btn-primary">Submit</button>
+					  	</div>
+				  	</div>
+				  	
+				</form>
+			</div>
+		</div>
+
+	
+	
+	{% if question_list %}
+	<div class="row margin-top">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				
+				<h4> {{ exp_obj.experiment_name }} Questions list</h4>
+				{% if link %}
+				<a href="{{ link }}"><b> Download CSV </b></a>
+				{% endif %}
+
+			</div>
+			<div class="panel-body">
+				<table class="table table-sm table-striped" id="table1">
+
+					<thead>
+						<th>Id</th>
+                        <th>Token1</th>
+						<th>Token1 File</th>
+                        <th>Token2</th>
+                        <th>Token2 File</th>
+                        <th>Priming type</th>
+						<th>Correct Response</th>
+                        <th>Phonetic Distance</th>
+
+						
+						
+					</thead>	
+					<tbody>
+						{% for list in  question_list %}
+						<tr>
+						<td>{{ list.id }}</td>
+                        <td>{{ list.token1_name }} ({{ list.token1_language }})</td>
+						<td><audio controls>
+                                  <source src="{{ MEDIA_URL }}{{ list.token1_filename }}" type="audio/ogg">
+
+                                  Your browser does not support the audio tag
+                             </audio>
+                        </td>
+                        <td>{{ list.token2_name }} ({{ list.token2_language }})</td>
+                        <td>
+                             <audio controls>
+                                  <source src="{{ MEDIA_URL }}{{ list.token2_filename }}" type="audio/ogg">
+
+                                  Your browser does not support the audio tag
+                             </audio>
+                        </td>
+                        <td>{{ list.priming_type }}</td>
+                        <td>{{ list.correct_response }}</td>
+						
+                        <td>{{ list.phonetic_distance }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+					
+
+				</table>
+			</div>
+		</div>
+	</div>
+
+	{% endif %}
+	    
+
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+	<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js "></script>
+
+    <script type="text/javascript">
+
+    	$(document).ready(function() {
+
+	    	$('#table1').DataTable({
+	    		"order": [] 
+	    	});
+	
+		} );
+
+    </script>
+{% endblock %}
